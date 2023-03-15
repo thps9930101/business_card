@@ -55,7 +55,7 @@ class Media extends Resource
                     $value,
                     now()->addMinutes(5)
                 ):null;
-            }),
+            })->hideFromIndex(),
             File::make('影片','video'),
             BelongsTo::make('訂單','order','App\Nova\Order'),
 
@@ -105,4 +105,16 @@ class Media extends Resource
     {
         return [];
     }
+
+       // customize the label
+       public static function label()
+       {
+           return '影片管理';
+       }
+
+       // customize the singular label
+       public static function singularLabel()
+       {
+           return '影片';
+       }
 }

@@ -117,4 +117,16 @@ class User extends Resource
     {
         return [];
     }
+
+     // customize the label
+     public static function label()
+     {
+         return '用戶管理';
+     }
+
+     // customize the singular label
+     public static function singularLabel()
+     {
+         return '用戶';
+     }
 }

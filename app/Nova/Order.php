@@ -92,4 +92,16 @@ class Order extends Resource
     {
         return [];
     }
+
+     // customize the label
+     public static function label()
+     {
+         return '訂單管理';
+     }
+
+     // customize the singular label
+     public static function singularLabel()
+     {
+         return '訂單';
+     }
 }

@@ -89,4 +89,16 @@ class Device extends Resource
     {
         return [];
     }
+
+     // customize the label
+     public static function label()
+     {
+         return '裝置管理';
+     }
+
+     // customize the singular label
+     public static function singularLabel()
+     {
+         return '裝置';
+     }
 }

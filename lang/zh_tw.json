@@ -1,0 +1,26 @@
+{
+    "Profile":"帳戶",
+    "Settings":"設定",
+    "Log Out":"登出",
+    "Delete Account":"刪除帳戶",
+    "Dashboard":"主控台",
+    "Create":"新增",
+    "Profile Information":"會員專區",
+    "Update your account's profile information and email address.":"更新您的帳戶資料和電子郵件地址。",
+    "Name":"姓名",
+    "Email":"電子郵件",
+    "Password":"密碼",
+    "Confirm Password":"確認密碼",
+    "Update":"更新",
+    "Your email address is unverified.":"電子郵件尚未認證",
+    "Click here to re-send the verification email.":"點擊這裡重新發送認證郵件",
+    "A new verification link has been sent to your email address.":"新的認證連結已經發送到您的電子郵件地址。",
+    "Saved.":"儲存成功",
+    "Save":"儲存",
+    "Cancel":"取消",
+    "Update Password":"更新密碼",
+    "Ensure your account is using a long, random password to stay secure.":"確保您的帳戶使用一個長而複雜的密碼來保持安全。",
+    "Current Password":"目前密碼",
+    "New Password":"新密碼"
+
+}
