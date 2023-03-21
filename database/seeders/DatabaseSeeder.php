@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             'password'=> Hash::make( env('SYSTEM_PASSWORD'))
         ]);
 
-        \App\Models\User::factory(10)->create();
+        if(env('APP_ENV') != 'production'){
+            \App\Models\User::factory(10)->create();
+        }
     }
 }
