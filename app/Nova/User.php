@@ -129,4 +129,17 @@ class User extends Resource
      {
          return '用戶';
      }
+
+     /**
+     * Build an "index" query for the given resource.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+   /*  public static function indexQuery(NovaRequest $request, $query)
+    {
+        if($user->level == 3)
+        return $query->where('user_id', $request->user()->id);
+    } */
 }

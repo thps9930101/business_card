@@ -17,9 +17,34 @@ use App\Http\Controllers\ApiController;
 
 //login
 Route::post('/login',[ApiController::class, 'login']);
+//register
+Route::post('/register',[ApiController::class, 'register']);
+
+//forget password
+Route::post('/forgetPassword',[ApiController::class, 'forgetPassword']);
+
+//register member
+Route::any('/registerMember/{code}',[ApiController::class, 'registerMember'])->name('registerMember');
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    echo 123;
     return $request->user();
+
+});
+
+Route::group(['middleware' => ['auth:sanctum']], function () {
+     //updateMemberName
+     Route::post('/updateMemberName',[ApiController::class, 'updateMemberName']);
+
+     //updatePassword
+     Route::post('/updatePassword',[ApiController::class, 'updatePassword']);
+
+     //queryOrderList
+     Route::post('/queryOrderList',[ApiController::class, 'queryOrderList']);
+
+     //updateVideoName
+     Route::post('/updateVideoName/{id}',[ApiController::class, 'updateVideoName']);
+
+     //resend confirmation mail
+    Route::post('/sendConfirmEmail',[ApiController::class, 'sendConfirmEmail']);
 });

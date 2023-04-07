@@ -1,9 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,5 +30,12 @@ Route::middleware('auth')->group(function () {
 Route::get('login',function(){
     return ['status'=>'error','message' => 'User not logged in'];
 })->name('login');
+
+//下面這兩個是原生的auth starter kit, 如果要其他的請把最下面那個註解打開
+Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
+->name('password.reset');
+
+Route::post('reset-password', [NewPasswordController::class, 'store'])
+->name('password.store');
 
 /* require __DIR__.'/auth.php'; */

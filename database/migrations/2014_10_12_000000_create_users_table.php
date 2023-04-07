@@ -19,7 +19,10 @@ return new class extends Migration
             $table->string('password');
             //user types tiny integer
             $table->boolean('is_admin')->default(false);
-
+            //confirm code
+            $table->string('confirm_code')->nullable();
+            //confirm code expire time
+            $table->dateTime('confirm_code_expired_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
