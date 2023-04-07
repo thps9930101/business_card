@@ -23,6 +23,10 @@ return new class extends Migration
             $table->string('confirm_code')->nullable();
             //confirm code expire time
             $table->dateTime('confirm_code_expired_at')->nullable();
+            //belong to which store nullable foreign constraint delete set null
+            $table->foreignId('store_id')->nullable();
+            //user is admin in which store
+            $table->boolean('is_store_admin')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

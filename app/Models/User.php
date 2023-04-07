@@ -60,5 +60,12 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    /**
+     * belongs to store
+     */
+    public function store(){
+        return $this->belongsTo(Store::class);
+    }
+
 
 }

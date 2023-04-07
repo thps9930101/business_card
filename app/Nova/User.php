@@ -6,9 +6,11 @@ use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Text;
 use Illuminate\Validation\Rules;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Gravatar;
 use Laravel\Nova\Fields\Password;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class User extends Resource
@@ -71,6 +73,13 @@ class User extends Resource
 
             //has many devices
             HasMany::make('裝置','devices','App\Nova\Device'),
+
+            //belongs to store
+            BelongsTo::make('商店','store','App\Nova\Store')
+            ->nullable(),//show store name
+
+            //is store admin
+            Boolean::make('商店管理員','is_store_admin'),
         ];
     }
 

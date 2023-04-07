@@ -23,7 +23,12 @@ class DatabaseSeeder extends Seeder
         ]);
 
         if(env('APP_ENV') != 'production'){
-            \App\Models\User::factory(10)->create();
+
+            $this->call([
+                UserSeeder::class,
+                StoreSeeder::class,
+            ]);
         }
+
     }
 }
