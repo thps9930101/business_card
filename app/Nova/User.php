@@ -47,7 +47,7 @@ class User extends Resource
     public function fields(NovaRequest $request)
     {
         return [
-            ID::make()->sortable(),
+            ID::make()->sortable()->hideFromIndex(),
 
             Text::make('Name')
                 ->sortable()
@@ -81,6 +81,17 @@ class User extends Resource
             //is store admin
             Boolean::make('商店管理員','is_store_admin'),
         ];
+    }
+
+    /**
+     * index filter only store admin or super admin can see
+     */
+    public static function indexQuery(NovaRequest $request, $query){
+        if($request->user()->is_admin){
+            return $query;
+        }else{
+            return $query->where('store_id',$request->user()->store_id);
+        }
     }
 
     /**
