@@ -19,8 +19,10 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             //cover image
             $table->string('cover')->nullable();
-            //videos
-            $table->string('video')->nullable();
+            //obj
+            $table->string('obj')->nullable();
+            //status
+            $table->boolean('status')->default(0);
             $table->timestamps();
         });
     }
