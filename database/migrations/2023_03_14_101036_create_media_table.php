@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             //forign order_id
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
+            //media type
+            $table->string('type');
             //cover image
             $table->string('cover')->nullable();
             //obj
