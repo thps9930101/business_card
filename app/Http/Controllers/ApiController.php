@@ -194,6 +194,38 @@ class ApiController extends Controller
     }
 
     /**
+     * update user
+     */
+    public function userUpdate(Request $request){
+
+            $validator = Validator::make($request->all(),[
+                'name' => 'required',
+                'phone' => 'nullable|regex:/^09\d{2}-?\d{3}-?\d{3}$/', //手機號碼
+                'password' => 'nullable|password|confirmed',
+                'old_password'=>'nullable|required_with:password|current_password'
+            ]);
+
+            if($validator->failed()){
+                return [
+                    'success' => false,
+                    'message' => '更新用戶資料失敗，請檢查輸入資料',
+                    'errors'=> $validator->errors()->toArray()
+                ];
+            }
+
+            $user = Auth::user();
+            $user->name = $request->name;
+            $user->phone = $request->phone;
+            $user->password = Hash::make($request->password);
+            $user->save();
+
+            return [
+                'success'=>true,
+                'message'=>'update user success!'
+            ];
+    }
+
+    /**
      * update member name
      */
     public function updateMemberName(Request $request){
