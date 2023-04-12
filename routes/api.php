@@ -39,6 +39,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
      //updatePassword
      Route::post('/updatePassword',[ApiController::class, 'updatePassword']);
 
+     //userUpdate
+     Route::put('/userUpdate',[ApiController::class, 'userUpdate']);
+
      //queryOrderList
      Route::post('/queryOrderList',[ApiController::class, 'queryOrderList']);
 
