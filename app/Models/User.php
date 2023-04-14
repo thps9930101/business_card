@@ -46,8 +46,8 @@ class User extends Authenticatable
     protected function phone(): Attribute
     {
         return Attribute::make(
-            get: fn (string $value) => str_replace('-','',$value),//format can be either 09xx-xxx-xxx or 09xxxxxxxx and should be cast to 09xxxxxxxx
-            set: fn (string $value) => str_replace('-','',$value),//format can be either 09xx-xxx-xxx or 09xxxxxxxx and should be cast to 09xxxxxxxx
+            get: fn ( $value) => $value ? str_replace('-','',$value) : null,//format can be either 09xx-xxx-xxx or 09xxxxxxxx and should be cast to 09xxxxxxxx
+            set: fn ( $value) => $value ? str_replace('-','',$value) : null,//format can be either 09xx-xxx-xxx or 09xxxxxxxx and should be cast to 09xxxxxxxx
         );
     }
 
