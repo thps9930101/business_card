@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\ConfirmUserCode;
+use App\Repository\OrderRepository;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
@@ -314,6 +316,32 @@ class ApiController extends Controller
             'success'=>true,
             'message'=>'update video name success!'
         ];
+    }
+
+    /**
+     * upload picture
+     */
+    public function uploadPicture(Request $request){
+
+            $validator = Validator::make($request->all(),[
+                'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            ]);
+
+            if($validator->failed()){
+                return [
+                    'success' => false,
+                    'message' => '上傳圖片失敗，請檢查輸入資料',
+                    'errors'=> $validator->errors()->toArray()
+                ];
+            }
+            //create new order, media and store file to storage
+            $repository = new OrderRepository();
+            $order = $repository->userUploadMedia($request);
+
+            return [
+                'success'=>true,
+                'message'=>'upload picture success!',
+            ];
     }
 
 }

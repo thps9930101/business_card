@@ -56,7 +56,7 @@ class Media extends Resource
                     now()->addMinutes(5)
                 ):null;
             })->hideFromIndex(),
-            File::make('影片','video'),
+            File::make('影片','obj'),
             BelongsTo::make('訂單','order','App\Nova\Order'),
 
         ];

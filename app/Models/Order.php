@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,5 +20,19 @@ class Order extends Model
     public function media()
     {
         return $this->hasMany(Media::class);
+    }
+
+    //getter for status
+    public function status(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => match($value){
+                0 => '接到訂單',
+                1 => '處理中',
+                2 => '已完成',
+                3 => '取消',
+                default => 'unknown',
+            },
+        );
     }
 }

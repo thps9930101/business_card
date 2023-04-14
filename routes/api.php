@@ -50,4 +50,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
      //resend confirmation mail
     Route::post('/sendConfirmEmail',[ApiController::class, 'sendConfirmEmail']);
+
+    //upload picture from frontend
+    Route::post('/uploadPicture',[ApiController::class, 'uploadPicture']);
 });

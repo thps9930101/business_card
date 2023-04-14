@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->unsigned()->index();
+            //order status 0:pending 1:processing 2:completed 3:cancelled
+            $table->integer('status')->default(0);
             $table->timestamps();
         });
     }
