@@ -53,4 +53,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     //upload picture from frontend
     Route::post('/uploadPicture',[ApiController::class, 'uploadPicture']);
+
+    //get user orders
+    Route::get('/orders',[ApiController::class, 'orders']);
+
+    //get user videos
+    Route::get('/videos',[ApiController::class, 'videos']);
 });
