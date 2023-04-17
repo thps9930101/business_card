@@ -33,8 +33,8 @@ class Media extends Model
     {
         return Attribute::make(
             get: fn($value) => match($value){
-                false => '尚未處理',
-                true => '已經處理',
+                0 => '尚未處理',
+                1 => '已經處理',
                 default => 'unknown',
             },
         );
