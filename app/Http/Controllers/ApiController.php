@@ -344,4 +344,36 @@ class ApiController extends Controller
             ];
     }
 
+    /**
+     * get user videos
+     */
+    public function videos(){
+
+        $videos = Media::where('user_id', Auth::id())->paginate(10);
+
+        return [
+            'success'=>true,
+            'message'=>[
+                'videos'=>$videos,
+                'count'=> $videos->count()
+            ],
+        ];
+    }
+
+    /**
+     * get user orders
+     */
+    public function orders(){
+
+        $orders = Order::where('user_id', Auth::id())->paginate(10);
+
+        return [
+            'success'=>true,
+            'message'=>[
+                'orders'=>$orders,
+                'count'=> $orders->count()
+            ],
+        ];
+    }
+
 }
