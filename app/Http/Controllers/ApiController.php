@@ -11,6 +11,8 @@ use App\Repository\OrderRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\ConfirmUserCode;
+use App\Http\Resources\MediaCollection;
+use App\Http\Resources\OrderCollection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
@@ -355,9 +357,7 @@ class ApiController extends Controller
 
         return [
             'success'=>true,
-            'message'=>[
-                'videos'=>ResourceMedia::collection($videos),
-            ],
+            'message'=>new MediaCollection (Media::where('user_id', Auth::id())->paginate(10)),
         ];
     }
 
@@ -368,9 +368,7 @@ class ApiController extends Controller
 
         return [
             'success'=>true,
-            'message'=>[
-                'orders'=>ResourcesOrder::collection(Order::where('user_id', Auth::id())->paginate(10)),
-            ],
+            'message'=>new OrderCollection (Order::where('user_id', Auth::id())->paginate(10)),
         ];
     }
 
