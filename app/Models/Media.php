@@ -27,14 +27,21 @@ class Media extends Model
     }
 
     /**
+     * belongs to device
+     */
+    public function device(){
+        return $this->belongsTo(Device::class);
+    }
+
+    /**
      * getter for status
      */
     public function status(): Attribute
     {
         return Attribute::make(
             get: fn($value) => match($value){
-                0 => '尚未處理',
-                1 => '已經處理',
+                0 => 'processing',
+                1 => 'finished',
                 default => 'unknown',
             },
         );
@@ -47,8 +54,8 @@ class Media extends Model
     {
         return Attribute::make(
             get: fn($value) => match($value){
-                0 => '影片',
-                1 => '照片',
+                0 => 'video',
+                1 => 'photo',
                 default => 'unknown',
             },
         );

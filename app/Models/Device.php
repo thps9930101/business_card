@@ -13,4 +13,9 @@ class Device extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
+
+    //has many media
+    public function media(){
+        return $this->hasMany(Media::class);
+    }
 }

@@ -27,10 +27,10 @@ class Order extends Model
     {
         return Attribute::make(
             get: fn($value) => match($value){
-                0 => '接到訂單',
-                1 => '處理中',
-                2 => '已完成',
-                3 => '取消',
+                0 => 'Order Placed',
+                1 => 'Processing',
+                2 => 'Finished',
+                3 => 'Cancelled',
                 default => 'unknown',
             },
         );
