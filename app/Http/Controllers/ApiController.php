@@ -7,13 +7,15 @@ use App\Models\Media;
 use App\Models\Order;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Repository\OrderRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Notifications\ConfirmUserCode;
-use App\Repository\OrderRepository;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\Media as ResourceMedia;
+use App\Http\Resources\Order as ResourcesOrder;
 
 class ApiController extends Controller
 {
@@ -354,8 +356,7 @@ class ApiController extends Controller
         return [
             'success'=>true,
             'message'=>[
-                'videos'=>$videos,
-                'count'=> $videos->count()
+                'videos'=>ResourceMedia::collection($videos),
             ],
         ];
     }
@@ -365,13 +366,10 @@ class ApiController extends Controller
      */
     public function orders(){
 
-        $orders = Order::where('user_id', Auth::id())->paginate(10);
-
         return [
             'success'=>true,
             'message'=>[
-                'orders'=>$orders,
-                'count'=> $orders->count()
+                'orders'=>ResourcesOrder::collection(Order::where('user_id', Auth::id())->paginate(10)),
             ],
         ];
     }
