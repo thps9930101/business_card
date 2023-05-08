@@ -379,8 +379,8 @@ class ApiController extends Controller
         foreach($videos as $video){
             $pics[] = (object)['id'=>$video->id,
             'name'=>$video->name,
-            'obj'=>Storage::disk('s3')->temporaryUrl($video->obj, now()->addHour()),
-            'path'=>$video->obj];
+            'obj'=>Storage::disk('s3')->temporaryUrl($video->original, now()->addHour()),
+            'path'=> (new OrderRepository($video->order))->getPath($video->id)];
         }
         return [
             'success'=>true,
@@ -389,12 +389,25 @@ class ApiController extends Controller
     }
 
     public function set2DpicFinish(Request $request){
-        $p = Media::where('id', $request->id)->first();
-        if($p){
-            $p->status = 1;
-            $p->obj = $request->obj;
-            $p->cover = $request->cover;
-            $p->save();
+
+        $validator = Validator::make($request->all(),[
+            'id' => 'required|exists:media,id',
+        ]);
+
+        if($validator->failed()){
+            return [
+                'success' => false,
+                'message' => '上傳圖片失敗，請檢查輸入資料',
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $media = Media::where('id', $request->id)->first();
+        if($media){
+            $repo = new OrderRepository($media->order);
+            $media->status = 1;
+            $media->obj = $repo->getPath($media->id);
+            $media->save();
         }
         return [
             'success'=>true

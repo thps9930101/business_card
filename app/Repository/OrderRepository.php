@@ -27,19 +27,24 @@ class OrderRepository
             $user = $request->user();
             $order->user_id = $user->id;
             $order->save();
-
             $media = new Media;
             $media->order_id = $order->id;
+            $media->name = '3d圖片';
             $media->user_id = $user->id;
             $media->type = 1;
             $media->save();
-            $path = $request->file('pic')->store(env('APP_ENV')."/$user->id/$order->id/$media->id/obj",'s3');
-            $media->obj = $path;
+            $path = $request->file('pic')->store(env('APP_ENV')."/$user->id/$order->id/$media->id/original",'s3');
+            $media->original = $media->obj = $path;
             $media->save();
 
         });
 
         return $this;
+    }
+
+    public function getPath($mediaId=null){
+        $mediaId = $mediaId?? $this->order->media->first()->id;
+        return env('APP_ENV')."/".$this->order->user->id."/".$this->order->id."/$mediaId/obj/$mediaId.obj";
     }
 
 }

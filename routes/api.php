@@ -45,7 +45,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
      Route::put('/userUpdate',[ApiController::class, 'userUpdate']);
 
      //queryOrderList
-     Route::post('/queryOrderList',[ApiController::class, 'queryOrderList']);
+     Route::post('/queryOrderList',[ApiController::class, 'orders']);
 
      //updateVideoName
      Route::post('/updateVideoName/{id}',[ApiController::class, 'updateVideoName']);

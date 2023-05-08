@@ -36,7 +36,7 @@ class Media extends Model
     /**
      * getter for status
      */
-    public function status(): Attribute
+   /*  public function status(): Attribute
     {
         return Attribute::make(
             get: fn($value) => match($value){
@@ -45,7 +45,7 @@ class Media extends Model
                 default => 'unknown',
             },
         );
-    }
+    } */
 
     /**
      * getter for type
