@@ -9,6 +9,9 @@ class Device extends Model
 {
     use HasFactory;
 
+    //guarded
+    protected $guarded = ['id'];
+
     //belongs to user
     public function user(){
         return $this->belongsTo(User::class);

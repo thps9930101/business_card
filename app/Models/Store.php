@@ -10,6 +10,11 @@ class Store extends Model
     use HasFactory;
 
     /**
+     * guarded
+     */
+    protected $guarded = ['id'];
+
+    /**
      * has many users
      */
     public function users(){

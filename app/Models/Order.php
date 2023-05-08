@@ -10,6 +10,9 @@ class Order extends Model
 {
     use HasFactory;
 
+    //guarded
+    protected $guarded = ['id'];
+
     //belongs to user
     public function user()
     {
