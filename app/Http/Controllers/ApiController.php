@@ -349,6 +349,32 @@ class ApiController extends Controller
     }
 
     /**
+     * upload canvas picture
+     */
+    public function uploadCanvas(Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:2048',
+        ]);
+
+        if($validator->failed()){
+            return [
+                'success' => false,
+                'message' => '上傳圖片失敗，請檢查輸入資料',
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+        //create new order, media and store file to storage
+        $repository = new OrderRepository();
+        $order = $repository->userUploadMediaFromCanvas($request);
+
+        return [
+            'success'=>true,
+            'message'=>'upload picture success!',
+        ];
+}
+
+    /**
      * get user videos
      */
     public function videos(){
