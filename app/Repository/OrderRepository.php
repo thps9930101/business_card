@@ -32,9 +32,11 @@ class OrderRepository
             $media->order_id = $order->id;
             $media->user_id = $user->id;
             $media->type = 1;
+            $media->save();
             $path = $request->file('pic')->store(env('APP_ENV')."/$user->id/$order->id/$media->id/obj",'s3');
             $media->obj = $path;
             $media->save();
+
         });
 
         return $this;
