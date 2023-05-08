@@ -26,6 +26,8 @@ Route::post('/forgetPassword',[ApiController::class, 'forgetPassword']);
 //register member
 Route::any('/registerMember/{code}',[ApiController::class, 'registerMember'])->name('registerMember');
 
+Route::post('/get2Dpics',[ApiController::class, 'get2Dpics']);
+Route::post('/set2DpicFinish',[ApiController::class, 'set2DpicFinish']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

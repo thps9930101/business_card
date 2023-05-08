@@ -31,6 +31,10 @@ Route::get('/', function () {
     return redirect('/admin/login');
 });
 
+Route::get('/test', function () {
+    return view('welcome');
+});
+
 Route::get('login',function(){
     return ['status'=>'error','message' => 'User not logged in'];
 })->name('login');

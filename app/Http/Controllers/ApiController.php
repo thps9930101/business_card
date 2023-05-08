@@ -372,4 +372,30 @@ class ApiController extends Controller
         ];
     }
 
+    public function get2Dpics(){
+
+        $videos = Media::where('type', 1)->where('status', 0)->get();
+        $pics = [];
+        foreach($videos as $video){
+            $pics[] = (object)['id'=>$video->id, 'name'=>$video->name, 'obj'=>$video->obj];
+        }
+        return [
+            'success'=>true,
+            'message'=>$pics,
+        ];
+    }
+
+    public function set2DpicFinish(Request $request){
+        $p = Media::where('id', $request->id)->first();
+        if($p){
+            $p->status = 1;
+            $p->obj = $request->obj;
+            $p->cover = $request->cover;
+            $p->save();
+        }
+        return [
+            'success'=>true
+        ];
+    }
+
 }

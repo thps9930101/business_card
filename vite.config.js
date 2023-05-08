@@ -1,5 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import fs from 'fs';
+const host = '4d.lightmatrix3d.com';
 
 export default defineConfig({
     plugins: [
@@ -11,4 +13,13 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        host,
+        hmr: { host },
+        https: {
+            key: fs.readFileSync(`/etc/letsencrypt/live/${host}/privkey.pem`),
+            cert: fs.readFileSync(`/etc/letsencrypt/live/${host}/fullchain.pem`),
+        },
+    },
+
 });
