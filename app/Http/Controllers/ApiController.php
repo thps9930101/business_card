@@ -328,7 +328,7 @@ class ApiController extends Controller
     public function uploadPicture(Request $request){
 
             $validator = Validator::make($request->all(),[
-                'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:2048',
             ]);
 
             if($validator->failed()){
@@ -379,7 +379,7 @@ class ApiController extends Controller
         foreach($videos as $video){
             $pics[] = (object)['id'=>$video->id,
             'name'=>$video->name,
-            'obj'=>Storage::disk('s3')->temporaryUrl($video->original, now()->addHour()),
+            'obj'=>Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()),
             'path'=> (new OrderRepository($video->order))->getPath($video->id)];
         }
         return [

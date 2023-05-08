@@ -18,7 +18,7 @@ class Media extends JsonResource
         return [
             'id'=>$this->id,
             'type'=>$this->type,
-            'cover'=> $this->status && $this->cover? Storage::disk('s3')->temporaryUrl($this->cover, now()->addHour()) : null,
+            'cover'=> $this->cover? Storage::disk('s3')->temporaryUrl($this->cover, now()->addHour()) : null,
             'obj'=> $this->status && $this->obj? Storage::disk('s3')->temporaryUrl($this->obj, now()->addHour()): null,
             'status'=>$this->status,
             'name'=>$this->name,
