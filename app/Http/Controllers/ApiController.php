@@ -377,7 +377,10 @@ class ApiController extends Controller
         $videos = Media::where('type', 1)->where('status', 0)->get();
         $pics = [];
         foreach($videos as $video){
-            $pics[] = (object)['id'=>$video->id, 'name'=>$video->name, 'obj'=>$video->obj];
+            $pics[] = (object)['id'=>$video->id,
+            'name'=>$video->name,
+            'obj'=>Storage::disk('s3')->temporaryUrl($video->obj, now()->addHour()),
+            'path'=>$video->obj];
         }
         return [
             'success'=>true,
