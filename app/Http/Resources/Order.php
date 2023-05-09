@@ -20,7 +20,7 @@ class Order extends JsonResource
 
         return [
             'id'=>$this->id,
-            'date'=>$this->created_at,
+            'date'=>$this->created_at->format('Y-m-d H:i:s'),
             'progress'=>$processed .'/' . $total,
             'media'=> Media::collection($media)
         ];

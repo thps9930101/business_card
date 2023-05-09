@@ -237,7 +237,7 @@ class ApiController extends Controller
     public function updateMemberName(Request $request){
 
         $validator = Validator::make($request->all(),[
-            'name' => 'required',
+            'name' => 'required|string',
         ]);
 
         if($validator->failed()){
@@ -291,13 +291,9 @@ class ApiController extends Controller
      */
     public function queryOrderList(){
 
-        $orders =Order::where('user_id', Auth::id())->get();
         return [
             'success'=>true,
-            'message'=>[
-                'orders'=>$orders,
-                'count'=> $orders->count()
-            ],
+            'message'=>new OrderCollection (Order::where('user_id', Auth::id())->paginate(999999)),
         ];
     }
 
