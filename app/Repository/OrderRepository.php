@@ -101,7 +101,7 @@ class OrderRepository
 
     public function getPath($mediaId=null){
         $mediaId = $mediaId?? $this->order->media->first()->id;
-        return env('APP_ENV')."/".$this->order->user->id."/".$this->order->id."/$mediaId/obj/$mediaId.obj";
+        return env('APP_ENV')."/".$this->order->user->id."/".$this->order->id."/$mediaId/obj/$mediaId.png";
     }
 
     public function getOrigianlFolderPath($mediaId=null){
