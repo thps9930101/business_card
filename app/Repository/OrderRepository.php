@@ -95,6 +95,10 @@ class OrderRepository
         $data = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $dataUrl));
         $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
         file_put_contents($tmpFilePath, $data);
+        $image = Image::make($tmpFilePath);
+        // Access underlying Imagick instance and trim image
+        $image->getCore()->trimImage(0);
+        $image->save($tmpFilePath);
 
         return new \Illuminate\Http\UploadedFile($tmpFilePath, 'image.png', 'image/png', null, true);
     }
