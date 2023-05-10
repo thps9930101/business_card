@@ -11,6 +11,8 @@ class OrderRepository
 {
     protected $order;
 
+    protected $media;
+
     public function __construct($order= null){
         $this->order = $order?? new Order;
     }
@@ -23,6 +25,18 @@ class OrderRepository
         return $this->order;
         return $this;
     }
+
+    public function setMedia($media){
+        $this->media = $media;
+        return $this;
+    }
+
+    public function getMedia(){
+        return $this->media;
+        return $this;
+    }
+
+
     public function userUploadMedia($request){
         DB::transaction(function () use ($request) {
             $order = $this->order;
@@ -50,6 +64,8 @@ class OrderRepository
             $media->cover = $coverPath;
 
             $media->save();
+
+            $this->media = $media;
 
         });
 
@@ -84,6 +100,8 @@ class OrderRepository
             $media->cover = $coverPath;
 
             $media->save();
+            $this->media = $media;
+
 
         });
 

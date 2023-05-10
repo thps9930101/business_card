@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CompleteTransformPic;
+use App\Events\PicUploaded;
 use App\Models\User;
 use App\Models\Media;
 use App\Models\Order;
@@ -293,7 +295,7 @@ class ApiController extends Controller
 
         return [
             'success'=>true,
-            'message'=>new OrderCollection (Order::where('user_id', Auth::id())->paginate(999999)),
+            'message'=>new OrderCollection (Order::where('user_id', Auth::id())->latest()->paginate(999999)),
         ];
     }
 
@@ -336,7 +338,7 @@ class ApiController extends Controller
             }
             //create new order, media and store file to storage
             $repository = new OrderRepository();
-            $order = $repository->userUploadMedia($request);
+            $repository->userUploadMedia($request);
 
             return [
                 'success'=>true,
@@ -362,7 +364,11 @@ class ApiController extends Controller
         }
         //create new order, media and store file to storage
         $repository = new OrderRepository();
-        $order = $repository->userUploadMediaFromCanvas($request);
+        $repository->userUploadMediaFromCanvas($request);
+
+        $media = $repository->getMedia();
+
+        event(new PicUploaded($media));
 
         return [
             'success'=>true,
@@ -430,6 +436,7 @@ class ApiController extends Controller
             $media->status = 1;
             $media->obj = $repo->getPath($media->id);
             $media->save();
+            event(new CompleteTransformPic($media));
         }
         return [
             'success'=>true
