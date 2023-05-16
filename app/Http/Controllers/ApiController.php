@@ -435,6 +435,7 @@ class ApiController extends Controller
             $repo = new OrderRepository($media->order);
             $media->status = 1;
             $media->obj = $repo->getPath($media->id);
+            $media->finish_time=now();
             $media->save();
             event(new CompleteTransformPic($media));
         }
