@@ -21,6 +21,8 @@ class Order extends JsonResource
         return [
             'id'=>$this->id,
             'date'=>$this->created_at->format('Y-m-d H:i:s'),
+            'type'=>$this->type,
+            'status'=>$this->status,
             'progress'=>$processed .'/' . $total,
             'media'=> Media::collection($media)
         ];
