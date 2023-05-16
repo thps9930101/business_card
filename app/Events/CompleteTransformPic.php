@@ -23,7 +23,7 @@ class CompleteTransformPic implements ShouldBroadcast
     public function __construct($media)
     {
         //
-        $this->userId = $media->id;
+        $this->userId = $media->user_id;
         $this->media_id = $media->id;
     }
 
