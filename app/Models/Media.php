@@ -12,6 +12,11 @@ class Media extends Model
 
     protected $guarded = ['id'];
 
+    /* cast finish_time to carbon */
+    protected $casts = [
+        'finish_time' => 'datetime',
+    ];
+
     /**
      * belongs to user
      */

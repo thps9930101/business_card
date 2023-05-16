@@ -22,8 +22,8 @@ class Media extends JsonResource
             'obj'=> $this->status && $this->obj? Storage::disk('s3')->temporaryUrl($this->obj, now()->addHour()): null,
             'status'=>$this->status,
             'name'=>$this->name,
-            'date'=>$this->created_at->format('Y-m-d'),
-            'finish_time'=>$this->finish_time? $this->finish_time->format('Y-m-d H:i:s') : null,
+            'date'=>$this->created_at->format('Y/m/d'),
+            'finish_time'=> $this->finish_time? $this->finish_time->format('Y/m/d') : null,
         ];
     }
 }
