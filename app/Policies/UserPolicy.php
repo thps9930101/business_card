@@ -21,7 +21,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-       return $user->store_id == $model->store_id;
+       return ($user->store_id == $model->store_id && $user->is_store_admin) || $user->id == $model->id;
     }
 
     /**
@@ -37,7 +37,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->is_store_admin && $user->store_id == $model->store_id;
+        return ($user->is_store_admin && $user->store_id == $model->store_id) || $user->id == $model->id;
     }
 
     /**

@@ -21,7 +21,7 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): bool
     {
-        return $user->store_id == $order->user->store_id;
+        return ($user->store_id == $order->user->store_id && $user->is_store_admin) || $order->user_id == $user->id;
     }
 
     /**
@@ -37,7 +37,7 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): bool
     {
-        return $user->store_id == $order->user->store_id;
+        return ($user->store_id == $order->user->store_id && $user->is_store_admin) || $order->user_id == $user->id;
     }
 
     /**
@@ -45,7 +45,7 @@ class OrderPolicy
      */
     public function delete(User $user, Order $order): bool
     {
-        return true;
+        return false;
     }
 
     /**

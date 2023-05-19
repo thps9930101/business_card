@@ -21,7 +21,7 @@ class MediaPolicy
      */
     public function view(User $user, Media $media): bool
     {
-        return $media->user->store_id == $user->store_id;
+        return ($media->user->store_id == $user->store_id && $user->is_store_admin )|| $media->user_id == $user->id;
     }
 
     /**
@@ -37,7 +37,7 @@ class MediaPolicy
      */
     public function update(User $user, Media $media): bool
     {
-        return $media->user->store_id == $user->store_id || $media->user_id == $user->id;
+        return ($media->user->store_id == $user->store_id && $user->is_store_admin )|| $media->user_id == $user->id;
     }
 
     /**
@@ -45,7 +45,7 @@ class MediaPolicy
      */
     public function delete(User $user, Media $media): bool
     {
-     return true;
+     return $media->user->store_id == $user->store_id || $media->user_id == $user->id;
     }
 
     /**

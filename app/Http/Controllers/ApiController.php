@@ -444,7 +444,11 @@ class ApiController extends Controller
         ];
     }
 
-    public function deleteVideo(Media $media){
+    public function deleteVideo(Request $request, Media $media){
+
+        if ($request->user()->cannot('update', $media)) {
+            abort(403);
+        }
 
         $media->status = 3;
         //delete original file
@@ -460,13 +464,21 @@ class ApiController extends Controller
             Storage::disk('s3')->delete($media->cover);
         }
 
+        $media->original = null;
+        $media->obj = null;
+        $media->cover = null;
+
         $media->save();
         return [
             'success'=>true
         ];
     }
 
-    public function videoFailed(Media $media){
+    public function videoFailed(Request $request, Media $media){
+
+        if ($request->user()->cannot('update', $media)) {
+            abort(403);
+        }
 
         $media->status = 2;
         $media->save();

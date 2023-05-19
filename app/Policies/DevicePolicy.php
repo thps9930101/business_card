@@ -21,7 +21,7 @@ class DevicePolicy
      */
     public function view(User $user, Device $device): bool
     {
-        return  $device->user->store_id == $user->store_id;
+        return  ($device->user->store_id == $user->store_id && $user->is_store_admin) || $device->user_id == $user->id;
     }
 
     /**
@@ -29,7 +29,7 @@ class DevicePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class DevicePolicy
      */
     public function update(User $user, Device $device): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -45,7 +45,7 @@ class DevicePolicy
      */
     public function delete(User $user, Device $device): bool
     {
-        return false;
+        return true;
     }
 
     /**
