@@ -37,7 +37,7 @@ class MediaPolicy
      */
     public function update(User $user, Media $media): bool
     {
-        return $media->user->store_id == $user->store_id;
+        return $media->user->store_id == $user->store_id || $media->user_id == $user->id;
     }
 
     /**

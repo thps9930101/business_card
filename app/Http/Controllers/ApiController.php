@@ -444,4 +444,35 @@ class ApiController extends Controller
         ];
     }
 
+    public function deleteVideo(Media $media){
+
+        $media->status = 3;
+        //delete original file
+        if($media->original && Storage::disk('s3')->exists($media->original)){
+            Storage::disk('s3')->delete($media->original);
+        }
+        //delete obj file
+        if($media->obj && Storage::disk('s3')->exists($media->obj)){
+            Storage::disk('s3')->delete($media->obj);
+        }
+        //delete cover file
+        if($media->cover && Storage::disk('s3')->exists($media->cover)){
+            Storage::disk('s3')->delete($media->cover);
+        }
+
+        $media->save();
+        return [
+            'success'=>true
+        ];
+    }
+
+    public function videoFailed(Media $media){
+
+        $media->status = 2;
+        $media->save();
+        return [
+            'success'=>true
+        ];
+    }
+
 }
