@@ -90,6 +90,7 @@ class OrderRepository
             $image = Image::make($file);
             $path = $file->store($this->getOrigianlFolderPath($media->id),'s3');
             $media->obj = $path;
+            $media->original = $path;
             $image->widen(300, function ($constraint) {
                // $constraint->aspectRatio();
                 $constraint->upsize();
