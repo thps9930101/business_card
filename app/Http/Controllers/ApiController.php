@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\CompleteTransformPic;
 use App\Events\PicUploaded;
+use Recaptcha;
 use App\Models\User;
 use App\Models\Media;
 use App\Models\Order;
@@ -77,8 +78,13 @@ class ApiController extends Controller
         $validator = Validator::make($request->all(),[
             'name' => 'required',
             'email' => 'required|email',
-            'password' => 'required|confirmed'
+            'password' => 'required|confirmed',
+            'recaptcha'=>'required'
         ]);
+
+        if(!Recaptcha::check()){
+            $validator->errors()->add('recaptcha', '驗證失敗');
+        }
 
         if($validator->failed()){
             return [

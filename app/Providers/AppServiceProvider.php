@@ -21,4 +21,11 @@ class AppServiceProvider extends ServiceProvider
     {
         //
     }
+
+    /**
+     * singletons
+     */
+    public $singletons = [
+        'recaptcha' => \App\Service\RecaptchaChecker::class,
+    ];
 }
