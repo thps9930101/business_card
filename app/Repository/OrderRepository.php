@@ -45,7 +45,6 @@ class OrderRepository
             $order->save();
             $media = new Media;
             $media->order_id = $order->id;
-            $media->name = '3d圖片';
             $media->user_id = $user->id;
             $media->type = 1;
             $media->save();
@@ -80,7 +79,6 @@ class OrderRepository
             $order->save();
             $media = new Media;
             $media->order_id = $order->id;
-            $media->name = '3d圖片';
             $media->user_id = $user->id;
             $media->type = 1;
             $media->save();
