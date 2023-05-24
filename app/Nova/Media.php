@@ -53,24 +53,33 @@ class Media extends Resource
             //user id
             BelongsTo::make('訂單','order','App\Nova\Order'),
             BelongsTo::make('用戶','user','App\Nova\User')->default(Order::find($request->viaResourceId)?->user_id),
+
             Select::make('類型','type')->options([
                 0 => '影片',
                 1 => '照片',
-            ])->displayUsingLabels(),
+            ])
+            ->displayUsingLabels()
+            ->default($this->type??0)
+            ->rules('required','integer'),
+
             Select::make('狀態','status')->options([
-                false => '尚未處理',
-                true => '已經處理',
-            ])->displayUsingLabels(),
+                0 => '尚未處理',
+                1 => '已經處理',
+            ])->displayUsingLabels()
+            ->default($this->status??0)
+            ->rules('required','integer'),
             Image::make('封面照片','cover')->preview(function ($value) {
                 return $value ? Storage::disk('s3')->temporaryUrl(
                     $value,
                     now()->addMinutes(5)
                 ):null;
             })
-            ->path(env('APP_ENV')."/$user?->id/$order?->id/$this?->id/cover/")
-            ->hideFromIndex(),
+            ->path(env('APP_ENV')."/$user?->id/$order?->id/$this?->id/cover")
+            ->hideFromIndex()
+            ->hideWhenCreating(),
             File::make('影片','obj')
-            ->path(env('APP_ENV')."/$user?->id/$order?->id/$this?->id/obj/"),
+            ->path(env('APP_ENV')."/$user?->id/$order?->id/$this?->id/obj")
+            ->hideWhenCreating(),
 
 
         ];

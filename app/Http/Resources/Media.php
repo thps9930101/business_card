@@ -17,11 +17,11 @@ class Media extends JsonResource
     {
         return [
             'id'=>$this->id,
-            'type'=>$this->type,
+            'type'=>$this->getResorceMediaType(),
             'cover'=> $this->cover? Storage::disk('s3')->temporaryUrl($this->cover, now()->addHour()) : null,
             'obj'=> $this->status && $this->obj? Storage::disk('s3')->temporaryUrl($this->obj, now()->addHour()): null,
             'status'=>$this->status,
-            'name'=>$this->name,
+            'name'=>$this->name?: ($this->type == 1? '3D Photo' : '3D Video'),
             'date'=>$this->created_at->format('Y/m/d'),
             'finish_time'=> $this->finish_time? $this->finish_time->format('Y/m/d') : null,
         ];

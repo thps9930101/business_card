@@ -25,17 +25,13 @@ class Order extends Model
         return $this->hasMany(Media::class);
     }
 
-    //getter for status
-    public function status(): Attribute
-    {
-        return Attribute::make(
-            get: fn($value) => match($value){
-                0 => 'Order Placed',
-                1 => 'Processing',
-                2 => 'Finished',
-                3 => 'Cancelled',
-                default => 'unknown',
-            },
-        );
+    public function getResourceStatus(){
+        return match($this->status){
+            0 => 'Order Placed',
+            1 => 'Processing',
+            2 => 'Finished',
+            3 => 'Cancelled',
+            default => 'unknown',
+        };
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Order extends Resource
@@ -43,6 +44,14 @@ class Order extends Resource
     {
         return [
             ID::make()->sortable(),
+            Select::make('狀態','status')->options([
+                0 => '未處理',
+                1 => '已處理',
+                2 => '已完成',
+                3 => '已取消',
+            ])
+            ->default(0)
+            ->withMeta(['value' => $this->status]),
             BelongsTo::make('用戶','user','App\Nova\User'),
             HasMany::make('影片','media','App\Nova\Media'),
 

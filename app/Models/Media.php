@@ -38,31 +38,12 @@ class Media extends Model
         return $this->belongsTo(Device::class);
     }
 
-    /**
-     * getter for status
-     */
-   /*  public function status(): Attribute
-    {
-        return Attribute::make(
-            get: fn($value) => match($value){
-                0 => 'processing',
-                1 => 'finished',
-                default => 'unknown',
-            },
-        );
-    } */
 
-    /**
-     * getter for type
-     */
-    public function type(): Attribute
-    {
-        return Attribute::make(
-            get: fn($value) => match($value){
-                0 => 'video',
-                1 => 'photo',
-                default => 'unknown',
-            },
-        );
+    public function getResorceMediaType(){
+        return match($this->type){
+            0 => 'video',
+            1 => 'image',
+            default => 'unknown',
+        };
     }
 }

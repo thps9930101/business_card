@@ -14,7 +14,7 @@ class Order extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $media = $this->media()->get();
+        $media = $this->media()->latest()->get();
         $processed = $media->filter(fn($item) => $item->status === 1)->count();
         $total = $media->count();
 
@@ -22,7 +22,7 @@ class Order extends JsonResource
             'id'=>$this->id,
             'date'=>$this->created_at->format('Y/m/d H:i:s'),
             'type'=>$this->type,
-            'status'=>$this->status,
+            'status'=>$this->getResourceStatus(),
             'progress'=>$processed .'/' . $total,
             'media'=> Media::collection($media)
         ];
