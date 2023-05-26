@@ -13,7 +13,9 @@ return [
     |
     */
 
-    'previous' => '&laquo; Previous',
-    'next' => 'Next &raquo;',
+    /* Japanese */
+
+    'previous' => '&laquo; 前へ',
+    'next' => '後へ &raquo;',
 
 ];

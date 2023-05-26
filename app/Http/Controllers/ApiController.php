@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\CompleteTransformPic;
 use App\Events\PicUploaded;
+use App\Events\PicUploadFailed;
 use Recaptcha;
 use App\Models\User;
 use App\Models\Media;
@@ -39,7 +40,7 @@ class ApiController extends Controller
         if($validator->fails()){
             return [
                 'success' => false,
-                'message' => '登入失敗，查無用戶資訊',
+                'message' => __('auth.failed'),
                 'errors'=> $validator->errors()->toArray()
             ];
         }
@@ -61,7 +62,7 @@ class ApiController extends Controller
         }else{
             return [
                 'success' => false,
-                'message' => '登入失敗，查無用戶資訊',
+                'message' => __('auth.failed'),
                 'errors'=> $result
             ];
         }
@@ -83,13 +84,13 @@ class ApiController extends Controller
         ]);
 
         if(!Recaptcha::check()){
-            $validator->errors()->add('recaptcha', '驗證失敗');
+            $validator->errors()->add('recaptcha', __('validation.recaptcha'));
         }
 
         if($validator->failed()){
             return [
                 'success' => false,
-                'message' => '註冊失敗，請檢查輸入資料',
+                'message' => __('register.failed'),
                 'errors'=> $validator->errors()->toArray()
             ];
         }
@@ -140,7 +141,7 @@ class ApiController extends Controller
 
         return [
             'success' => true,
-            'message' => '認證信已重新發送！'
+            'message' => __('register.resent')
         ];
     }
 
@@ -163,7 +164,7 @@ class ApiController extends Controller
         return $status == Password::RESET_LINK_SENT
                     ? [
                         'success'=>true,
-                        'message'=>'忘記密碼電子郵件發送成功！'
+                        'message'=>__('passwords.sent')
                     ]
                     : [
                         'success'=>false,
@@ -408,7 +409,7 @@ class ApiController extends Controller
 
     public function get2Dpics(){
 
-        $videos = Media::where('type', 1)->where('status', 0)->get();
+        $videos = Media::where('type', 1)->where('status', 0)->whereNotNull('original')->get();
         $pics = [];
         foreach($videos as $video){
             $pics[] = (object)['id'=>$video->id,
@@ -488,6 +489,7 @@ class ApiController extends Controller
 
         $media->status = 2;
         $media->save();
+        event(new PicUploadFailed($media));
         return [
             'success'=>true
         ];
