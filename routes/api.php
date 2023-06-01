@@ -29,6 +29,10 @@ Route::any('/registerMember/{code}',[ApiController::class, 'registerMember'])->n
 Route::post('/get2Dpics',[ApiController::class, 'get2Dpics']);
 Route::post('/set2DpicFinish',[ApiController::class, 'set2DpicFinish']);
 
+// get videos
+Route::post('/getVideos',[ApiController::class, 'getVideos']);
+Route::post('/setVideoFinish',[ApiController::class, 'setVideoFinish']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 
@@ -58,6 +62,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     //upload cropped pics from frontend
     Route::post('/uploadCanvas',[ApiController::class, 'uploadCanvas']);
+
+    //upload video from frontend
+    Route::post('/uploadVideo',[ApiController::class, 'uploadVideo']);
 
     //get user orders
     Route::get('/orders',[ApiController::class, 'orders']);

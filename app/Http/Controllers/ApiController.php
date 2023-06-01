@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\CompleteTransformPic;
-use App\Events\PicUploaded;
-use App\Events\PicUploadFailed;
 use Recaptcha;
 use App\Models\User;
 use App\Models\Media;
 use App\Models\Order;
+use App\Events\PicUploaded;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Events\PicUploadFailed;
 use App\Repository\OrderRepository;
+use App\Events\CompleteTransformPic;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Events\CompleteTransformVideo;
 use App\Notifications\ConfirmUserCode;
 use App\Http\Resources\MediaCollection;
 use App\Http\Resources\OrderCollection;
@@ -328,6 +329,33 @@ class ApiController extends Controller
     }
 
     /**
+     * upload video
+     */
+    public function uploadVideo(Request $request){
+
+                $validator = Validator::make($request->all(),[
+                    'video' => 'required|mimes:mp4,mov,ogg,qt|max:1048576',
+                ]);
+
+                if($validator->failed()){
+                    return [
+                        'success' => false,
+                        'message' => '上傳影片失敗，請檢查輸入資料',
+                        'errors'=> $validator->errors()->toArray()
+                    ];
+                }
+                //create new order, media and store file to storage
+                $repository = new OrderRepository();
+                $repository->userUploadVideo($request);
+
+                return [
+                    'success'=>true,
+                    'message'=>'upload video success!',
+                ];
+
+    }
+
+    /**
      * upload picture
      */
     public function uploadPicture(Request $request){
@@ -379,7 +407,7 @@ class ApiController extends Controller
 
         return [
             'success'=>true,
-            'message'=>'upload picture success!',
+            'message'=>'upload picture success! media id: '.$media->id,
         ];
 }
 
@@ -423,6 +451,25 @@ class ApiController extends Controller
         ];
     }
 
+    public function mediaChangeStatus($media){
+        $repo = new OrderRepository($media->order);
+            $media->status = 1;
+            if($media->type == 1){
+                $media->obj = $repo->getPath($media->id);
+            }
+            if($media->type ==0){
+                $media->obj = $repo->getVideoPath($media->id);
+            }
+            $media->finish_time=now();
+            $media->save();
+            if($media->type == 0){
+                event(new CompleteTransformVideo($media));
+            }
+            if($media->type == 1){
+                event(new CompleteTransformPic($media));
+            }
+    }
+
     public function set2DpicFinish(Request $request){
 
         $validator = Validator::make($request->all(),[
@@ -439,12 +486,7 @@ class ApiController extends Controller
 
         $media = Media::where('id', $request->id)->first();
         if($media){
-            $repo = new OrderRepository($media->order);
-            $media->status = 1;
-            $media->obj = $repo->getPath($media->id);
-            $media->finish_time=now();
-            $media->save();
-            event(new CompleteTransformPic($media));
+            $this->mediaChangeStatus($media);
         }
         return [
             'success'=>true
@@ -490,6 +532,43 @@ class ApiController extends Controller
         $media->status = 2;
         $media->save();
         event(new PicUploadFailed($media));
+        return [
+            'success'=>true
+        ];
+    }
+
+    public function getVideos(){
+        $media = Media::where('type', 0)->where('status', 0)->whereNotNull('original')->get();
+        $videos = [];
+        foreach($media as $medium){
+            $videos[] = (object)['id'=>$medium->id,
+            'name'=>$medium->name,
+            'original'=>Storage::disk('s3')->temporaryUrl($medium->original, now()->addHour()),
+            'path'=> (new OrderRepository($medium->order))->getVideoPath($medium->id)];
+        }
+        return [
+            'success'=>true,
+            'message'=>$videos,
+        ];
+    }
+
+    public function setVideoFinish(Request $request){
+        $validator = Validator::make($request->all(),[
+            'id' => 'required|exists:media,id',
+        ]);
+
+        if($validator->failed()){
+            return [
+                'success' => false,
+                'message' => '上傳影片失敗，請檢查輸入資料',
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $media = Media::where('id', $request->id)->first();
+        if($media){
+            $this->mediaChangeStatus($media);
+        }
         return [
             'success'=>true
         ];
