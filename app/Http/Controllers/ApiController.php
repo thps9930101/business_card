@@ -334,7 +334,7 @@ class ApiController extends Controller
     public function uploadVideo(Request $request){
 
                 $validator = Validator::make($request->all(),[
-                    'video' => 'required|mimes:mp4,mov,ogg,qt|max:1048576',
+                    'video' => 'required|mimes:mp4,mov,ogg,qt,webm|max:1048576',
                 ]);
 
                 if($validator->failed()){
@@ -437,7 +437,7 @@ class ApiController extends Controller
 
     public function get2Dpics(){
 
-        $videos = Media::where('type', 1)->where('status', 0)->whereNotNull('original')->get();
+        $videos = Media::where('type', 1)->where('status', 0)->whereNotNull('original')->where('is_staff_uploaded',0)->get();
         $pics = [];
         foreach($videos as $video){
             $pics[] = (object)['id'=>$video->id,
@@ -459,6 +459,10 @@ class ApiController extends Controller
             }
             if($media->type ==0){
                 $media->obj = $repo->getVideoPath($media->id);
+                //if media is created by staff, add cover
+                if($media->is_staff_uploaded == 1){
+                    $media->cover = $repo->getVideoCoverPath($media->id);
+                }
             }
             $media->finish_time=now();
             $media->save();
@@ -479,7 +483,7 @@ class ApiController extends Controller
         if($validator->failed()){
             return [
                 'success' => false,
-                'message' => '上傳圖片失敗，請檢查輸入資料',
+                'message' => '查無此媒體，請檢查輸入資料',
                 'errors'=> $validator->errors()->toArray()
             ];
         }
@@ -538,7 +542,7 @@ class ApiController extends Controller
     }
 
     public function getVideos(){
-        $media = Media::where('type', 0)->where('status', 0)->whereNotNull('original')->get();
+        $media = Media::where('type', 0)->where('status', 0)->whereNotNull('original')->where('is_staff_uploaded',0)->get();
         $videos = [];
         foreach($media as $medium){
             $videos[] = (object)['id'=>$medium->id,
@@ -560,7 +564,7 @@ class ApiController extends Controller
         if($validator->failed()){
             return [
                 'success' => false,
-                'message' => '上傳影片失敗，請檢查輸入資料',
+                'message' => '查無此媒體，請檢查輸入資料',
                 'errors'=> $validator->errors()->toArray()
             ];
         }

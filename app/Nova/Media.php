@@ -8,6 +8,7 @@ use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Select;
@@ -68,6 +69,9 @@ class Media extends Resource
             ])->displayUsingLabels()
             ->default($this->status??0)
             ->rules('required','integer'),
+
+            Boolean::make('工作人員建立的媒體','is_staff_uploaded')->default(1),
+
             Image::make('封面照片','cover')->preview(function ($value) {
                 return $value ? Storage::disk('s3')->temporaryUrl(
                     $value,
@@ -80,6 +84,8 @@ class Media extends Resource
             File::make('影片','obj')
             ->path(env('APP_ENV')."/$user?->id/$order?->id/$this?->id/obj")
             ->hideWhenCreating(),
+
+
 
 
         ];

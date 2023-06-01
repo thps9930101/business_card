@@ -180,6 +180,11 @@ class OrderRepository
         return env('APP_ENV')."/".$this->order->user->id."/".$this->order->id."/$mediaId/obj/$mediaId.mp4";
     }
 
+    public function getVideoCoverPath($mediaId=null){
+        $mediaId = $mediaId?? $this->order->media->first()->id;
+        return env('APP_ENV')."/".$this->order->user->id."/".$this->order->id."/$mediaId/cover/$mediaId.jpg";
+    }
+
     public function getOrigianlFolderPath($mediaId=null){
         $mediaId = $mediaId?? $this->order->media->first()->id;
         return env('APP_ENV')."/".$this->order->user->id."/".$this->order->id."/$mediaId/original";

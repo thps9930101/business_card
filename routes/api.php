@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\StaffController;
+use OpenSpout\Common\Entity\Row;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +19,10 @@ use App\Http\Controllers\ApiController;
 
 //login
 Route::post('/login',[ApiController::class, 'login']);
+
+//staff login
+Route::post('/staffLogin',[StaffController::class, 'login']);
+
 //register
 Route::post('/register',[ApiController::class, 'register']);
 
@@ -33,12 +39,36 @@ Route::post('/set2DpicFinish',[ApiController::class, 'set2DpicFinish']);
 Route::post('/getVideos',[ApiController::class, 'getVideos']);
 Route::post('/setVideoFinish',[ApiController::class, 'setVideoFinish']);
 
+
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 
 });
 
+
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
+
+    //staff only routes
+    Route::group(['middleware'=>['admin']],function(){
+        //addOrderList
+        Route::post('/addOrderList',[StaffController::class, 'addOrderList']);
+
+        //add video
+        Route::post('/addVideo',[StaffController::class, 'addVideo']);
+
+         //video failed
+        Route::post('/videoFailed/{media}',[ApiController::class, 'videoFailed']);
+
+        // finish media
+        Route::post('/finishMedia',[ApiController::class, 'set2DpicFinish']);
+
+        //query all orders
+        Route::post('/queryAllOrderList',[StaffController::class, 'queryAllOrderList']);
+    });
+
+
      //updateMemberName
      Route::post('/updateMemberName',[ApiController::class, 'updateMemberName']);
 
@@ -75,6 +105,5 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //delete user video
     Route::delete('/deleteVideo/{media}',[ApiController::class, 'deleteVideo']);
 
-    //video failed
-    Route::post('/videoFailed/{media}',[ApiController::class, 'videoFailed']);
+
 });

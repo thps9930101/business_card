@@ -51,6 +51,7 @@ class Order extends Resource
                 3 => '已取消',
             ])
             ->default(0)
+            ->displayUsingLabels()
             ->withMeta(['value' => $this->status]),
             BelongsTo::make('用戶','user','App\Nova\User'),
             HasMany::make('影片','media','App\Nova\Media'),
