@@ -414,24 +414,68 @@ class ApiController extends Controller
     /**
      * get user videos
      */
-    public function videos(){
+    public function videos(Request $request){
 
-        $videos = Media::where('user_id', Auth::id())->paginate(10);
+        $validator = Validator::make($request->all(),[
+            'page' => 'nullable|integer',
+            'type' =>'nullable|integer',
+        ]);
+
+        if($validator->failed()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $query = Media::where('user_id', Auth::id());
+
+        if(($request->type || $request->type == 0) && $request->type != 'all'){
+            $query->whereHas('order', function($orderQuery) use ($request) {
+                $orderQuery->where('type', $request->type);
+            });
+        }
 
         return [
             'success'=>true,
-            'message'=>new MediaCollection (Media::where('user_id', Auth::id())->paginate(10)),
+            'message'=>new MediaCollection ($query->paginate(10)),
+            'sql'=>$query->toSql(),
+            'bindings'=>$query->getBindings()
         ];
     }
 
     /**
      * get user orders
      */
-    public function orders(){
+    public function orders(Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'page' => 'nullable|integer',
+            'order_type' =>'nullable|integer',
+        ]);
+
+        if($validator->failed()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $query = Order::where('user_id', Auth::id());
+
+        if(($request->order_type || $request->order_type == 0) && $request->order_type != 'all'){
+            $query->where('type', $request->order_type);
+        }
+
+
 
         return [
             'success'=>true,
-            'message'=>new OrderCollection (Order::where('user_id', Auth::id())->paginate(10)),
+            'message'=>new OrderCollection ($query->paginate(10)),
+          /*   'sql'=>$query->toSql(),
+            'bindings'=>$query->getBindings() */
         ];
     }
 
