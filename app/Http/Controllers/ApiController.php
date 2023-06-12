@@ -471,6 +471,27 @@ class ApiController extends Controller
 
 
 
+        $validator = Validator::make($request->all(),[
+            'page' => 'nullable|integer',
+            'order_type' =>'nullable|integer',
+        ]);
+
+        if($validator->failed()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $query = Order::where('user_id', Auth::id());
+
+        if(($request->order_type || $request->order_type == 0) && $request->order_type != 'all'){
+            $query->where('type', $request->order_type);
+        }
+
+
+
         return [
             'success'=>true,
             'message'=>new OrderCollection ($query->paginate(10)),
