@@ -431,7 +431,7 @@ class ApiController extends Controller
 
         $query = Media::where('user_id', Auth::id());
 
-        if(($request->type || $request->type == 0) && $request->type != 'all'){
+        if(($request->type ||  $request->type === 0 || $request->type==='0') && $request->type != 'all'){
             $query->whereHas('order', function($orderQuery) use ($request) {
                 $orderQuery->where('type', $request->type);
             });
@@ -465,38 +465,16 @@ class ApiController extends Controller
 
         $query = Order::where('user_id', Auth::id());
 
-        if(($request->order_type || $request->order_type == 0) && $request->order_type != 'all'){
+        if(($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all'){
             $query->where('type', $request->order_type);
         }
-
-
-
-        $validator = Validator::make($request->all(),[
-            'page' => 'nullable|integer',
-            'order_type' =>'nullable|integer',
-        ]);
-
-        if($validator->failed()){
-            return [
-                'success' => false,
-                'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
-            ];
-        }
-
-        $query = Order::where('user_id', Auth::id());
-
-        if(($request->order_type || $request->order_type == 0) && $request->order_type != 'all'){
-            $query->where('type', $request->order_type);
-        }
-
-
 
         return [
             'success'=>true,
             'message'=>new OrderCollection ($query->paginate(10)),
-          /*   'sql'=>$query->toSql(),
-            'bindings'=>$query->getBindings() */
+/*             'sql'=>$query->toSql(),
+            'bindings'=>$query->getBindings(),
+            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
         ];
     }
 
@@ -640,6 +618,21 @@ class ApiController extends Controller
         }
         return [
             'success'=>true
+        ];
+    }
+
+    public function video(Request $request,Media $media){
+
+        if ($request->user()->cannot('view', $media)) {
+            abort(403);
+        }
+
+        return [
+            'success'=>true,
+            'message'=>[
+                'cover'=>Storage::disk('s3')->temporaryUrl($media->cover, now()->addHour()),
+                'obj'=>Storage::disk('s3')->temporaryUrl($media->obj, now()->addHour()),
+            ],
         ];
     }
 

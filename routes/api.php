@@ -102,6 +102,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //get user videos
     Route::get('/videos',[ApiController::class, 'videos']);
 
+    //get single video
+    Route::post('/video/{media}',[ApiController::class, 'video']);
+
     //delete user video
     Route::delete('/deleteVideo/{media}',[ApiController::class, 'deleteVideo']);
 
