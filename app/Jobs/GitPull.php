@@ -29,16 +29,18 @@ class GitPull implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+       //
          /**
          * You need setup the webhook in github repo settings
          * you call this job in respective route or controller method GitPull::dispatch(); to trigger the job
+         * get all the env variables from .env file
          * Before using this job, make sure you have set the remote origin to the correct url with your credentials
            git remote set-url origin https://{username}:{token}@github.com/{repoOwner}/{repo}
          * the following env variables are needed
             GITHUB_WEBHOOK_SECRET required to validate the request
          * make sure also you have the file pulling.sh in the root of your project
          * NPM_COMMAND if you want to specify what to do after npm install
+          It is possible that you will have to adjust many folder permissions
          * The following permissions are needed for www-data user
             cd /path/to/repo/.git
             sudo chgrp -R groupname .
@@ -56,7 +58,6 @@ class GitPull implements ShouldQueue
         }
 
          // Pull
-         /* putenv('PATH=/usr/local/bin'); */
          $process = new Process(['git','pull']);
          $process->setWorkingDirectory(base_path());
          $process->run();
@@ -77,8 +78,8 @@ class GitPull implements ShouldQueue
 
         $env = [
             'COMPOSER_HOME' => base_path(),
+            'PATH' => env('PULL_PATHS')
         ];
-
 
         $process = new Process($command, null, $env);
         $process->setWorkingDirectory(base_path());
@@ -108,7 +109,7 @@ class GitPull implements ShouldQueue
             try{
                 throw new ProcessFailedException($process);
             }catch(ProcessFailedException $e){
-                Log::info('Error composer install'. $e->getMessage());
+                Log::info('Error migrate'. $e->getMessage());
             }
         }
 
@@ -117,7 +118,7 @@ class GitPull implements ShouldQueue
         //run npm install
         $command = ['npm','install'];
 
-        $process = new Process($command);
+        $process = new Process($command, null, $env);
         $process->setWorkingDirectory(base_path());
         $process->run();
 
@@ -136,7 +137,7 @@ class GitPull implements ShouldQueue
         $command = ['npm','run','production'];
 
 
-        $process = new Process($command);
+        $process = new Process($command, null, $env);
         $process->setWorkingDirectory(base_path());
         $process->run();
 
@@ -145,7 +146,7 @@ class GitPull implements ShouldQueue
             try{
                 throw new ProcessFailedException($process);
             }catch(ProcessFailedException $e){
-                Log::info('Error npm install'. $e->getMessage());
+                Log::info('Error npm production'. $e->getMessage());
             }
         }
 
@@ -154,7 +155,7 @@ class GitPull implements ShouldQueue
         //run npm run build
         $command = ['npm','run','build'];
 
-        $process = new Process($command);
+        $process = new Process($command, null, $env);
         $process->setWorkingDirectory(base_path());
         $process->run();
 
@@ -163,7 +164,7 @@ class GitPull implements ShouldQueue
             try{
                 throw new ProcessFailedException($process);
             }catch(ProcessFailedException $e){
-                Log::info('Error npm install'. $e->getMessage());
+                Log::info('Error npm build'. $e->getMessage());
             }
         }
 
