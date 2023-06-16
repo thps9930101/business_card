@@ -389,7 +389,7 @@ class ApiController extends Controller
     public function uploadCanvas(Request $request){
 
         $validator = Validator::make($request->all(),[
-            'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:2048',
+            'pic' => 'required|string',
         ]);
 
         if($validator->fails()){
@@ -420,9 +420,8 @@ class ApiController extends Controller
 
         $validator = Validator::make($request->all(),[
             'page' => 'nullable|integer',
-            'type' =>'nullable|integer',
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
         ]);
-
         if($validator->fails()){
             return [
                 'success' => false,
@@ -454,7 +453,7 @@ class ApiController extends Controller
 
         $validator = Validator::make($request->all(),[
             'page' => 'nullable|integer',
-            'order_type' =>'nullable|integer',
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
         ]);
 
         if($validator->fails()){
