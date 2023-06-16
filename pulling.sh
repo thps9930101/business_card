@@ -10,12 +10,23 @@ echo 'below should print something like usr/bin:usr/local/bin...' &>> pulling.lo
 
 echo $PATH &>> pulling.log
 
+echo 'below should print the path of this file' &>> pulling.log
+
+export APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+echo $APP_DIR &>> pulling.log
+
+echo 'below should print the result of git pull' &>> pulling.log
+
+#adding the app dir to git safe directories
+git config --global --add safe.directory $APP_DIR
+
 git pull &>> pulling.log
 
 echo 'below should print composer path' &>> pulling.log
 
 # set COMPOSER_HOME to the root dir of this file
-export COMPOSER_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export COMPOSER_HOME=
 
 which composer &>> pulling.log
 
