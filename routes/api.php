@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\StaffController;
+use App\Jobs\GitPull;
 use OpenSpout\Common\Entity\Row;
 
 /*
@@ -109,4 +110,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/deleteVideo/{media}',[ApiController::class, 'deleteVideo']);
 
 
+});
+
+//webhook
+Route::post('/github',function(){
+    GitPull::dispatch();
 });
