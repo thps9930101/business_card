@@ -19,10 +19,10 @@ use App\Notifications\ConfirmUserCode;
 use App\Http\Resources\MediaCollection;
 use App\Http\Resources\OrderCollection;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Password;
+
 use Illuminate\Support\Facades\Validator;
-use App\Http\Resources\Media as ResourceMedia;
-use App\Http\Resources\Order as ResourcesOrder;
+use Illuminate\Validation\Rules\Password;
+
 
 class ApiController extends Controller
 {
@@ -88,7 +88,7 @@ class ApiController extends Controller
             $validator->errors()->add('recaptcha', __('validation.recaptcha'));
         }
 
-        if($validator->failed()){
+        if($validator->fails()){
             return [
                 'success' => false,
                 'message' => __('register.failed'),
@@ -214,14 +214,16 @@ class ApiController extends Controller
      */
     public function userUpdate(Request $request){
 
+
             $validator = Validator::make($request->all(),[
                 'name' => 'required',
                 'phone' => 'nullable|regex:/^09\d{2}-?\d{3}-?\d{3}$/', //手機號碼
-                'password' => 'nullable|password|confirmed',
+                'password' => ['required','confirmed','min:8'],
                 'old_password'=>'nullable|required_with:password|current_password'
             ]);
 
-            if($validator->failed()){
+
+            if($validator->fails()){
                 return [
                     'success' => false,
                     'message' => '更新用戶資料失敗，請檢查輸入資料',
@@ -237,7 +239,7 @@ class ApiController extends Controller
 
             return [
                 'success'=>true,
-                'message'=>'update user success!'
+                'message'=>'update user success!',
             ];
     }
 
@@ -250,7 +252,7 @@ class ApiController extends Controller
             'name' => 'required|string',
         ]);
 
-        if($validator->failed()){
+        if($validator->fails()){
             return [
                 'success' => false,
                 'message' => '更新用戶名稱失敗，請檢查輸入資料',
@@ -278,7 +280,7 @@ class ApiController extends Controller
             'old_password'=>'required|current_password'
         ]);
 
-        if($validator->failed()){
+        if($validator->fails()){
             return [
                 'success' => false,
                 'message' => '更新密碼失敗，請檢查輸入資料',
@@ -337,7 +339,7 @@ class ApiController extends Controller
                     'video' => 'required|mimes:mp4,mov,ogg,qt,webm|max:1048576',
                 ]);
 
-                if($validator->failed()){
+                if($validator->fails()){
                     return [
                         'success' => false,
                         'message' => '上傳影片失敗，請檢查輸入資料',
@@ -364,7 +366,7 @@ class ApiController extends Controller
                 'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:2048',
             ]);
 
-            if($validator->failed()){
+            if($validator->fails()){
                 return [
                     'success' => false,
                     'message' => '上傳圖片失敗，請檢查輸入資料',
@@ -390,7 +392,7 @@ class ApiController extends Controller
             'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:2048',
         ]);
 
-        if($validator->failed()){
+        if($validator->fails()){
             return [
                 'success' => false,
                 'message' => '上傳圖片失敗，請檢查輸入資料',
@@ -421,7 +423,7 @@ class ApiController extends Controller
             'type' =>'nullable|integer',
         ]);
 
-        if($validator->failed()){
+        if($validator->fails()){
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
@@ -455,7 +457,7 @@ class ApiController extends Controller
             'order_type' =>'nullable|integer',
         ]);
 
-        if($validator->failed()){
+        if($validator->fails()){
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
@@ -523,7 +525,7 @@ class ApiController extends Controller
             'id' => 'required|exists:media,id',
         ]);
 
-        if($validator->failed()){
+        if($validator->fails()){
             return [
                 'success' => false,
                 'message' => '查無此媒體，請檢查輸入資料',
@@ -604,7 +606,7 @@ class ApiController extends Controller
             'id' => 'required|exists:media,id',
         ]);
 
-        if($validator->failed()){
+        if($validator->fails()){
             return [
                 'success' => false,
                 'message' => '查無此媒體，請檢查輸入資料',
