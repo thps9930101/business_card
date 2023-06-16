@@ -72,9 +72,15 @@ class GitPull implements ShouldQueue
         // Composer install
 
         //set COMPOSER_HOME variable to base_path()
-        putenv('COMPOSER_HOME='.base_path());
 
-        $process = new Process(['composer','install']);
+        $command = ['composer','install'];
+
+        $env = [
+            'COMPOSER_HOME' => base_path(),
+        ];
+
+
+        $process = new Process($command, null, $env);
         $process->setWorkingDirectory(base_path());
         $process->run();
 
