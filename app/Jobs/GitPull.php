@@ -68,5 +68,22 @@ class GitPull implements ShouldQueue
          }
 
         Log::info($process->getOutput());
+
+        // Composer install
+
+        $process = new Process(['composer','install']);
+        $process->setWorkingDirectory(base_path());
+        $process->run();
+
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            try{
+                throw new ProcessFailedException($process);
+            }catch(ProcessFailedException $e){
+                Log::info('Error composer install'. $e->getMessage());
+            }
+        }
+
+       Log::info($process->getOutput());
     }
 }
