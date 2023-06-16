@@ -113,5 +113,62 @@ class GitPull implements ShouldQueue
         }
 
          Log::info($process->getOutput());
+
+        //run npm install
+        $command = ['npm','install'];
+
+        $process = new Process($command);
+        $process->setWorkingDirectory(base_path());
+        $process->run();
+
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            try{
+                throw new ProcessFailedException($process);
+            }catch(ProcessFailedException $e){
+                Log::info('Error npm install'. $e->getMessage());
+            }
+        }
+
+        Log::info($process->getOutput());
+
+        //run npm run production
+        $command = ['npm','run','production'];
+
+
+        $process = new Process($command);
+        $process->setWorkingDirectory(base_path());
+        $process->run();
+
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            try{
+                throw new ProcessFailedException($process);
+            }catch(ProcessFailedException $e){
+                Log::info('Error npm install'. $e->getMessage());
+            }
+        }
+
+        Log::info($process->getOutput());
+
+        //run npm run build
+        $command = ['npm','run','build'];
+
+        $process = new Process($command);
+        $process->setWorkingDirectory(base_path());
+        $process->run();
+
+        // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            try{
+                throw new ProcessFailedException($process);
+            }catch(ProcessFailedException $e){
+                Log::info('Error npm install'. $e->getMessage());
+            }
+        }
+
+        Log::info($process->getOutput());
+
+
     }
 }
