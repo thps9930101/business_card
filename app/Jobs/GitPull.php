@@ -56,7 +56,7 @@ class GitPull implements ShouldQueue
         }
          // Pull
          putenv('PATH=/usr/local/bin');
-         $process = new Process(['bash', 'pulling.sh']);
+         $process = new Process(['./pulling.sh']);
          $process->setWorkingDirectory(base_path());
          $process->run();
 
