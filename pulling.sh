@@ -26,7 +26,7 @@ git pull &>> pulling.log
 echo 'below should print composer path' &>> pulling.log
 
 # set COMPOSER_HOME to the root dir of this file
-export COMPOSER_HOME=
+export COMPOSER_HOME=$APP_DIR
 
 which composer &>> pulling.log
 
