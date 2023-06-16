@@ -114,6 +114,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 //webhook
 Route::post('/github',function(){
+
     Log::info('webhook triggered');
     GitPull::dispatch();
 });
