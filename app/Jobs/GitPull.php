@@ -66,5 +66,7 @@ class GitPull implements ShouldQueue
                 Log::info('Error pulling from github');
              throw new ProcessFailedException($process);
          }
+
+        Log::info($process->getOutput());
     }
 }
