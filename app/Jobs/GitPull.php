@@ -54,9 +54,9 @@ class GitPull implements ShouldQueue
             abort(403, 'Unauthorized action.');
             Log::info('Unauthorized action.');
         }
-        Log::info('Authorized action.');
          // Pull
-         $process = new Process(['/usr/bin/bash', 'pulling.sh']);
+         putenv('PATH=/usr/local/bin');
+         $process = new Process(['bash', 'pulling.sh']);
          $process->setWorkingDirectory(base_path());
          $process->run();
 
