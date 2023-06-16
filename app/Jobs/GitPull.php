@@ -52,7 +52,9 @@ class GitPull implements ShouldQueue
         $signature = $request->header('X-Hub-Signature');
         if (!hash_equals('sha1=' . hash_hmac('sha1', $payload, env('GITHUB_WEBHOOK_SECRET')), $signature)) {
             abort(403, 'Unauthorized action.');
+            Log::info('Unauthorized action.');
         }
+        Log::info('Authorized action.');
          // Pull
          $process = new Process(['/usr/bin/bash', 'pulling.sh']);
          $process->setWorkingDirectory(base_path());
@@ -60,6 +62,7 @@ class GitPull implements ShouldQueue
 
          // executes after the command finishes
          if (!$process->isSuccessful()) {
+                Log::info('Error pulling from github');
              throw new ProcessFailedException($process);
          }
     }
