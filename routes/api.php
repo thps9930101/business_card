@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\StaffController;
 use App\Jobs\GitPull;
+use Illuminate\Support\Facades\Log;
 use OpenSpout\Common\Entity\Row;
 
 /*
@@ -113,5 +114,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 //webhook
 Route::post('/github',function(){
+    Log::info('webhook triggered');
     GitPull::dispatch();
 });
