@@ -14,6 +14,9 @@ git pull &>> pulling.log
 
 echo 'below should print composer path' &>> pulling.log
 
+# set COMPOSER_HOME to the root dir of this file
+export COMPOSER_HOME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 which composer &>> pulling.log
 
 echo 'below should print composer results' &>> pulling.log
