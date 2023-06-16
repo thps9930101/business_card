@@ -61,8 +61,6 @@ class GitPull implements ShouldQueue
          $process->setWorkingDirectory(base_path());
          $process->run();
 
-         echo 123;
-
          // executes after the command finishes
          if (!$process->isSuccessful()) {
                 Log::info('Error pulling from github');
