@@ -94,5 +94,24 @@ class GitPull implements ShouldQueue
         }
 
        Log::info($process->getOutput());
+
+       //run migration
+         $command = ['php','artisan','migrate','--force'];
+
+            $process = new Process($command);
+            $process->setWorkingDirectory(base_path());
+            $process->run();
+
+
+             // executes after the command finishes
+        if (!$process->isSuccessful()) {
+            try{
+                throw new ProcessFailedException($process);
+            }catch(ProcessFailedException $e){
+                Log::info('Error composer install'. $e->getMessage());
+            }
+        }
+
+         Log::info($process->getOutput());
     }
 }
