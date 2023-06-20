@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\UserController;
 use App\Jobs\GitPull;
 use Illuminate\Support\Facades\Log;
 use OpenSpout\Common\Entity\Row;
@@ -43,14 +44,12 @@ Route::post('/setVideoFinish',[ApiController::class, 'setVideoFinish']);
 
 
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-
-});
 
 
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+
+    Route::get('/user',[UserController::class, 'profile']);
 
     //staff only routes
     Route::group(['middleware'=>['admin']],function(){
