@@ -22,6 +22,7 @@ class UserController extends Controller
             'name' =>$user->name,
             'email'=>$user->email,
             'phone'=>$user->phone,
+            'devices'=>$user->devices,
         ];
     }
 
