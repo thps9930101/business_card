@@ -68,6 +68,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
         //query all orders
         Route::post('/queryAllOrderList',[StaffController::class, 'queryAllOrderList']);
+
+        Route::post('/uploadVideo/{media}',[StaffController::class, 'uploadVideo']);
     });
 
 

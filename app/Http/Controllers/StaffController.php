@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Media;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Repository\OrderRepository;
+use App\Events\CompleteTransformPic;
 use Illuminate\Support\Facades\Auth;
+use App\Events\CompleteTransformVideo;
 use App\Http\Resources\OrderCollection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class StaffController extends Controller
@@ -136,7 +140,7 @@ class StaffController extends Controller
                 'success' => true,
                 'message' => [
                     'id'=>$media->id,
-                    'date'=>now(),
+                    'orderDate'=>now()->format('Y-m-d H:i:s'),
                     'name'=>'3D Video',
                     'type'=>'video',
                     'status'=>$media->status,
@@ -152,9 +156,74 @@ class StaffController extends Controller
 
     public function queryAllOrderList(Request $request){
 
+        $validator = Validator::make($request->all(),[
+            'progress' => 'nullable|integer|between:-1,99',
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('staff.order_no_progress_code'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        if($request->input('progress') !== null){
+            return [
+                'success'=>true,
+                'message'=>new OrderCollection (Order::where('status',$request->input('progress'))->latest()->paginate(999999)),
+            ];
+        }
+
+
         return [
             'success'=>true,
             'message'=>new OrderCollection (Order::latest()->paginate(999999)),
+        ];
+    }
+
+    public function uploadVideo(Request $request,Media $media){
+
+        $validator = Validator::make($request->all(),[
+            'cover' => ['required','regex:/.*\.(jpg|jpeg)$/'],
+            'obj'=>'required|regex:/.*\.mp4$/',
+            'type'=>'required|integer|between:0,1'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('staff.upload_failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+        if($media){
+            $media->finish_time=now();
+
+            $media->update($validator->safe()->all() + ['status'=>1,'staff_id'=>Auth::id()]);
+            if($media->type == 0){
+                event(new CompleteTransformVideo($media));
+            }
+            if($media->type == 1){
+                event(new CompleteTransformPic($media));
+            }
+
+            //get cover temporal url from s3
+            $iconUrl = Storage::disk('s3')->temporaryUrl($media->cover, now()->addHour());
+            $videoUrl = Storage::disk('s3')->temporaryUrl($media->obj, now()->addHour());
+
+        }
+        return [
+            'success'=>true,
+            'message'=>[
+                'id'=>$media->id,
+                'orderDate'=>$media->order->created_at->format('Y-m-d H:i:s'),
+                'name'=>'3D Video',
+                'status'=>$media->status,
+                'completionDate'=>$media->finish_time->format('Y-m-d H:i:s'),
+                'iconUrl'=>$iconUrl,
+                'videoUrl'=>$videoUrl,
+            ]
         ];
     }
 
