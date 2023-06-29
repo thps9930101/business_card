@@ -350,6 +350,10 @@ class ApiController extends Controller
                 $repository = new OrderRepository();
                 $repository->userUploadVideo($request);
 
+                $media = $repository->getMedia();
+
+                event(new PicUploaded($media));
+
                 return [
                     'success'=>true,
                     'message'=>'upload video success!',
@@ -376,6 +380,11 @@ class ApiController extends Controller
             //create new order, media and store file to storage
             $repository = new OrderRepository();
             $repository->userUploadMedia($request);
+
+            $media = $repository->getMedia();
+
+            event(new PicUploaded($media));
+
 
             return [
                 'success'=>true,

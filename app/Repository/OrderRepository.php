@@ -26,7 +26,7 @@ class OrderRepository
     }
     public function getOrder(){
         return $this->order;
-        return $this;
+
     }
 
     public function setMedia($media){
@@ -36,7 +36,7 @@ class OrderRepository
 
     public function getMedia(){
         return $this->media;
-        return $this;
+
     }
 
     public function createOrder($request){
