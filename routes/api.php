@@ -111,6 +111,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //delete user video
     Route::delete('/deleteVideo/{media}',[ApiController::class, 'deleteVideo']);
 
+    //add user to device
+    Route::post('/addDevice',[UserController::class, 'addDevice']);
+
 });
 
 //webhook
