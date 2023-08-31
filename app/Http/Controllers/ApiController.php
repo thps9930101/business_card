@@ -220,7 +220,7 @@ class ApiController extends Controller
             $validator = Validator::make($request->all(),[
                 'name' => 'required',
                 'phone' => 'nullable|regex:/^09\d{2}-?\d{3}-?\d{3}$/', //手機號碼
-                'password' => ['required','confirmed','min:8'],
+                'password' => ['nullable','confirmed','min:8'],
                 'old_password'=>'nullable|required_with:password|current_password'
             ]);
 
@@ -235,8 +235,15 @@ class ApiController extends Controller
 
             $user = Auth::user();
             $user->name = $request->name;
-            $user->phone = $request->phone;
-            $user->password = Hash::make($request->password);
+
+            if($request->phone){
+                $user->phone = $request->phone;
+            }
+
+            if($request->password){
+                $user->password = Hash::make($request->password);
+            }
+
             $user->save();
 
             return [
