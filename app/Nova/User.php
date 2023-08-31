@@ -80,6 +80,9 @@ class User extends Resource
 
             //is store admin
             Boolean::make('商店管理員','is_store_admin'),
+
+            //訪客模式
+            Boolean::make('訪客模式','guest'),
         ];
     }
 
