@@ -345,7 +345,7 @@ class ApiController extends Controller
     public function uploadVideo(Request $request){
 
                 $validator = Validator::make($request->all(),[
-                    'video' => 'required|mimes:mp4,mov,ogg,qt|max:10485760',
+                    'video' => 'required|mimes:mp4,mov,ogg,qt', // |max:104857600
                 ]);
 
                 if($validator->fails()){
