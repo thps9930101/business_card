@@ -343,38 +343,44 @@ class ApiController extends Controller
      * upload video
      */
     public function uploadVideo(Request $request){
+        try{
+            $validator = Validator::make($request->all(),[
+                'video' => 'required|mimes:mp4,mov,ogg,qt|max:10485760', // aaaa
+            ]);
 
-                $validator = Validator::make($request->all(),[
-                    'video' => 'required|mimes:mp4,mov,ogg,qt|max:1048576', // aaaa
-                ]);
-
-                if($validator->fails()){
-                    return [
-                        'success' => false,
-                        'message' => '上傳影片失敗，請檢查輸入資料',
-                        'errors'=> $validator->errors()->toArray()
-                    ];
-                }
-                //create new order, media and store file to storage
-                $repository = new OrderRepository();
-                $repository->userUploadVideo($request);
-
-                $media = $repository->getMedia();
-
-                event(new PicUploaded($media));
-
+            if($validator->fails()){
                 return [
-                    'success'=>true,
-                    'message'=>'upload video success!',
+                    'success' => false,
+                    'message' => '上傳影片失敗，請檢查輸入資料',
+                    'errors'=> $validator->errors()->toArray()
                 ];
+            }
+            //create new order, media and store file to storage
+            $repository = new OrderRepository();
+            $repository->userUploadVideo($request);
 
+            $media = $repository->getMedia();
+
+            event(new PicUploaded($media));
+
+            return [
+                'success'=>true,
+                'message'=>'upload video success!',
+            ];
+        }
+        catch(e){
+            return [
+                'success'=>false,
+                'message'=>e.message,
+            ];
+        }
     }
 
     /**
      * upload picture
      */
     public function uploadPicture(Request $request){
-
+        try{
             $validator = Validator::make($request->all(),[
                 'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
             ]);
@@ -399,37 +405,53 @@ class ApiController extends Controller
                 'success'=>true,
                 'message'=>'upload picture success!',
             ];
+        }
+        catch(e){
+            return [
+                'success'=>false,
+                'message'=>e.message,
+            ];
+        }
     }
 
     /**
      * upload canvas picture
      */
     public function uploadCanvas(Request $request){
+        try{
 
-        $validator = Validator::make($request->all(),[
-            'pic' => 'required|string',
-        ]);
+        
+            $validator = Validator::make($request->all(),[
+                'pic' => 'required|string',
+            ]);
 
-        if($validator->fails()){
+            if($validator->fails()){
+                return [
+                    'success' => false,
+                    'message' => '上傳圖片失敗，請檢查輸入資料',
+                    'errors'=> $validator->errors()->toArray()
+                ];
+            }
+            //create new order, media and store file to storage
+            $repository = new OrderRepository();
+            $repository->userUploadMediaFromCanvas($request);
+
+            $media = $repository->getMedia();
+
+            event(new PicUploaded($media));
+
             return [
-                'success' => false,
-                'message' => '上傳圖片失敗，請檢查輸入資料',
-                'errors'=> $validator->errors()->toArray()
+                'success'=>true,
+                'message'=>'upload picture success! media id: '.$media->id,
             ];
         }
-        //create new order, media and store file to storage
-        $repository = new OrderRepository();
-        $repository->userUploadMediaFromCanvas($request);
-
-        $media = $repository->getMedia();
-
-        event(new PicUploaded($media));
-
-        return [
-            'success'=>true,
-            'message'=>'upload picture success! media id: '.$media->id,
-        ];
-}
+        catch(e){
+            return [
+                'success'=>false,
+                'message'=>e.message,
+            ];
+        }
+    }
 
     /**
      * get user videos
