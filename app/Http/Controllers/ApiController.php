@@ -345,7 +345,7 @@ class ApiController extends Controller
     public function uploadVideo(Request $request){
         try{
             $validator = Validator::make($request->all(),[
-                'video' => 'required|mimes:mp4,mov,ogg,qt|max:104857600', // aaaa
+                'video' => 'required|mimes:mp4,mov,ogg,qt|max:1048576', // aaaa
             ]);
 
             if($validator->fails()){
@@ -353,6 +353,13 @@ class ApiController extends Controller
                     'success' => false,
                     'message' => '上傳影片失敗，請檢查輸入資料',
                     'errors'=> $validator->errors()->toArray()
+                ];
+            }
+            else{
+                return [
+                    'success' => true,
+                    'message' => '上傳影片測試',
+                    'errors'=> 'none'
                 ];
             }
             //create new order, media and store file to storage
