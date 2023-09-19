@@ -26,7 +26,13 @@ use Illuminate\Validation\Rules\Password;
 
 class ApiController extends Controller
 {
+    public function get_cpu_usage(){
+        exec('top -b -n 1 | grep "Cpu(s)"', $output);
+        $cpuInfo = explode(",", $output[0]);
+        $cpuUsage = trim(str_replace("Cpu(s):", "", $cpuInfo[0]));
 
+        return $cpuUsage;
+    }
 
     /**
      * login
@@ -356,6 +362,16 @@ class ApiController extends Controller
                 ];
             }
 
+            $cpuUsage = $this->get_cpu_usage();
+
+            if($cpuUsage>5){
+                return[
+                    'success'=>false,
+                    'message'=>'系統忙碌中，請稍後再試 !',
+                    'cpu'=>$cpuUsage,
+                ];
+            }
+
             //create new order, media and store file to storage
             $repository = new OrderRepository();
             $repository->userUploadVideo($request);
@@ -393,6 +409,17 @@ class ApiController extends Controller
                     'errors'=> $validator->errors()->toArray()
                 ];
             }
+
+            $cpuUsage = $this->get_cpu_usage();
+
+            if($cpuUsage>5){
+                return[
+                    'success'=>false,
+                    'message'=>'系統忙碌中，請稍後再試 !',
+                    'cpu'=>$cpuUsage,
+                ];
+            }
+
             //create new order, media and store file to storage
             $repository = new OrderRepository();
             $repository->userUploadMedia($request);
@@ -400,7 +427,6 @@ class ApiController extends Controller
             $media = $repository->getMedia();
 
             event(new PicUploaded($media));
-
 
             return [
                 'success'=>true,
@@ -419,9 +445,7 @@ class ApiController extends Controller
      * upload canvas picture
      */
     public function uploadCanvas(Request $request){
-        try{
-
-        
+        try{        
             $validator = Validator::make($request->all(),[
                 'pic' => 'required|string',
             ]);
@@ -433,6 +457,17 @@ class ApiController extends Controller
                     'errors'=> $validator->errors()->toArray()
                 ];
             }
+
+            $cpuUsage = $this->get_cpu_usage();
+
+            if($cpuUsage>5){
+                return[
+                    'success'=>false,
+                    'message'=>'系統忙碌中，請稍後再試 !',
+                    'cpu'=>$cpuUsage,
+                ];
+            }
+
             //create new order, media and store file to storage
             $repository = new OrderRepository();
             $repository->userUploadMediaFromCanvas($request);
@@ -677,5 +712,4 @@ class ApiController extends Controller
             ],
         ];
     }
-
 }
