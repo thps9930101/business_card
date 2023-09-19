@@ -32,8 +32,10 @@ class UserController extends Controller
         $user = auth()->user();
         event(new AddDevice($user, request('deviceId')));
         Log::info('Device added', ['user'=>$user->id, 'device'=>request('deviceId')]);
-        return [     'success'=>true,
-        'message'=>'Device added',];
+        return [     
+            'success'=>true,
+            'message'=>'Device added',
+        ];
     }
 
     public function guestLogin(Request $request){
