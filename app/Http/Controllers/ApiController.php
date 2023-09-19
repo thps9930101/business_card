@@ -364,7 +364,7 @@ class ApiController extends Controller
 
             $cpuUsage = $this->get_cpu_usage();
 
-            if($cpuUsage>5){
+            if($cpuUsage>50){
                 return[
                     'success'=>false,
                     'message'=>'系統忙碌中，請稍後再試 !',
@@ -413,7 +413,7 @@ class ApiController extends Controller
 
             $cpuUsage = $this->get_cpu_usage();
 
-            if($cpuUsage>5){
+            if($cpuUsage>50){
                 return[
                     'success'=>false,
                     'message'=>'系統忙碌中，請稍後再試 !',
@@ -432,6 +432,7 @@ class ApiController extends Controller
             return [
                 'success'=>true,
                 'message'=>'upload picture success!',
+                'cpu'=>$cpuUsage,
             ];
         }
         catch(e){
@@ -461,7 +462,7 @@ class ApiController extends Controller
 
             $cpuUsage = $this->get_cpu_usage();
 
-            if($cpuUsage>5){
+            if($cpuUsage>50){
                 return[
                     'success'=>false,
                     'message'=>'系統忙碌中，請稍後再試 !',
@@ -480,6 +481,7 @@ class ApiController extends Controller
             return [
                 'success'=>true,
                 'message'=>'upload picture success! media id: '.$media->id,
+                'cpu'=>$cpuUsage,
             ];
         }
         catch(e){
