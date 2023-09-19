@@ -383,6 +383,7 @@ class ApiController extends Controller
             return [
                 'success'=>true,
                 'message'=>'upload video success!',
+                'cpu'=>$cpuUsage,
             ];
         }
         catch(e){
