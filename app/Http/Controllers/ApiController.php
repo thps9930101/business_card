@@ -716,7 +716,7 @@ class ApiController extends Controller
         ];
     }
 
-    public function test(){
+    public function test(Request $request){
         return [
             'success'=>true,
         ];
