@@ -714,7 +714,8 @@ class ApiController extends Controller
                 'obj'=>Storage::disk('s3')->temporaryUrl($media->obj, now()->addHour()),
             ],
         ];
-    },
+    }
+    
     public function test(Request $request){
         return [
             'success'=>true,
