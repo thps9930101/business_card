@@ -715,13 +715,10 @@ class ApiController extends Controller
             ],
         ];
     }
-    
+
     public function test(Request $request){
         return [
             'success'=>true,
-            'message'=>[
-                'hello' =>'hello',
-            ],
         ];
     }
 }
