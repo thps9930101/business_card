@@ -30,7 +30,7 @@ class UserController extends Controller
 
     public function addDevice(){
         $user = auth()->user();
-        event(new AddDevice($user, request('deviceId')));
+        // event(new AddDevice($user, request('deviceId')));
         Log::info('Device added', ['user'=>$user->id, 'device'=>request('deviceId')]);
         return [     
             'success'=>true,
