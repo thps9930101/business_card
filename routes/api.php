@@ -45,7 +45,7 @@ Route::post('/setVideoFinish',[ApiController::class, 'setVideoFinish']);
 
 Route::post('/guestLogin',[UserController::class, 'guestLogin']);
 
-
+Route::post('/test',[ApiController::class, 'test']);
 
 
 
