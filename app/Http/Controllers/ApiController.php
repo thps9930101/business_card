@@ -364,7 +364,7 @@ class ApiController extends Controller
 
             $cpuUsage = $this->get_cpu_usage();
 
-            if($cpuUsage>50){
+            if($cpuUsage>7){
                 return[
                     'success'=>false,
                     'message'=>'系統忙碌中，請稍後再試 !',
@@ -413,7 +413,7 @@ class ApiController extends Controller
 
             $cpuUsage = $this->get_cpu_usage();
 
-            if($cpuUsage>50){
+            if($cpuUsage>7){
                 return[
                     'success'=>false,
                     'message'=>'系統忙碌中，請稍後再試 !',
