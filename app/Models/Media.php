@@ -30,6 +30,13 @@ class Media extends Model
     public function order(){
         return $this->belongsTo(Order::class);
     }
+    
+    /**
+     * belongs to album
+     */
+    public function album(){
+        return $this->belongsTo(Album::class);
+    }
 
     /**
      * belongs to device

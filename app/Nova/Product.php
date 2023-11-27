@@ -2,29 +2,29 @@
 
 namespace App\Nova;
 
-use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\HasMany;
-use Illuminate\Support\Facades\Storage;
+use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\Boolean;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Store extends Resource
+class Product extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Store>
+     * @var class-string<\App\Models\Product>
      */
-    public static $model = \App\Models\Store::class;
+    public static $model = \App\Models\Product::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -45,30 +45,40 @@ class Store extends Resource
     {
         return [
             ID::make()->sortable(),
-            //name
-            Text::make('商店名稱','name')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            //address
-            Text::make('商店地址','address')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            //phone
-            Text::make('商店電話','phone')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            //tax id
-            Text::make('統一編號','tax_id')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            HasMany::make('用戶','users','App\Nova\User'),
+
+            //belongs to store
+            BelongsTo::make('商店','store','App\Nova\Store')
+            ->nullable(),//show store name
+
+            Text::make('價格', 'costs')
+                ->sortable(),
+
+            Select::make('狀態','type')->options([
+                0 => '單張',
+                1 => '相簿',
+            ])
+            ->default(0)
+            ->displayUsingLabels()
+            ->withMeta(['value' => $this->status]),
+
             
-            Image::make('封面照片','icon')->preview(function ($value) {
-                return $value ? Storage::disk('s3')->temporaryUrl(
-                    $value,
-                    now()->addMinutes(5)
-                ):null;
-            })
+            BelongsTo::make('媒體','media','App\Nova\Media')->nullable(),
+
+            BelongsTo::make('相簿','album','App\Nova\Album')->nullable(),
+
+            Boolean::make('是否上架', 'is_activated')
+                ->sortable(),
+
+            Select::make('狀態','status')->options([
+                0 => '未處理',
+                1 => '已處理',
+                2 => '已完成',
+                3 => '已取消',
+            ])
+            ->default(0)
+            ->displayUsingLabels()
+            ->withMeta(['value' => $this->status]),
+
         ];
     }
 
@@ -119,12 +129,12 @@ class Store extends Resource
     // customize the label
     public static function label()
     {
-        return '商店管理';
+        return '廠商商品管理';
     }
 
     // customize the singular label
     public static function singularLabel()
     {
-        return '商店';
+        return '廠商商品';
     }
 }

@@ -2,26 +2,27 @@
 
 namespace App\Nova;
 
-use App\Models\Order;
 use App\Models\User;
 use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Laravel\Nova\Fields\BelongsTo;
-use Laravel\Nova\Fields\Boolean;
+use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\Boolean;
+use Laravel\Nova\Fields\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Media extends Resource
+class Album extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Media>
+     * @var class-string<\App\Models\Album>
      */
-    public static $model = \App\Models\Media::class;
+    public static $model = \App\Models\Album::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -47,48 +48,39 @@ class Media extends Resource
      */
     public function fields(NovaRequest $request)
     {
-        $order = $this->order;
-        $user = $this->user;
         return [
-            ID::make()->sortable(),
-            //user id
-            BelongsTo::make('訂單','order','App\Nova\Order'),
-            BelongsTo::make('用戶','user','App\Nova\User')->default(Order::find($request->viaResourceId)?->user_id),
-            BelongsTo::make('相簿','album','App\Nova\Album'),
+            ID::make()->sortable()->hideFromIndex(),
 
-            Select::make('類型','type')->options([
-                0 => '影片',
-                1 => '照片',
-            ])
-            ->displayUsingLabels()
-            ->default($this->type??0)
-            ->rules('required','integer'),
+            BelongsTo::make('用戶','user','App\Nova\User'),
 
-            Select::make('狀態','status')->options([
-                0 => '尚未處理',
-                1 => '已經處理',
-            ])->displayUsingLabels()
-            ->default($this->status??0)
-            ->rules('required','integer'),
+            Text::make('Name')
+                ->sortable()
+                ->rules('required', 'max:255'),
 
-            Boolean::make('工作人員建立的媒體','is_staff_uploaded')->default(1),
+            Select::make('狀態','type')->options([
+                0 => '圖片',
+                1 => '影片',
+            ]),
 
-            Image::make('封面照片','cover')->preview(function ($value) {
+            Image::make('封面照片','cover'),/* ->preview(function ($value) {
                 return $value ? Storage::disk('s3')->temporaryUrl(
                     $value,
                     now()->addMinutes(5)
                 ):null;
-            })
-            ->path(env('APP_ENV')."/$user?->id/$order?->id/$this?->id/cover")
-            ->hideFromIndex()
-            ->hideWhenCreating(),
-            File::make('影片','obj')
-            ->path(env('APP_ENV')."/$user?->id/$order?->id/$this?->id/obj")
-            ->hideWhenCreating(),
+            }), */
 
+            Select::make('狀態','status')->options([
+                0 => '顯示',
+                1 => '隱藏',
+                2 => '已刪除',
+            ]),
 
+            Text::make('價格', 'price')
+                ->sortable(),
+            
+            Boolean::make('發布','is_public')->default(0),
 
-
+            HasMany::make('媒體','media','App\Nova\Media'),
         ];
     }
 
@@ -136,15 +128,15 @@ class Media extends Resource
         return [];
     }
 
-       // customize the label
-       public static function label()
-       {
-           return '影片管理';
-       }
+    // customize the label
+    public static function label()
+    {
+        return '相簿管理';
+    }
 
-       // customize the singular label
-       public static function singularLabel()
-       {
-           return '影片';
-       }
+    // customize the singular label
+    public static function singularLabel()
+    {
+        return '相簿';
+    }
 }

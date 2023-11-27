@@ -2,29 +2,33 @@
 
 namespace App\Nova;
 
-use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Image;
+use Illuminate\Validation\Rules;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\HasMany;
-use Illuminate\Support\Facades\Storage;
+use Laravel\Nova\Fields\Gravatar;
+use Laravel\Nova\Fields\Password;
+use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Store extends Resource
+class Pin extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Store>
+     * @var class-string<\App\Models\Pin>
      */
-    public static $model = \App\Models\Store::class;
+    public static $model = \App\Models\Pin::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -45,30 +49,16 @@ class Store extends Resource
     {
         return [
             ID::make()->sortable(),
-            //name
-            Text::make('商店名稱','name')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            //address
-            Text::make('商店地址','address')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            //phone
-            Text::make('商店電話','phone')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            //tax id
-            Text::make('統一編號','tax_id')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            HasMany::make('用戶','users','App\Nova\User'),
-            
-            Image::make('封面照片','icon')->preview(function ($value) {
-                return $value ? Storage::disk('s3')->temporaryUrl(
-                    $value,
-                    now()->addMinutes(5)
-                ):null;
-            })
+            Text::make('Pin碼', 'pin_code')
+                ->sortable(),
+            DateTime::make('開始時間', 'start_at')
+                ->sortable(),
+            DateTime::make('結束時間', 'end_at')
+                ->sortable(),
+            Text::make('說明', 'description')
+                ->sortable(),
+            Boolean::make('是否啟動', 'is_activate')
+                ->sortable(),
         ];
     }
 
@@ -119,12 +109,12 @@ class Store extends Resource
     // customize the label
     public static function label()
     {
-        return '商店管理';
+        return 'Pin碼管理';
     }
 
     // customize the singular label
     public static function singularLabel()
     {
-        return '商店';
+        return 'Pin碼';
     }
 }

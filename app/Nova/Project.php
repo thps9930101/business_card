@@ -2,29 +2,34 @@
 
 namespace App\Nova;
 
-use Laravel\Nova\Fields\ID;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Image;
+use Illuminate\Validation\Rules;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\HasMany;
-use Illuminate\Support\Facades\Storage;
+use Laravel\Nova\Fields\Gravatar;
+use Laravel\Nova\Fields\Password;
+use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\DateTime;
+
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Store extends Resource
+class Project extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Store>
+     * @var class-string<\App\Models\Project>
      */
-    public static $model = \App\Models\Store::class;
+    public static $model = \App\Models\Project::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'name';
+    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -45,30 +50,24 @@ class Store extends Resource
     {
         return [
             ID::make()->sortable(),
-            //name
-            Text::make('商店名稱','name')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            //address
-            Text::make('商店地址','address')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            //phone
-            Text::make('商店電話','phone')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            //tax id
-            Text::make('統一編號','tax_id')
-                ->sortable()
-                ->rules('required', 'max:255'),
-            HasMany::make('用戶','users','App\Nova\User'),
+            Text::make('Name', 'name')
+                ->sortable(),
+            Text::make('Costs', 'costs')
+                ->sortable(),
+            Text::make('Points', 'points')
+                ->sortable(),
+            Boolean::make('是否啟動', 'is_activate'),
             
-            Image::make('封面照片','icon')->preview(function ($value) {
-                return $value ? Storage::disk('s3')->temporaryUrl(
-                    $value,
-                    now()->addMinutes(5)
-                ):null;
-            })
+            DateTime::make('開始時間', 'start_at')
+                ->sortable(),
+            DateTime::make('結束時間', 'end_at')
+                ->sortable(),
+            Text::make('類型', 'type')
+                ->sortable(),
+            Text::make('說明', 'description')
+                ->sortable(),
+            Text::make('封面圖示位置', 'icon')
+                ->sortable(),
         ];
     }
 
@@ -119,12 +118,12 @@ class Store extends Resource
     // customize the label
     public static function label()
     {
-        return '商店管理';
+        return '方案管理';
     }
 
     // customize the singular label
     public static function singularLabel()
     {
-        return '商店';
+        return '方案';
     }
 }

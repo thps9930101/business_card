@@ -47,11 +47,17 @@ Route::post('/guestLogin',[UserController::class, 'guestLogin']);
 
 Route::post('/test',[ApiController::class, 'test']);
 
-
-
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::get('/user',[UserController::class, 'profile']);
+
+    // Route::get('/getPoints',[UserController::class, 'getPoints']);
+
+    //get user points 
+    Route::post('/getPoints',[UserController::class, 'getPoints']);
+
+    //set user VIP 
+    Route::post('/setVIP',[UserController::class, 'setVIP']);
 
     //staff only routes
     Route::group(['middleware'=>['admin']],function(){
@@ -107,6 +113,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //get user videos
     Route::get('/videos',[ApiController::class, 'videos']);
 
+    //get projects
+    Route::get('/projects',[ApiController::class, 'projects']);
+
+    //get products
+    Route::get('/products',[ApiController::class, 'products']);
+
+    //get stores
+    Route::get('/stores',[ApiController::class, 'stores']);
+
+    //get stores
+    Route::get('/albums',[ApiController::class, 'albums']);
+
     //get single video
     Route::post('/media/{media}',[ApiController::class, 'video']);
 
@@ -116,6 +134,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //add user to device
     Route::post('/addDevice',[UserController::class, 'addDevice']);
 
+    //check user payment
+    Route::post('/checkPaymentFlow',[ApiController::class, 'checkPaymentFlow']);
+
+    //create a album
+    Route::post('/albumCreate',[ApiController::class, 'albumCreate']);
+
+    //add media to album
+    Route::post('/editToAlbum',[ApiController::class, 'editToAlbum']);
 });
 
 //webhook

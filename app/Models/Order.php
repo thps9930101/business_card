@@ -19,6 +19,12 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
+    //belongs to 1 product
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
+
     //has many media
     public function media()
     {

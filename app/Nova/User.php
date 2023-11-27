@@ -35,7 +35,7 @@ class User extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'name', 'email',
+        'id', 'name', 'email', 
     ];
 
     /**
@@ -53,6 +53,12 @@ class User extends Resource
                 ->sortable()
                 ->rules('required', 'max:255'),
 
+            Text::make('Point', 'points')
+                ->sortable(),
+
+            Text::make('FreePoint', 'free_points')
+                ->sortable(),
+
             Text::make('Email')
                 ->sortable()
                 ->rules('required', 'email', 'max:254')
@@ -64,6 +70,8 @@ class User extends Resource
                 ->creationRules('required', Rules\Password::defaults())
                 ->updateRules('nullable', Rules\Password::defaults()),
 
+            Text::make('廣告觀看次數', 'ads_times')
+                ->sortable(),
             //relationships
             //has many orders
             HasMany::make('訂單','orders','App\Nova\Order'),
@@ -81,8 +89,12 @@ class User extends Resource
             //is store admin
             Boolean::make('商店管理員','is_store_admin'),
 
-            //訪客模式
+            //Guest Mode
             Boolean::make('訪客模式','guest'),
+
+            //VIP Mode
+            Boolean::make('VIP','VIP'),
+            
         ];
     }
 

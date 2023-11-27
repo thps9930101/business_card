@@ -3,9 +3,14 @@
 namespace App\Http\Controllers;
 
 use Recaptcha;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Media;
 use App\Models\Order;
+use App\Models\Store;
+use App\Models\Album;
+use App\Models\Project;
+use App\Models\Product;
 use App\Events\PicUploaded;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -18,10 +23,13 @@ use App\Events\CompleteTransformVideo;
 use App\Notifications\ConfirmUserCode;
 use App\Http\Resources\MediaCollection;
 use App\Http\Resources\OrderCollection;
+use App\Http\Resources\AlbumCollection;
+use App\Http\Resources\StoreCollection;
+use App\Http\Resources\ProductCollection;
 use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Password; // aa
+use Illuminate\Validation\Rules\Password;
 
 
 class ApiController extends Controller
@@ -470,11 +478,37 @@ class ApiController extends Controller
                 ];
             }
 
+            // =====
+
+
             //create new order, media and store file to storage
             $repository = new OrderRepository();
             $repository->userUploadMediaFromCanvas($request);
 
             $media = $repository->getMedia();
+            
+            $user = Auth::user();
+
+            $target = 'points';
+            if($request->to){
+                $target = $request->to;
+            }
+            
+            //create new order, media and store file to storage
+            if($user->$target<-(int)$request->value){
+                $repository->userAddValueFailed($request);
+
+                return [
+                    'success'=>false,
+                    'message'=>[
+                        'type'=> 'not enough points. Please add value !',
+                    ]
+                ];
+            }
+
+            // if succ, then add value
+            $user->$target+=(int)$request->value;
+            $user->save();
 
             event(new PicUploaded($media));
 
@@ -543,10 +577,16 @@ class ApiController extends Controller
             ];
         }
 
+
         $query = Order::where('user_id', Auth::id());
 
+        if($request->dt_condition){
+            $dt_condition = Carbon::now()->subDays($request->dt_condition)->toDateString();
+            $query->whereDate('created_at', '>=', $dt_condition);
+        }
+        
         if(($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all'){
-            $query->where('type', $request->order_type);
+            $query->where('type', $request->order_type); // 
         }
 
         return [
@@ -555,6 +595,119 @@ class ApiController extends Controller
 /*             'sql'=>$query->toSql(),
             'bindings'=>$query->getBindings(),
             'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+        ];
+    }
+
+    /**
+     * get projects
+     */
+    public function projects(Request $request){
+
+        /* $validator = Validator::make($request->all(),[
+            'page' => 'nullable|integer',
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        } */
+
+        $query = Project::get();
+
+        return [
+            'success'=>true,
+            'message'=>$query,
+/*             'sql'=>$query->toSql(),
+            'bindings'=>$query->getBindings(),
+            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+        ];
+    }
+
+     /**
+     * get products
+     */
+    public function products(Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'page' => 'nullable|integer',
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $query = Product::get();
+        //'message'=>new OrderCollection ($query->paginate(10)),
+        return [
+            'success'=>true,
+            'message'=>new ProductCollection ($query), // new ProductCollection ($query)
+/*             'sql'=>$query->toSql(),
+            'bindings'=>$query->getBindings(),
+            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+        ];
+    }
+
+     /**
+     * get stores
+     */
+    public function stores(Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'page' => 'nullable|integer',
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $query = Store::get();
+        //'message'=>new OrderCollection ($query->paginate(10)),
+        return [
+            'success'=>true,
+            'message'=>new StoreCollection ($query), // new ProductCollection ($query)
+/*             'sql'=>$query->toSql(),
+            'bindings'=>$query->getBindings(),
+            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+        ];
+    }
+
+    /**
+     * get albums
+     */
+    public function albums(Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'page' => 'nullable|integer',
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $query = Album::get();
+        //'message'=>new OrderCollection ($query->paginate(10)),
+        return [
+            'success'=>true,
+            'message'=>new AlbumCollection ($query), // new ProductCollection ($query)
         ];
     }
 
@@ -716,9 +869,218 @@ class ApiController extends Controller
         ];
     }
 
-    public function test(Request $request){
+    public function test(){
         return [
             'success'=>true,
+            'message'=>[
+                'mess'=>"oof",
+            ],
         ];
+    }
+
+    /**
+     * get projects
+     */
+    public function checkPaymentFlow(Request $request){
+        // check programming error
+        /* $validator = Validator::make($request->all(),[
+            'value' => 'nullable', //|integer
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        } */
+
+        $user = Auth::user();
+
+        $target = 'points';
+       
+        if($request->to){
+            $target = $request->to;
+        }
+
+        // check action type
+        switch ($request->type) {
+            // check 2to3 available
+            case 0:
+                //create new order, media and store file to storage
+                if($user->$target<-(int)$request->value){
+                    return [
+                        'success'=>false,
+                        'message'=>[
+                            'type'=> 'not enough points. Please add value !',
+                        ]
+                    ];
+                }
+            
+            // check buy items
+            case 1:
+                $repository = new OrderRepository();
+                $repository->createOrder($request);
+
+                if($user->$target<-(int)$request->value){
+                    return [
+                        'success'=>false,
+                        'message'=>[
+                            'type'=> 'not enough points to buy. Please add value !',
+                        ]
+                    ];
+                }
+
+                // after trasaction succ
+                $repository->userAddValueSucc($request);
+                break;
+
+            // check Paypal payment success 
+            case 2:
+                $repository = new OrderRepository();
+                $repository->createOrder($request);
+                // ====== check paypal trasaction status =======
+                
+
+
+                // ====================
+
+                // after trasaction succ
+                $repository->userAddValueSucc($request);
+
+                if(!$request->from){
+                    break;
+                }
+
+                if($request->from == 'ads'){
+                    $user->ads_times += 1;
+                }
+                
+                break;
+            
+            case 3:
+                
+
+                
+                break;
+            
+            default:
+                return [
+                    'success'=>false,
+                    'message'=>[
+                        'type'=> 'ain\'t regular type',
+                    ]
+                ];
+        }
+
+        // if succ, then add value
+        $user->$target+=(int)$request->value;
+        $user->save();
+
+        return [
+            'success'=>true,
+            'message'=>[
+                'points'=> $user->points,
+                'free_points'=> $user->free_points,
+            ]
+/*           'sql'=>$query->toSql(),
+            'bindings'=>$query->getBindings(),
+            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+        ];
+    }
+
+
+    /**
+     * create album
+     */
+    public function albumCreate(Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $user = Auth::user();
+
+        $album = Album::create([
+            'name' => $request->name,
+        ]);
+
+        $album->user()->associate($user);
+        $album->save();
+
+        return [
+            'success' => true,
+            'message' => [
+                'id' =>  $album->id,
+                'name' =>  $album->name,
+            ]
+        ];
+    }
+
+    /**
+     * add media to album
+     */
+    public function editToAlbum(Request $request){
+
+        /* $validator = Validator::make($request->all(),[
+            'name' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        } */
+        $albumID = $request->album['id'];
+        $productsWithoutAlbum = !Product::whereHas('album', function ($query) use ($albumID) {
+            $query->where('album_id', $albumID);
+        })->exists();
+
+        if (!$productsWithoutAlbum) {
+            return [
+                'success' => false,
+                'message' => 'your album is in product. You can\'t edit it.'
+            ];
+    
+        }
+
+        $album = Album::where('id', $request->album['id'])->first();
+        $request_media = $request->chosenMedia;
+
+        if($request->editType == 'add'){
+            foreach ($request->chosenMedia as $key => $value) {
+                $media = Media::where('id', $value['id'])->first();
+                $media->album()->associate($album);
+                $media->save();
+            }    
+        }
+        else if($request->editType == 'delete'){
+            foreach ($request->chosenMedia as $key => $value) {
+                $media = Media::where('id', $value['id'])->first();
+                $media->album_id = null;
+                $media->save();
+            }    
+        }
+        
+        return [
+            'success' => true,
+            'message' => [
+                'id' =>  $media,
+            ]
+        ];
+
+
+
     }
 }

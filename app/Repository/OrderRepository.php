@@ -43,6 +43,10 @@ class OrderRepository
         $order = $this->order;
         $user = $request->user();
         $order->user()->associate($user);
+        $order->type = $request->type ? $request->type : 0;
+        $order->product_id = $request->product_id ? $request->product_id : null;
+        $order->points = $request->points ? $request->points : 0;
+        $order->free_points = $request->free_points ? $request->free_points : 0;
         $order->save();
         return $order;
     }
@@ -125,6 +129,36 @@ class OrderRepository
 
             $this->media = $media;
 
+        });
+
+        return $this;
+    }
+
+    public function userAddValueSucc($request){
+        DB::transaction(function () use ($request) {
+            $order = $this->order;
+            $order->status = 2;
+
+            $target = 'points';
+            
+            if($request->to){
+                $target = $request->to;
+            }
+            
+            $order->$target = (int)$request->value;
+            $order->save();
+        });
+
+        return $this;
+    }
+            
+    public function userAddValueFailed($request){
+        DB::transaction(function () use ($request) {
+            $order = $this->order;
+            $order->status = 3;  // failed status
+            $target = $request->to;
+            $order->$target = $request->value;
+            $order->save();
         });
 
         return $this;
