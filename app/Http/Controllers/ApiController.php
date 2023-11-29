@@ -703,7 +703,7 @@ class ApiController extends Controller
             ];
         }
 
-        $query = Album::get();
+        $query = Album::where('user_id', Auth::id())->get();
         //'message'=>new OrderCollection ($query->paginate(10)),
         return [
             'success'=>true,
