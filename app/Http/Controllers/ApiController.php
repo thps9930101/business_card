@@ -11,6 +11,7 @@ use App\Models\Store;
 use App\Models\Album;
 use App\Models\Project;
 use App\Models\Product;
+// use App\Models\Product_solution;
 use App\Events\PicUploaded;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ use App\Http\Resources\OrderCollection;
 use App\Http\Resources\AlbumCollection;
 use App\Http\Resources\StoreCollection;
 use App\Http\Resources\ProductCollection;
+// use App\Http\Resources\ProductSolutionCollection;
 use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Support\Facades\Validator;
@@ -579,6 +581,7 @@ class ApiController extends Controller
 
 
         $query = Order::where('user_id', Auth::id());
+        $query = Order::orderBy('created_at', 'desc');
 
         if($request->dt_condition){
             $dt_condition = Carbon::now()->subDays($request->dt_condition)->toDateString();
@@ -710,6 +713,30 @@ class ApiController extends Controller
             'message'=>new AlbumCollection ($query), // new ProductCollection ($query)
         ];
     }
+
+    /* public function product_solutions(Request $request){
+
+        $validator = Validator::make($request->all(),[
+            'page' => 'nullable|integer',
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+
+        $query = Product_solution::where('product_id', $request->productID);
+
+        return [
+            'success'=>true,
+            'message'=>new ProductSolutionCollection ($query->paginate(10)),
+        ];
+    } */
 
     public function get2Dpics(){
 
