@@ -580,8 +580,7 @@ class ApiController extends Controller
         }
 
 
-        $query = Order::where('user_id', Auth::id());
-        $query = Order::orderBy('created_at', 'desc');
+        $query = Order::where('user_id', Auth::id())->orderBy('created_at', 'desc');
 
         if($request->dt_condition){
             $dt_condition = Carbon::now()->subDays($request->dt_condition)->toDateString();
