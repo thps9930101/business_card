@@ -54,7 +54,7 @@ class Media extends Resource
             //user id
             BelongsTo::make('訂單','order','App\Nova\Order'),
             BelongsTo::make('用戶','user','App\Nova\User')->default(Order::find($request->viaResourceId)?->user_id),
-            BelongsTo::make('相簿','album','App\Nova\Album'),
+            BelongsTo::make('相簿','album','App\Nova\Album')->nullable(),
 
             Select::make('類型','type')->options([
                 0 => '影片',
