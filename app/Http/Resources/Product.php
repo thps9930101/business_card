@@ -31,6 +31,7 @@ class Product extends JsonResource
             'media'=> Media::collection($media),
             'album'=> $this->album_id,
             'is_activated'=>$this->is_activated,
+            'featured'=>$this->featured,
         ];
     }
 }
