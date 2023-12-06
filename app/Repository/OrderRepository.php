@@ -2,8 +2,11 @@
 namespace App\Repository;
 
 use FFMpeg\FFMpeg;
+use Carbon\Carbon;
 use App\Models\Media;
 use App\Models\Order;
+use App\Models\Product_solution;
+use App\Models\Product_solution_order;
 use FFMpeg\Coordinate\TimeCode;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -45,8 +48,8 @@ class OrderRepository
         $order->user()->associate($user);
         $order->type = $request->type ? $request->type : 0;
         $order->product_id = $request->product_id ? $request->product_id : null;
-        $order->points = $request->points ? $request->points : 0;
-        $order->free_points = $request->free_points ? $request->free_points : 0;
+        /* $order->points = $request->points ? $request->points : 0;
+        $order->free_points = $request->free_points ? $request->free_points : 0; */
         $order->save();
         return $order;
     }
@@ -59,6 +62,23 @@ class OrderRepository
         $media->save();
         $this->media = $media;
         return $media;
+    }
+
+    public function createProductSolutionOrder($request){
+        $solution_order = new Product_solution_order;
+        $solution_order->order()->associate($this->order);
+        $solution_order->product_solution()->associate(Product_solution::where('id', $request->product_solution['id'])->first()); 
+        $solution_order->expired_at = Carbon::now()->addMonths($request->product_solution['period']);
+        if($request->product_solution['period']< 1){
+            $solution_order->next_expired_at = Carbon::now()->addMonths($request->product_solution['period']);
+        }
+        else{
+            $solution_order->next_expired_at = Carbon::now()->addMonths(1);
+        }
+        $solution_order->is_activated = true;
+        $solution_order->save();
+        // $this->solution_order = $solution_order;
+        return $solution_order;
     }
 
     /**
@@ -152,6 +172,10 @@ class OrderRepository
         return $this;
     }
             
+    /**
+     * add value failed
+     * 1 create order
+     */
     public function userAddValueFailed($request){
         DB::transaction(function () use ($request) {
             $order = $this->order;
@@ -159,6 +183,22 @@ class OrderRepository
             $target = $request->to;
             $order->$target = $request->value;
             $order->save();
+        });
+
+        return $this;
+    }
+
+    /**
+     * subcscirbe a product
+     * 1 create order
+     * 2 create product_solution_order
+     * 3 
+     */
+    public function subscribeProduct($request){
+        DB::transaction(function () use ($request) {
+            $this->createOrder($request);
+            $solution_order = $this->createProductSolutionOrder($request);
+            $this->solution_order = $solution_order;
         });
 
         return $this;
@@ -177,15 +217,17 @@ class OrderRepository
     public function userUploadMediaFromCanvas($request){
         DB::transaction(function () use ($request) {
             $this->createOrder($request);
-            $media = $this->createMedia();
-            $file = $this->dataUrlToFile($request->pic);
-            //resize image to cover
-            $media->cover = $this->imageToCover($file);
-            $path = $file->store($this->getOrigianlFolderPath($media->id),'s3');
-            $media->obj = $path;
-            $media->original = $path;
-            $media->save();
-            $this->media = $media;
+            foreach ($request->pic as $pic) {
+                $media = $this->createMedia();
+                $file = $this->dataUrlToFile($pic);
+                //resize image to cover
+                $media->cover = $this->imageToCover($file);
+                $path = $file->store($this->getOrigianlFolderPath($media->id),'s3');
+                $media->obj = $path;
+                $media->original = $path;
+                $media->save();
+                $this->media = $media;
+            }
         });
 
         return $this;

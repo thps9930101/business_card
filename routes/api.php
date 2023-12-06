@@ -125,6 +125,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //get stores
     Route::get('/albums',[ApiController::class, 'albums']);
 
+    //get stores
+    Route::get('/product_solutions',[ApiController::class, 'product_solutions']);
+
     //get single video
     Route::post('/media/{media}',[ApiController::class, 'video']);
 
@@ -142,6 +145,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     //add media to album
     Route::post('/editToAlbum',[ApiController::class, 'editToAlbum']);
+
+    //subscribe a product
+    Route::post('/product_subscribe',[ApiController::class, 'product_subscribe']);
 });
 
 //webhook

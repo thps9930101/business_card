@@ -5,19 +5,18 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Product extends Resource
+class Product_solution extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Product>
+     * @var class-string<\App\Models\Product_solution>
      */
-    public static $model = \App\Models\Product::class;
+    public static $model = \App\Models\Product_solution::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -45,41 +44,12 @@ class Product extends Resource
     {
         return [
             ID::make()->sortable(),
-
-            //belongs to store
-            BelongsTo::make('商店','store','App\Nova\Store')
-            ->nullable(),//show store name
-
-            Text::make('價格', 'costs')
+            BelongsTo::make('產品ID','product','App\Nova\Product'),
+            Text::make('方案單價', 'costs')
                 ->sortable(),
-
-            Select::make('狀態','type')->options([
-                0 => '單張',
-                1 => '相簿',
-            ])
-            ->default(0)
-            ->displayUsingLabels()
-            ->withMeta(['value' => $this->status]),
-
-            
-            BelongsTo::make('媒體','media','App\Nova\Media')->nullable(),
-
-            BelongsTo::make('相簿','album','App\Nova\Album')->nullable(),
-
-            Boolean::make('是否上架', 'is_activated')
+            Text::make('期限', 'period')
                 ->sortable(),
-
-            Select::make('狀態','status')->options([
-                0 => '未處理',
-                1 => '已處理',
-                2 => '已完成',
-                3 => '已取消',
-            ])
-            ->default(0)
-            ->displayUsingLabels()
-            ->withMeta(['value' => $this->status]),
-
-            Boolean::make('設為精選', 'featured')
+            Boolean::make('是否啟動', 'is_activated')
                 ->sortable(),
         ];
     }
@@ -131,12 +101,12 @@ class Product extends Resource
     // customize the label
     public static function label()
     {
-        return '廠商商品管理';
+        return '廠商訂閱方案管理';
     }
 
     // customize the singular label
     public static function singularLabel()
     {
-        return '廠商商品';
+        return '訂閱方案';
     }
 }

@@ -11,7 +11,7 @@ use App\Models\Store;
 use App\Models\Album;
 use App\Models\Project;
 use App\Models\Product;
-// use App\Models\Product_solution;
+use App\Models\Product_solution;
 use App\Events\PicUploaded;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -27,7 +27,7 @@ use App\Http\Resources\OrderCollection;
 use App\Http\Resources\AlbumCollection;
 use App\Http\Resources\StoreCollection;
 use App\Http\Resources\ProductCollection;
-// use App\Http\Resources\ProductSolutionCollection;
+use App\Http\Resources\ProductSolutionCollection;
 use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Support\Facades\Validator;
@@ -459,7 +459,7 @@ class ApiController extends Controller
     public function uploadCanvas(Request $request){
         try{        
             $validator = Validator::make($request->all(),[
-                'pic' => 'required|string',
+                'pic' => 'required', // |string
             ]);
 
             if($validator->fails()){
@@ -713,7 +713,7 @@ class ApiController extends Controller
         ];
     }
 
-    /* public function product_solutions(Request $request){
+    public function product_solutions(Request $request){
 
         $validator = Validator::make($request->all(),[
             'page' => 'nullable|integer',
@@ -735,7 +735,7 @@ class ApiController extends Controller
             'success'=>true,
             'message'=>new ProductSolutionCollection ($query->paginate(10)),
         ];
-    } */
+    }
 
     public function get2Dpics(){
 
@@ -1105,8 +1105,60 @@ class ApiController extends Controller
                 'id' =>  $media,
             ]
         ];
+    }
+    
+    /**
+     * add media to album
+     */
+    public function product_subscribe(Request $request){
+// check programming error
+        /* $validator = Validator::make($request->all(),[
+            'value' => 'nullable', //|integer
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        ]);
 
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        } */
 
+        $user = Auth::user();
 
+        /* $temp = Product_solution::where('id', $request->product_solution['id'])->get();
+        return [
+            'success'=>true,
+            'message'=>[
+                'points'=> $temp,
+            ]
+        ]; */
+        // check action type
+        /* switch ($request->type) {
+            // check 2to3 available
+            case 0:
+                //create new order, media and store file to storage
+                if($user->$target<-(int)$request->value){
+                    return [
+                        'success'=>false,
+                        'message'=>[
+                            'type'=> 'not enough points. Please add value !',
+                        ]
+                    ];
+                }
+        } */
+
+        // if succ, then make an order and make a solution order
+        $repository = new OrderRepository();
+        $order_detail = $repository->subscribeProduct($request);
+        // ====== check paypal trasaction status =======
+
+        return [
+            'success'=>true,
+            'message'=>[
+                'order'=> $order_detail,
+            ]
+        ];
     }
 }
