@@ -14,7 +14,7 @@ class Order extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $product = $this->product()->latest()->get(); // Product::collection($this->product()->latest()->get());
+        $product_solution_order = $this->product_solution_order()->latest()->get(); // Product::collection($this->product()->latest()->get());
         
         if($this->type == 2){
             return [
@@ -27,26 +27,24 @@ class Order extends JsonResource
             ];
         }
 
-        if($this->type == 1){
-            if($product == null || $product->first() == null){
+        if($this->type == 1){            
+            if($product_solution_order->first()->product_solution->product->type == 0){
+                $media = collect([$product_solution_order->first()->product_solution->product->media]);
+            }
+            else{
+                $album = collect([$product_solution_order->first()->product_solution->product->album]);
+                $albumCollection = Album::Collection($album);
+                $media = $albumCollection->first()->media;
+            }
+            /* if($product == null || $product->first() == null){
                 return [
                     'id'=>-1,
                     'messages'=> 'Programming error, please check order table.',
                 ];
             }
-/*             else if($product->first()==null){
-                $media = $this->media()->latest()->get();
-            } */
             else{
-                if($product->first()->type == 0){
-                    $media = collect([$product->first()->media]);
-                }
-                else{
-                    $album = collect([$product->first()->album]);
-                    $albumCollection = Album::Collection($album);
-                    $media = $albumCollection->first()->media;
-                }
-            }
+                
+            } */
         }
         else{
             $media = $this->media()->latest()->get();
