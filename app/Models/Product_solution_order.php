@@ -9,6 +9,11 @@ class product_solution_order extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'expired_at' => 'datetime',
+        'next_expired_at'=>'datetime'
+    ];
+
     //belongs to 1 order
     public function order()
     {
