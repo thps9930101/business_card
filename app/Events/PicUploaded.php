@@ -26,10 +26,10 @@ class PicUploaded  implements ShouldBroadcast
      */
     public function __construct($video)
     {
-        $this->id=$video->id;
-        $this->name=$video->name;
-        $this->obj=Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour());
-        $this->path= (new OrderRepository($video->order))->getPath($video->id);
+        $this->id=$video->id??'null';
+        $this->name=$video->name??'null';
+        $this->obj=isset($video->obj)?Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()) : 'null';
+        $this->path=isset($vide->order)?(new OrderRepository($video->order))->getPath($video->id) : 'null';
     }
 
     /**

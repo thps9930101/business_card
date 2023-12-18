@@ -1152,6 +1152,10 @@ class ApiController extends Controller
         // if succ, then make an order and make a solution order
         $repository = new OrderRepository();
         $order_detail = $repository->subscribeProduct($request);
+
+        $media = $repository->getMedia();
+
+        event(new PicUploaded($media));
         // ====== check paypal trasaction status =======
 
         return [
