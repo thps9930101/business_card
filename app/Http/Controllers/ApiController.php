@@ -898,11 +898,11 @@ class ApiController extends Controller
                     else{
                         $album = $order->product_solution_order?collect([$order->product_solution_order->product_solution->product->album]) : null;
                         $albumCollection = new AlbumCollection($album);
-                        return $albumCollection;
                         $tmp_media = $albumCollection? $albumCollection->first()->media : null;
                     }
                     array_push($media_arr, $tmp_media);
                 }
+                return $media_arr;
         
                 foreach ($media_arr as $temp_arr) {
                     foreach ($temp_arr as $temp) {
