@@ -882,47 +882,52 @@ class ApiController extends Controller
     }
 
     public function video(Request $request, Media $media){
-        $userOrders = Order::where('user_id', $request->user()->id)->where('type', '1')->get();
+        try{
+            $userOrders = Order::where('user_id', $request->user()->id)->where('type', '1')->get();
 
-        $media_arr = [];
-        $result_arr = [];
+            $media_arr = [];
+            $result_arr = [];
 
-        $can_view = false;
-        
-        if($request->user()->cannot('view', $media)){
-            foreach ($userOrders as $order) {
-                if($order->type == 0){
-                    $tmp_media = $order->product_solution_order->product_solution->product->media;
-                }
-                else{
-                    $album = collect([$order->product_solution_order->product_solution->product->album]);
-                    $albumCollection = new AlbumCollection($album);
-                    $tmp_media = $albumCollection->first()->media;
-                }
-                array_push($media_arr, $tmp_media);
-            }
-    
-            foreach ($media_arr as $temp_arr) {
-                foreach ($temp_arr as $temp) {
-                    if ($temp->id == $media->id) {
-                        $can_view = true;
+            $can_view = false;
+            
+            if($request->user()->cannot('view', $media)){
+                foreach ($userOrders as $order) {
+                    if($order->type == 0){
+                        $tmp_media = $order->product_solution_order->product_solution->product->media;
                     }
-                    array_push($result_arr, $temp->id == $media->id);
+                    else{
+                        $album = collect([$order->product_solution_order->product_solution->product->album]);
+                        $albumCollection = new AlbumCollection($album);
+                        $tmp_media = $albumCollection->first()->media;
+                    }
+                    array_push($media_arr, $tmp_media);
+                }
+        
+                foreach ($media_arr as $temp_arr) {
+                    foreach ($temp_arr as $temp) {
+                        if ($temp->id == $media->id) {
+                            $can_view = true;
+                        }
+                        array_push($result_arr, $temp->id == $media->id);
+                    }
+                }
+
+                if(!$can_view){
+                    abort(403);
                 }
             }
 
-            if(!$can_view){
-                abort(403);
-            }
+            return [
+                'success'=>true,
+                'message'=>[
+                    'cover'=>Storage::disk('s3')->temporaryUrl($media->cover, now()->addHour()),
+                    'obj'=>Storage::disk('s3')->temporaryUrl($media->obj, now()->addHour()),
+                ],
+            ];
         }
-
-        return [
-            'success'=>true,
-            'message'=>[
-                'cover'=>Storage::disk('s3')->temporaryUrl($media->cover, now()->addHour()),
-                'obj'=>Storage::disk('s3')->temporaryUrl($media->obj, now()->addHour()),
-            ],
-        ];
+        catch(Exception $e){
+            return $e;
+        }
     }
 
     public function test(){
