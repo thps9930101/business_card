@@ -882,11 +882,10 @@ class ApiController extends Controller
     }
 
     public function video(Request $request, Media $media){
-        $user = $request->user();
-
-        $userOrders = Order::where('user_id', $user->id)->where('type', '1')->get();
+        $userOrders = Order::where('user_id', $request->user()->id)->where('type', '1')->get();
 
         $media_arr = [];
+        $result_arr = [];
 
         $can_view = false;
         
@@ -908,8 +907,11 @@ class ApiController extends Controller
                     if ($temp->id == $media->id) {
                         $can_view = true;
                     }
+                    array_push($result_arr, $temp->id == $media->id);
                 }
             }
+
+            return $result_arr;
 
             if(!$can_view){
                 abort(403);
