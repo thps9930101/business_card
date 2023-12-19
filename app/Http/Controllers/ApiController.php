@@ -901,7 +901,6 @@ class ApiController extends Controller
                         $tmp_media = $albumCollection? $albumCollection->first()->media : null;
                     }
                     array_push($media_arr, $tmp_media);
-                    return $media_arr;
                 }
                 
         
@@ -928,7 +927,7 @@ class ApiController extends Controller
             ];
         }
         catch(Exception $e){
-            return $e;
+            return var_dump($e);
         }
     }
 
