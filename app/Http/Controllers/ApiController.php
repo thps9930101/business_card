@@ -901,8 +901,9 @@ class ApiController extends Controller
                         $tmp_media = $albumCollection? $albumCollection->first()->media : null;
                     }
                     array_push($media_arr, $tmp_media);
+                    return $media_arr;
                 }
-                return $media_arr;
+                
         
                 foreach ($media_arr as $temp_arr) {
                     foreach ($temp_arr as $temp) {
