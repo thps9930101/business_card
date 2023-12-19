@@ -892,13 +892,17 @@ class ApiController extends Controller
             
             if($request->user()->cannot('view', $media)){
                 foreach ($userOrders as $order) {
+                    if($order->product_solution_order == null){
+                        continue;
+                    }
+
                     if($order->product_solution_order->first()->product_solution->product->type == 0){
-                        $tmp_media = $order->product_solution_order? $order->product_solution_order->product_solution->product->media : null;
+                        $tmp_media = $order->product_solution_order->product_solution->product->media;
                     }
                     else{
-                        $album = $order->product_solution_order?collect([$order->product_solution_order->product_solution->product->album]) : null;
+                        $album = collect([$order->product_solution_order->product_solution->product->album]);
                         $albumCollection = new AlbumCollection($album);
-                        $tmp_media = $albumCollection? $albumCollection->first()->media : null;
+                        $tmp_media = $albumCollection->first()->media;
                     }
                     array_push($media_arr, $tmp_media);
                 }
