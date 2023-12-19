@@ -911,8 +911,6 @@ class ApiController extends Controller
                 }
             }
 
-            return $result_arr;
-
             if(!$can_view){
                 abort(403);
             }
