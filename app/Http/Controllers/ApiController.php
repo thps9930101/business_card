@@ -896,7 +896,7 @@ class ApiController extends Controller
                         $tmp_media = $order->product_solution_order? $order->product_solution_order->product_solution->product->media : null;
                     }
                     else{
-                        $album = collect([$order->product_solution_order->product_solution->product->album]);
+                        $album = $order->product_solution_order?collect([$order->product_solution_order->product_solution->product->album]) : null;
                         $albumCollection = new AlbumCollection($album);
                         $tmp_media = $albumCollection->first()->media;
                     }
