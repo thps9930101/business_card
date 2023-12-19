@@ -892,7 +892,7 @@ class ApiController extends Controller
             
             if($request->user()->cannot('view', $media)){
                 foreach ($userOrders as $order) {
-                    if($order->$product_solution_order->first()->product_solution->product->type == 0){
+                    if($order->product_solution_order->first()->product_solution->product->type == 0){
                         $tmp_media = $order->product_solution_order? $order->product_solution_order->product_solution->product->media : null;
                     }
                     else{
