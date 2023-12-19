@@ -892,6 +892,8 @@ class ApiController extends Controller
             
             if($request->user()->cannot('view', $media)){
                 foreach ($userOrders as $order) {
+                    return $order;
+                    
                     if($order->type == 0){
                         $tmp_media = $order->product_solution_order->product_solution->product->media;
                     }
