@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Models\Media;
 use App\Models\User;
+use App\Models\Product_solution_order;
 use Illuminate\Auth\Access\Response;
 
 class MediaPolicy
@@ -19,7 +20,7 @@ class MediaPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Media $media): bool
+    public function view(User $user, Media $media) //: bool
     {
         return ($media->user->store_id == $user->store_id && $user->is_store_admin )|| $media->user_id == $user->id;
     }
