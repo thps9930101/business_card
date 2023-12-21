@@ -912,7 +912,7 @@ class ApiController extends Controller
                         return [
                             'success'=>true,
                             'message'=>[
-                                'cover'=>$albumCollection,
+                                'cover'=>$order,
                             ],
                         ];
                     }

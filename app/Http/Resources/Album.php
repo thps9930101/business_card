@@ -16,8 +16,6 @@ class Album extends JsonResource
     public function toArray(Request $request): array
     {
         $media = $this->media()->latest()->get();
-
-        return $media;
         $processed = $media->filter(fn($item) => $item->status === 1)->count();
         $total = $media->count();
 
