@@ -887,7 +887,7 @@ class ApiController extends Controller
 
             $media_arr = [];
             $result_arr = [];
-            $album = null;
+            $albumCollection = null;
 
             $can_view = false;
             
@@ -910,7 +910,12 @@ class ApiController extends Controller
                 }
 
                 if($tmp_media==null){
-                    return $album;
+                    return [
+                        'success'=>true,
+                        'message'=>[
+                            'cover'=>$albumCollection,
+                        ],
+                    ];
                 }
         
                 foreach ($media_arr as $temp_arr) {
