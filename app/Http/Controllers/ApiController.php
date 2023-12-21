@@ -903,10 +903,11 @@ class ApiController extends Controller
                         $album = collect([$order->product_solution_order->product_solution->product->album]);
                         $albumCollection = new AlbumCollection($album);
                         $tmp_media = $albumCollection->first()->media;
-                    }
 
-                    if($tmp_media==null){
-                        return $albumCollection;
+                        
+                        if($tmp_media==null){
+                            return $albumCollection;
+                        }
                     }
                     
                     array_push($media_arr, $tmp_media);
