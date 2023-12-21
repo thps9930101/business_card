@@ -907,16 +907,18 @@ class ApiController extends Controller
                     }
                     
                     array_push($media_arr, $tmp_media);
+
+                    if($tmp_media==null){
+                        return [
+                            'success'=>true,
+                            'message'=>[
+                                'cover'=>$order->product_solution_order->product_solution->product,
+                            ],
+                        ];
+                    }
                 }
 
-                if($tmp_media==null){
-                    return [
-                        'success'=>true,
-                        'message'=>[
-                            'cover'=>$albumCollection,
-                        ],
-                    ];
-                }
+
         
                 foreach ($media_arr as $temp_arr) {
                     foreach ($temp_arr as $temp) {
