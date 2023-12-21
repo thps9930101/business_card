@@ -909,8 +909,8 @@ class ApiController extends Controller
                 
         
                 foreach ($media_arr as $temp_arr) {
+                    return $media_arr;
                     foreach ($temp_arr as $temp) {
-                        return $temp_arr;
                         if ($temp->id == $media->id) {
                             $can_view = true;
                         }
