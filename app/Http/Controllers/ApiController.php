@@ -907,15 +907,15 @@ class ApiController extends Controller
                     array_push($media_arr, $tmp_media);
                 }
                 
-                foreach ($media_arr as $temp) {
-                    if ($temp->id == $media->id) {
-                        $can_view = true;
+        
+                foreach ($media_arr as $temp_arr) {
+                    return $media_arr;
+                    foreach ($temp_arr as $temp) {
+                        if ($temp->id == $media->id) {
+                            $can_view = true;
+                        }
                     }
                 }
-                /* foreach ($media_arr as $temp_arr) {
-                    return $media_arr;
-                    
-                } */
 
                 if(!$can_view){
                     abort(403);
