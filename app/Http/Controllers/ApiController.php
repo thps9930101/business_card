@@ -912,7 +912,7 @@ class ApiController extends Controller
                         return [
                             'success'=>true,
                             'message'=>[
-                                'cover'=>$order->product_solution_order->product_solution->product,
+                                'cover'=>$order->product_solution_order->product_solution->product->album,
                             ],
                         ];
                     }
