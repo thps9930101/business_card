@@ -14,4 +14,9 @@ class Product_solution extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function product_solution_order()
+    {
+        return $this->hasMany(Product_solution_order::class);
+    }
 }

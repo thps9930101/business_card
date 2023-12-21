@@ -148,6 +148,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     //subscribe a product
     Route::post('/product_subscribe',[ApiController::class, 'product_subscribe']);
+    
+    //unsubscribe a product
+    Route::post('/product_unsubscribe',[ApiController::class, 'product_unsubscribe']);
+    
+    //check subscribe available
+    Route::post('/check_product_subscribe',[ApiController::class, 'check_product_subscribe']);
 });
 
 //webhook

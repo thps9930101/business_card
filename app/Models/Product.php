@@ -29,4 +29,11 @@ class Product extends Model
     public function album(){
         return $this->belongsTo(Album::class);
     }
+
+    /**
+     * has many product_solution
+     */
+    public function product_solution(){
+        return $this->hasMany(Product_solution::class);
+    }
 }

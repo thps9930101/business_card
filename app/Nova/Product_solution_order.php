@@ -5,6 +5,7 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\BelongsTo;
@@ -51,6 +52,10 @@ class Product_solution_order extends Resource
                 ->sortable(),
             DateTime::make('下次過期時間', 'next_expired_at')
                 ->sortable(),
+            Select::make('狀態','status')->options([
+                0 => '訂閱中',
+                1 => '取消訂閱',
+            ]),
             Boolean::make('是否啟動', 'is_activated')
                 ->sortable(),
         ];

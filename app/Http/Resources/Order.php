@@ -27,24 +27,20 @@ class Order extends JsonResource
             ];
         }
 
-        if($this->type == 1){            
-            if($product_solution_order->first()->product_solution->product->type == 0){
-                $media = collect([$product_solution_order->first()->product_solution->product->media]);
-            }
+        if($this->type == 1){        
+            if($product_solution_order->first()->status == 0){
+                if($product_solution_order->first()->product_solution->product->type == 0){
+                    $media = collect([$product_solution_order->first()->product_solution->product->media]);
+                }
+                else{
+                    $album = collect([$product_solution_order->first()->product_solution->product->album]);
+                    $albumCollection = Album::Collection($album);
+                    $media = $albumCollection->first()->media;
+                }
+            }  
             else{
-                $album = collect([$product_solution_order->first()->product_solution->product->album]);
-                $albumCollection = Album::Collection($album);
-                $media = $albumCollection->first()->media;
+                $media = collect([]);
             }
-            /* if($product == null || $product->first() == null){
-                return [
-                    'id'=>-1,
-                    'messages'=> 'Programming error, please check order table.',
-                ];
-            }
-            else{
-                
-            } */
         }
         else{
             $media = $this->media()->latest()->get();

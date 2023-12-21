@@ -913,7 +913,6 @@ class ApiController extends Controller
                         if ($temp->id == $media->id) {
                             $can_view = true;
                         }
-                        array_push($result_arr, $temp->id == $media->id);
                     }
                 }
 
@@ -1148,12 +1147,12 @@ class ApiController extends Controller
     }
     
     /**
-     * add media to album
+     * check if subscribed 
      */
-    public function product_subscribe(Request $request){
-// check programming error
-        /* $validator = Validator::make($request->all(),[
-            'value' => 'nullable', //|integer
+    public function check_product_subscribe(Request $request){
+        // check programming error
+        $validator = Validator::make($request->all(),[
+            'product' => 'nullable', // |integer
             'type' =>['nullable','regex:/^([0-9]+|all)$/'],
         ]);
 
@@ -1163,31 +1162,107 @@ class ApiController extends Controller
                 'message' => $validator->messages()->first(),
                 'errors'=> $validator->errors()->toArray()
             ];
-        } */
+        }
 
         $user = Auth::user();
+        
+        // $have_order = Product_solution_order::where('email', 'example@example.com')->exists();
+        $product = Product::where('id', $request->product['id'])->first();
 
-        /* $temp = Product_solution::where('id', $request->product_solution['id'])->get();
-        return [
-            'success'=>true,
-            'message'=>[
-                'points'=> $temp,
-            ]
-        ]; */
-        // check action type
-        /* switch ($request->type) {
-            // check 2to3 available
-            case 0:
-                //create new order, media and store file to storage
-                if($user->$target<-(int)$request->value){
+        $product_solution = $product->product_solution;
+
+        // Prevent subscribe self.
+        if($product->type == 0){
+            $media_list = [$product->media];
+        }
+        else{
+            $album = collect([$product->album]);
+            $albumCollection = new AlbumCollection($album);
+            $media_list = $albumCollection->first()->media;
+        }
+
+        foreach($media_list as $media){
+            if($media->order->user->id == $user->id){
+                return [
+                    'success'=>false,
+                    'message'=>'這是您所上傳的照片',
+                ];
+            }
+        }
+
+        // Prevent subscribe same product.
+        foreach($product_solution as $solution){
+            $product_solution_orders = $solution->product_solution_order;
+
+            foreach($product_solution_orders as $product_solution_order){
+                if($product_solution_order->order->user->id == $user->id && $product_solution_order->status == 0){
                     return [
                         'success'=>false,
-                        'message'=>[
-                            'type'=> 'not enough points. Please add value !',
-                        ]
+                        'message'=>'您已經訂閱過了',
                     ];
                 }
-        } */
+            }
+        }
+
+        return [
+            'success'=>true,
+            'message'=>"可以訂閱"
+        ];
+    }
+
+    /**
+     * subscribe a product
+     */
+    public function product_subscribe(Request $request){
+        // check programming error
+        $validator = Validator::make($request->all(),[
+            'product_solution' => 'nullable', // |integer
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $user = Auth::user();
+        
+        // $have_order = Product_solution_order::where('email', 'example@example.com')->exists();
+        $product_solution = Product_solution::where('id', $request->product_solution['id'])->first();
+        $product = $product_solution->product;
+        $product_solution_orders = $product_solution->product_solution_order;
+
+        // Prevent subscribe self.
+        if($product->type == 0){
+            $media_list = [$product->media];
+        }
+        else{
+            $album = collect([$product->album]);
+            $albumCollection = new AlbumCollection($album);
+            $media_list = $albumCollection->first()->media;
+        }
+
+        foreach($media_list as $media){
+            if($media->order->user->id == $user->id){
+                return [
+                    'success'=>false,
+                    'message'=>'這是您所上傳的照片',
+                ];
+            }
+        }
+
+        // Prevent subscribe same product.
+        foreach($product_solution_orders as $product_solution_order){
+            if($product_solution_order->order->user->id == $user->id && $product_solution_order->status == 0){
+                return [
+                    'success'=>false,
+                    'message'=>'您已經訂閱過了',
+                ];
+            }
+        }
 
         // if succ, then make an order and make a solution order
         $repository = new OrderRepository();
@@ -1203,6 +1278,50 @@ class ApiController extends Controller
             'message'=>[
                 'order'=> $order_detail,
             ]
+        ];
+    }
+
+    /**
+     * unsubscribe a product
+     */
+    public function product_unsubscribe(Request $request){
+        // check programming error
+        $validator = Validator::make($request->all(),[
+            'order' => 'nullable', // |integer
+            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $user = Auth::user();
+
+        // $have_order = Product_solution_order::where('email', 'example@example.com')->exists();
+
+        // Cancel mark when order variable is an Order object
+        /* $order = Order::where('id', $request->order['id']=)->first(); */
+
+        $order = Order::where('id', $request->order)->first();
+        $product_solution_order = $order->product_solution_order;
+
+        if(!$order->product_solution_order){
+            return [
+                'success'=>false,
+                'message'=>'沒有這筆訂單',
+            ];
+        }
+
+        $product_solution_order->status = 1;
+        $product_solution_order->save();
+
+        return [
+            'success'=>true,
+            'message'=>'取消訂閱成功'
         ];
     }
 }

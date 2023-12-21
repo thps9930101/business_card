@@ -5,6 +5,7 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\HasOne;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -56,6 +57,8 @@ class Order extends Resource
             BelongsTo::make('用戶','user','App\Nova\User'),
             HasMany::make('影片','media','App\Nova\Media'),
 
+            //has many devices
+            HasOne::make('訂閱','product_solution_order','App\Nova\Product_solution_order'),
         ];
     }
 
