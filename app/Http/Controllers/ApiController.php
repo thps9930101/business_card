@@ -904,12 +904,16 @@ class ApiController extends Controller
                         $albumCollection = new AlbumCollection($album);
                         $tmp_media = $albumCollection->first()->media;
                     }
+
+                    if($tmp_media==null){
+                        return $order;
+                    }
+                    
                     array_push($media_arr, $tmp_media);
                 }
                 
         
                 foreach ($media_arr as $temp_arr) {
-                    return $media_arr;
                     foreach ($temp_arr as $temp) {
                         if ($temp->id == $media->id) {
                             $can_view = true;
