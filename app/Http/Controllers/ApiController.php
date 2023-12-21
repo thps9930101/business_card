@@ -906,7 +906,7 @@ class ApiController extends Controller
                     }
 
                     if($tmp_media==null){
-                        return $order;
+                        return $albumCollection;
                     }
                     
                     array_push($media_arr, $tmp_media);
