@@ -888,6 +888,7 @@ class ApiController extends Controller
             $media_arr = [];
             $result_arr = [];
             $albumCollection = null;
+            $tmp_media = null;
 
             $can_view = false;
             
@@ -897,8 +898,9 @@ class ApiController extends Controller
                         continue;
                     }
 
-                    if($order->product_solution_order->first()->product_solution->product->type == 0){
-                        $tmp_media = $order->product_solution_order->product_solution->product->media;
+                    
+                    if($order->product_solution_order->product_solution->product->type == 0){
+                        $tmp_media = [$order->product_solution_order->product_solution->product->media];
                     }
                     else{
                         $album = collect([$order->product_solution_order->product_solution->product->album]);
@@ -907,23 +909,39 @@ class ApiController extends Controller
                     }
                     
                     array_push($media_arr, $tmp_media);
-
-                    if($tmp_media==null){
-                        return [
-                            'success'=>true,
-                            'message'=>[
-                                'cover'=>$albumCollection,
-                            ],
-                        ];
-                    }
                 }
-
-
+                
+                /* if($order->id == 8547){
+                    return [
+                        'success'=>true,
+                        'message'=>[
+                            'cover'=>$userOrders,
+                        ],
+                    ];
+                } */
         
+                /* if($tmp_media==null){
+                    return [
+                        'success'=>true,
+                        'message'=>[
+                            'cover'=>$albumCollection,
+                        ],
+                    ];
+                } */
+                
                 foreach ($media_arr as $temp_arr) {
                     foreach ($temp_arr as $temp) {
                         if ($temp->id == $media->id) {
                             $can_view = true;
+                        }
+
+                        if($media_arr){
+                            return [
+                                'success'=>true,
+                                'message'=>[
+                                    'cover'=>$media_arr,
+                                ],
+                            ];
                         }
                     }
                 }
