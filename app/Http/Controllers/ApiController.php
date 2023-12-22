@@ -934,15 +934,6 @@ class ApiController extends Controller
                         if ($temp->id == $media->id) {
                             $can_view = true;
                         }
-
-                        if($media_arr){
-                            return [
-                                'success'=>true,
-                                'message'=>[
-                                    'cover'=>$media_arr,
-                                ],
-                            ];
-                        }
                     }
                 }
 
