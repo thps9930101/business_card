@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PayPalWebhookController;
 use App\Jobs\GitPull;
 use Illuminate\Support\Facades\Log;
 use OpenSpout\Common\Entity\Row;
