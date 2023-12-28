@@ -11,6 +11,7 @@ use App\Models\Store;
 use App\Models\Album;
 use App\Models\Project;
 use App\Models\Product;
+use App\Models\Payment;
 use App\Models\Product_solution;
 use App\Models\Product_solution_order;
 use App\Events\PicUploaded;
@@ -1028,8 +1029,6 @@ class ApiController extends Controller
                 $repository->createOrder($request);
                 // ====== check paypal trasaction status =======
                 
-
-
                 // ====================
 
                 // after trasaction succ
@@ -1344,5 +1343,38 @@ class ApiController extends Controller
             'success'=>true,
             'message'=>'取消訂閱成功'
         ];
+    }
+
+    /**
+     * create payment_detail to table
+     */
+    public function checkout_order_approved(Request $request)
+    {
+        $userid = Auth::user()->id;
+        $details = $request->input('details');
+        $transactionId = $request->input('resourceId');
+        
+        $order_data = Payment::create([
+            'user_id' => $userid,
+            'product_solution_id' => $request->input('projectId'),
+            'payment_method' => "paypal",
+            'event_type' => "CHECKOUT.ORDER.APPROVED",
+            'payment_amount' => $request->input('payment_amount'),
+            'payment_currency' => $request->input('payment_currency'),
+            'transaction_id' => $transactionId,
+            'status' => $request->input('capture_status'),
+            'summary' => ""
+        ]);      
+        
+        $jsonData = json_encode($details, JSON_PRETTY_PRINT);
+        $SavePath = storage_path('PamentDetails');
+        if(!file_exists($SavePath)){
+            mkdir($SavePath, 0755, true);
+        }
+
+        $filePath = $SavePath . '/' .$transactionId . '-CHECKOUT_ORDER.json';
+        file_put_contents($filePath, $jsonData);
+        
+        return response()->json('success');
     }
 }

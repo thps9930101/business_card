@@ -9,6 +9,7 @@ class Product_solution extends Model
 {
     use HasFactory;
 
+    
     //belongs to 1 product
     public function product()
     {

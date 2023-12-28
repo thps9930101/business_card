@@ -154,7 +154,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     
     //check subscribe available
     Route::post('/check_product_subscribe',[ApiController::class, 'check_product_subscribe']);
+
+    Route::post('/checkout_order', [ApiController::class, 'checkout_order_approved']);
+
+    Route::post('/paypal/webhook', [PayPalWebhookController::class, 'handleWebhook']);
 });
+
+
+
 
 //webhook
 Route::post('/github',function(){
