@@ -11,7 +11,6 @@ use App\Models\Store;
 use App\Models\Album;
 use App\Models\Project;
 use App\Models\Product;
-use App\Models\Payment;
 use App\Models\Product_solution;
 use App\Models\Product_solution_order;
 use App\Events\PicUploaded;
@@ -120,7 +119,7 @@ class ApiController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        if ($user ) {
+        if($user ){
             $code = Str::random(60);
             $user->confirm_code = $code;
             $user->confirm_code_expired_at = now()->addDays(7);
@@ -888,8 +887,6 @@ class ApiController extends Controller
 
             $media_arr = [];
             $result_arr = [];
-            $albumCollection = null;
-            $tmp_media = null;
 
             $can_view = false;
             
@@ -899,42 +896,24 @@ class ApiController extends Controller
                         continue;
                     }
 
-                    
-                    if($order->product_solution_order->product_solution->product->type == 0){
-                        $tmp_media = [$order->product_solution_order->product_solution->product->media];
+                    if($order->product_solution_order->first()->product_solution->product->type == 0){
+                        $tmp_media = $order->product_solution_order->product_solution->product->media;
                     }
                     else{
                         $album = collect([$order->product_solution_order->product_solution->product->album]);
                         $albumCollection = new AlbumCollection($album);
                         $tmp_media = $albumCollection->first()->media;
                     }
-                    
                     array_push($media_arr, $tmp_media);
                 }
                 
-                /* if($order->id == 8547){
-                    return [
-                        'success'=>true,
-                        'message'=>[
-                            'cover'=>$userOrders,
-                        ],
-                    ];
-                } */
         
-                /* if($tmp_media==null){
-                    return [
-                        'success'=>true,
-                        'message'=>[
-                            'cover'=>$albumCollection,
-                        ],
-                    ];
-                } */
-                
                 foreach ($media_arr as $temp_arr) {
                     foreach ($temp_arr as $temp) {
                         if ($temp->id == $media->id) {
                             $can_view = true;
                         }
+                        array_push($result_arr, $temp->id == $media->id);
                     }
                 }
 
@@ -1029,6 +1008,8 @@ class ApiController extends Controller
                 $repository->createOrder($request);
                 // ====== check paypal trasaction status =======
                 
+
+
                 // ====================
 
                 // after trasaction succ
@@ -1167,76 +1148,12 @@ class ApiController extends Controller
     }
     
     /**
-     * check if subscribed 
-     */
-    public function check_product_subscribe(Request $request){
-        // check programming error
-        $validator = Validator::make($request->all(),[
-            'product' => 'nullable', // |integer
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
-        ]);
-
-        if($validator->fails()){
-            return [
-                'success' => false,
-                'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
-            ];
-        }
-
-        $user = Auth::user();
-        
-        // $have_order = Product_solution_order::where('email', 'example@example.com')->exists();
-        $product = Product::where('id', $request->product['id'])->first();
-
-        $product_solution = $product->product_solution;
-
-        // Prevent subscribe self.
-        if($product->type == 0){
-            $media_list = [$product->media];
-        }
-        else{
-            $album = collect([$product->album]);
-            $albumCollection = new AlbumCollection($album);
-            $media_list = $albumCollection->first()->media;
-        }
-
-        foreach($media_list as $media){
-            if($media->order->user->id == $user->id){
-                return [
-                    'success'=>false,
-                    'message'=>'這是您所上傳的照片',
-                ];
-            }
-        }
-
-        // Prevent subscribe same product.
-        foreach($product_solution as $solution){
-            $product_solution_orders = $solution->product_solution_order;
-
-            foreach($product_solution_orders as $product_solution_order){
-                if($product_solution_order->order->user->id == $user->id && $product_solution_order->status == 0){
-                    return [
-                        'success'=>false,
-                        'message'=>'您已經訂閱過了',
-                    ];
-                }
-            }
-        }
-
-        return [
-            'success'=>true,
-            'message'=>"可以訂閱"
-        ];
-    }
-
-    /**
-     * subscribe a product
+     * add media to album
      */
     public function product_subscribe(Request $request){
-        // check programming error
-        $validator = Validator::make($request->all(),[
-            'product_solution' => 'nullable', // |integer
+// check programming error
+        /* $validator = Validator::make($request->all(),[
+            'value' => 'nullable', //|integer
             'type' =>['nullable','regex:/^([0-9]+|all)$/'],
         ]);
 
@@ -1246,43 +1163,31 @@ class ApiController extends Controller
                 'message' => $validator->messages()->first(),
                 'errors'=> $validator->errors()->toArray()
             ];
-        }
+        } */
 
         $user = Auth::user();
-        
-        // $have_order = Product_solution_order::where('email', 'example@example.com')->exists();
-        $product_solution = Product_solution::where('id', $request->product_solution['id'])->first();
-        $product = $product_solution->product;
-        $product_solution_orders = $product_solution->product_solution_order;
 
-        // Prevent subscribe self.
-        if($product->type == 0){
-            $media_list = [$product->media];
-        }
-        else{
-            $album = collect([$product->album]);
-            $albumCollection = new AlbumCollection($album);
-            $media_list = $albumCollection->first()->media;
-        }
-
-        foreach($media_list as $media){
-            if($media->order->user->id == $user->id){
-                return [
-                    'success'=>false,
-                    'message'=>'這是您所上傳的照片',
-                ];
-            }
-        }
-
-        // Prevent subscribe same product.
-        foreach($product_solution_orders as $product_solution_order){
-            if($product_solution_order->order->user->id == $user->id && $product_solution_order->status == 0){
-                return [
-                    'success'=>false,
-                    'message'=>'您已經訂閱過了',
-                ];
-            }
-        }
+        /* $temp = Product_solution::where('id', $request->product_solution['id'])->get();
+        return [
+            'success'=>true,
+            'message'=>[
+                'points'=> $temp,
+            ]
+        ]; */
+        // check action type
+        /* switch ($request->type) {
+            // check 2to3 available
+            case 0:
+                //create new order, media and store file to storage
+                if($user->$target<-(int)$request->value){
+                    return [
+                        'success'=>false,
+                        'message'=>[
+                            'type'=> 'not enough points. Please add value !',
+                        ]
+                    ];
+                }
+        } */
 
         // if succ, then make an order and make a solution order
         $repository = new OrderRepository();
@@ -1299,82 +1204,5 @@ class ApiController extends Controller
                 'order'=> $order_detail,
             ]
         ];
-    }
-
-    /**
-     * unsubscribe a product
-     */
-    public function product_unsubscribe(Request $request){
-        // check programming error
-        $validator = Validator::make($request->all(),[
-            'order' => 'nullable', // |integer
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
-        ]);
-
-        if($validator->fails()){
-            return [
-                'success' => false,
-                'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
-            ];
-        }
-
-        $user = Auth::user();
-
-        // $have_order = Product_solution_order::where('email', 'example@example.com')->exists();
-
-        // Cancel mark when order variable is an Order object
-        /* $order = Order::where('id', $request->order['id']=)->first(); */
-
-        $order = Order::where('id', $request->order)->first();
-        $product_solution_order = $order->product_solution_order;
-
-        if(!$order->product_solution_order){
-            return [
-                'success'=>false,
-                'message'=>'沒有這筆訂單',
-            ];
-        }
-
-        $product_solution_order->status = 1;
-        $product_solution_order->save();
-
-        return [
-            'success'=>true,
-            'message'=>'取消訂閱成功'
-        ];
-    }
-
-    /**
-     * create payment_detail to table
-     */
-    public function checkout_order_approved(Request $request)
-    {
-        $userid = Auth::user()->id;
-        $details = $request->input('details');
-        $transactionId = $request->input('resourceId');
-        
-        $order_data = Payment::create([
-            'user_id' => $userid,
-            'product_solution_id' => $request->input('projectId'),
-            'payment_method' => "paypal",
-            'event_type' => "CHECKOUT.ORDER.APPROVED",
-            'payment_amount' => $request->input('payment_amount'),
-            'payment_currency' => $request->input('payment_currency'),
-            'transaction_id' => $transactionId,
-            'status' => $request->input('capture_status'),
-            'summary' => ""
-        ]);      
-        
-        $jsonData = json_encode($details, JSON_PRETTY_PRINT);
-        $SavePath = storage_path('PamentDetails');
-        if(!file_exists($SavePath)){
-            mkdir($SavePath, 0755, true);
-        }
-
-        $filePath = $SavePath . '/' .$transactionId . '-CHECKOUT_ORDER.json';
-        file_put_contents($filePath, $jsonData);
-        
-        return response()->json('success');
     }
 }
