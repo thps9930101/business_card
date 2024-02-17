@@ -1673,7 +1673,7 @@ class ApiController extends Controller
                 'last_plan' => $last_solution
             ]);
         }
-        
+         
         return [
             'success' => true,
             'message' => $user_solution_list
