@@ -125,7 +125,7 @@ class ApiController extends Controller
             $user->confirm_code = $code;
             $user->confirm_code_expired_at = now()->addDays(7);
             $user->save();
-            if(app()->environment('production')){
+            if(app()->environment('production') && false){
                 $user->notify(new ConfirmUserCode($code));
             }
         }
