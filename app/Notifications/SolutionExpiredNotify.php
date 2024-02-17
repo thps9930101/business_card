@@ -37,7 +37,7 @@ class SolutionExpiredNotify extends Notification
     }
 
     /**
-     * Get the mail representation of the notification.
+     * Get the mail representation of the notification. 
      */
     public function toMail(object $notifiable): MailMessage
     {
