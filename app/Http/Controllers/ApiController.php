@@ -120,7 +120,7 @@ class ApiController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        if($user ){
+        if ($user ) {
             $code = Str::random(60);
             $user->confirm_code = $code;
             $user->confirm_code_expired_at = now()->addDays(7);
