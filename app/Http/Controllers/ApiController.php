@@ -1097,7 +1097,7 @@ class ApiController extends Controller
      */
     public function editToAlbum(Request $request){
 
-        /* $validator = Validator::make($request->all(),[
+        /* $validator = Validator::make($request->all(), [
             'name' => 'required',
         ]);
 
