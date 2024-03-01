@@ -31,6 +31,12 @@ class Order extends Model
         return $this->hasOne(Product_solution_order::class);
     }
 
+    //has 1 product_solutions
+    public function plan_solution_order()
+    {
+        return $this->hasOne(Plan_solution_order::class);
+    }
+
     //has many media
     public function media()
     {

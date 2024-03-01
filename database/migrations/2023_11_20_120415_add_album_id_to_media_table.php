@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('media', function (Blueprint $table) {
             //forign product_id
-            $table->foreignId('album_id')->after('order_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('album_id')->after('order_id')->nullable()->constrained();
         });
     }
 

@@ -22,4 +22,10 @@ class Album extends Model
     {
         return $this->hasMany(Media::class);
     }
+
+    //has many albumDetail
+    public function albumDetail()
+    {
+        return $this->hasMany(AlbumDetail::class);
+    }
 }
