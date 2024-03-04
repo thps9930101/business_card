@@ -31,6 +31,7 @@ use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductSolutionCollection;
 use App\Jobs\AutoDeleteGuestMedia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
