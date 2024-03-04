@@ -25,7 +25,7 @@ class AutoDeleteGuestMedia implements ShouldQueue
     public function __construct($mediaID)
     {
         $this->mediaID = $mediaID;
-        Log::info('ID: '.$this->mediaID);
+        // Log::info('ID: '.$this->mediaID);
     }
 
     /**
