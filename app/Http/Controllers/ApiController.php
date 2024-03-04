@@ -29,6 +29,7 @@ use App\Http\Resources\AlbumCollection;
 use App\Http\Resources\StoreCollection;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductSolutionCollection;
+use App\Jobs\AutoDeleteGuestMedia;
 use Illuminate\Support\Facades\Storage;
 
 use Illuminate\Support\Facades\Validator;
@@ -512,6 +513,12 @@ class ApiController extends Controller
             // if succ, then add value
             $user->$target+=(int)$request->value;
             $user->save();
+
+            if ($request->isGuest && $media->user_id == -1)
+            {
+                AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addMinutes(1));
+                // AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addSeconds(30));
+            }
 
             event(new PicUploaded($media));
 
