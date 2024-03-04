@@ -54,8 +54,9 @@ class AutoDeleteGuestMedia implements ShouldQueue
             if ($media->cover && Storage::disk('s3')->exists($media->cover)) {
                 Storage::disk('s3')->delete($media->cover);
             }
+            $copy = clone $media;
             $media->delete();
-            event(new PicUploadFailed(null));
+            event(new PicUploadFailed($copy));
         }
     }
 }
