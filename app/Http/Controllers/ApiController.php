@@ -31,7 +31,6 @@ use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductSolutionCollection;
 use App\Jobs\AutoDeleteGuestMedia;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
@@ -515,7 +514,6 @@ class ApiController extends Controller
             $user->$target+=(int)$request->value;
             $user->save();
 
-            Log::info($media->user_id);
             if ($media->user_id == 598)
             {
                 AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addMinutes(1));
