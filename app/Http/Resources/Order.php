@@ -26,20 +26,30 @@ class Order extends JsonResource
                 'messages'=> 'It\'s add value.',
             ];
         }
+        $copy = clone $product_solution_order;
+        $res = null;
 
         if($this->type == 1){        
-            if($product_solution_order->first()->status == 0){
-                if($product_solution_order->first()->product_solution->product->type == 0){
-                    $media = collect([$product_solution_order->first()->product_solution->product->media]);
-                }
-                else{
-                    $album = collect([$product_solution_order->first()->product_solution->product->album]);
-                    $albumCollection = Album::Collection($album);
-                    $media = $albumCollection->first()->media;
-                }
-            }  
-            else{
+            if (count($product_solution_order) == 0)
                 $media = collect([]);
+            else
+            {
+                if($product_solution_order->first()->status == 0){
+                    // 單張
+                    if($product_solution_order->first()->product_solution->product->type == 0){
+                        $media = collect([$product_solution_order->first()->product_solution->product->media]);
+                    }
+                    // 相簿
+                    else{
+                        $album = collect([$product_solution_order->first()->product_solution->product->album]);
+                        $albumCollection = Album::Collection($album);
+                        $media = $albumCollection->first()->media;
+                        // $media = collect([$albumCollection->first()->media]);
+                    }
+                }  
+                else{
+                    $media = collect([]);
+                }
             }
         }
         else{
