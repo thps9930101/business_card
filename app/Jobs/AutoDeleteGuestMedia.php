@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 use App\Models\Media;
-use App\Events\PicUploadFailed;
+use App\Events\PicUploaded;
 
 class AutoDeleteGuestMedia implements ShouldQueue
 {
