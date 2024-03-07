@@ -56,7 +56,7 @@ class AutoDeleteGuestMedia implements ShouldQueue
             }
             $copy = clone $media;
             $media->delete();
-            event(new PicUploadFailed($copy));
+            event(new PicUploaded($copy));
         }
     }
 }
