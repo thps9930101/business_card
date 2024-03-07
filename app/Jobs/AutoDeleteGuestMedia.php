@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 use App\Models\Media;
-use App\Events\PicUploaded;
+use App\Events\PicUploadFailed;
 
 class AutoDeleteGuestMedia implements ShouldQueue
 {
@@ -56,7 +56,7 @@ class AutoDeleteGuestMedia implements ShouldQueue
             }
             $copy = clone $media;
             $media->delete();
-            event(new PicUploaded($copy));
+            event(new PicUploadFailed($copy));
         }
     }
 }
