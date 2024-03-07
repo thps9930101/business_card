@@ -340,12 +340,12 @@ class ApiController extends Controller
      */
     public function queryOrderList() {
         
-        $query = Order::where(function ($query) use ($request) {
+        $query = Order::where(function ($query) {
             $query
             ->where('user_id', Auth::id())
             ->WhereDoesntHave('product_solution_order');
         })
-        ->orWhere(function ($query) use ($request) {
+        ->orWhere(function ($query) {
             $query
             ->where('user_id', Auth::id())
             ->whereHas('product_solution_order', function($orderQuery) {
