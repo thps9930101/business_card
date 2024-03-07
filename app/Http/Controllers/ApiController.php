@@ -9,8 +9,12 @@ use App\Models\Media;
 use App\Models\Order;
 use App\Models\Store;
 use App\Models\Album;
+use App\Models\AlbumDetail;
 use App\Models\Project;
 use App\Models\Product;
+use App\Models\Notification;
+use App\Models\Plan_solution;
+use App\Models\Plan_solution_order;
 use App\Models\Product_solution;
 use App\Models\Product_solution_order;
 use App\Events\PicUploaded;
@@ -23,6 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Events\CompleteTransformVideo;
 use App\Notifications\ConfirmUserCode;
+use App\Notifications\SolutionExpiredNotify;
 use App\Http\Resources\MediaCollection;
 use App\Http\Resources\OrderCollection;
 use App\Http\Resources\AlbumCollection;
@@ -38,7 +43,7 @@ use Illuminate\Validation\Rules\Password;
 
 class ApiController extends Controller
 {
-    public function get_cpu_usage(){
+    public function get_cpu_usage() {
         exec('top -b -n 1 | grep "Cpu(s)"', $output);
         $cpuInfo = explode(",", $output[0]);
         $cpuUsage = trim(str_replace("Cpu(s):", "", $cpuInfo[0]));
@@ -49,21 +54,20 @@ class ApiController extends Controller
     /**
      * login
      */
-    public function login(Request $request){
+    public function login(Request $request) {
 
         $validator = Validator::make($request->all(),[
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => __('auth.failed'),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         }
-
 
         $credentials = $request->only('email', 'password');
 
@@ -76,13 +80,13 @@ class ApiController extends Controller
                     'id' =>  $auth->id,
                     'name' =>  $auth->name,
                     'email' =>  $auth->email,
-                    'token'=>  $auth->createToken($request->email)->plainTextToken]
+                    'token' =>  $auth->createToken($request->email)->plainTextToken]
             ];
-        }else{
+        } else {
             return [
                 'success' => false,
                 'message' => __('auth.failed'),
-                'errors'=> $result
+                'errors' => $result
             ];
         }
 
@@ -93,39 +97,49 @@ class ApiController extends Controller
     /**
      * register
      */
-    public function register(Request $request){
+    public function register(Request $request) {
 
         $validator = Validator::make($request->all(),[
             'name' => 'required',
             'email' => 'required|email',
             'password' => 'required|confirmed',
-            'recaptcha'=>'required'
+            'recaptcha' => 'required'
         ]);
 
-        if(!Recaptcha::check()){
+        if (!Recaptcha::check()) {
             $validator->errors()->add('recaptcha', __('validation.recaptcha'));
         }
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => __('register.failed'),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
+        $res = User::Where('email', $request->email)->get();
+
+        if ($res->count() > 0) {
+            return [
+                'success' => false,
+                'message' => "this email already exist !"
             ];
         }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'VIP' => true
         ]);
 
-        if($user ){
+        if ($user) {
             $code = Str::random(60);
             $user->confirm_code = $code;
             $user->confirm_code_expired_at = now()->addDays(7);
             $user->save();
-            if(app()->environment('production') && false){
+            if (app()->environment('production') && false) {
                 $user->notify(new ConfirmUserCode($code));
             }
         }
@@ -136,8 +150,8 @@ class ApiController extends Controller
                 'id' =>  $user->id,
                 'name' =>  $user->name,
                 'email' =>  $user->email,
-                'token'=>  $user->createToken($request->email)->plainTextToken,
-                'confirm_url'=>  route('registerMember', ['code'=>$user->confirm_code])]
+                'token' =>  $user->createToken($request->email)->plainTextToken,
+                'confirm_url' =>  route('registerMember', ['code' => $user->confirm_code])]
         ];
 
 
@@ -147,11 +161,11 @@ class ApiController extends Controller
     /**
      * sendConfirmEmail
      */
-    public function sendConfirmEmail(Request $request){
+    public function sendConfirmEmail(Request $request) {
 
         $user = Auth::user();
 
-        if($user->confirm_code_expired_at < now()){
+        if ($user->confirm_code_expired_at < now()) {
             $code = Str::random(60);
             $user->confirm_code = $code;
             $user->confirm_code_expired_at = now()->addDays(7);
@@ -169,7 +183,7 @@ class ApiController extends Controller
     /**
      * forget password
      */
-    public function forgetPassword(Request $request){
+    public function forgetPassword(Request $request) {
 
         $request->validate([
             'email' => ['required', 'email'],
@@ -184,13 +198,13 @@ class ApiController extends Controller
 
         return $status == Password::RESET_LINK_SENT
                     ? [
-                        'success'=>true,
-                        'message'=>__('passwords.sent')
+                        'success' => true,
+                        'message' => __('passwords.sent')
                     ]
                     : [
-                        'success'=>false,
-                        'message'=>'電子郵件發送失敗！'
-                        ,'error'=>__($status)
+                        'success' => false,
+                        'message' => 'emailSendingFailed', 
+                        'error' => __($status)
                     ];
 
     }
@@ -198,14 +212,14 @@ class ApiController extends Controller
     /**
      * confirm mail
      */
-    public function registerMember($code){
+    public function registerMember($code) {
 
-        if($user = User::where('confirm_code', $code)->first()){
+        if ($user = User::where('confirm_code', $code)->first()) {
 
-            if(now() > $user->confirm_code_expired_at){
+            if (now() > $user->confirm_code_expired_at) {
                 return [
-                    'success'=>false,
-                    'message'=>'認證碼過期！請重新註冊！'
+                    'success' => false,
+                    'message' => 'expiredVerificationCode'
                 ];
             }
 
@@ -216,74 +230,70 @@ class ApiController extends Controller
             $user->save();
 
             return [
-                'success'=>true,
-                'message'=>'註冊成功！'
+                'success' => true,
+                'message' => '註冊成功！'
             ];
 
         };
 
         return [
-            'success'=>false,
-            'message'=>'認證碼錯誤！請重新註冊！'
+            'success' => false,
+            'message' => 'incorrectVerificationCode'
         ];
-
     }
 
     /**
      * update user
      */
-    public function userUpdate(Request $request){
+    public function userUpdate(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'phone' => 'nullable|regex:/^09\d{2}-?\d{3}-?\d{3}$/', //手機號碼
+            'password' => ['nullable', 'confirmed', 'min:8'],
+            'old_password' => 'nullable|required_with:password|current_password'
+        ]);
 
-
-            $validator = Validator::make($request->all(),[
-                'name' => 'required',
-                'phone' => 'nullable|regex:/^09\d{2}-?\d{3}-?\d{3}$/', //手機號碼
-                'password' => ['nullable','confirmed','min:8'],
-                'old_password'=>'nullable|required_with:password|current_password'
-            ]);
-
-
-            if($validator->fails()){
-                return [
-                    'success' => false,
-                    'message' => '更新用戶資料失敗，請檢查輸入資料',
-                    'errors'=> $validator->errors()->toArray()
-                ];
-            }
-
-            $user = Auth::user();
-            $user->name = $request->name;
-
-            if($request->phone){
-                $user->phone = $request->phone;
-            }
-
-            if($request->password){
-                $user->password = Hash::make($request->password);
-            }
-
-            $user->save();
-
+        if ($validator->fails()) {
             return [
-                'success'=>true,
-                'message'=>'update user success!',
+                'success' => false,
+                'message' => 'updateUserDataFailed',
+                'errors' => $validator->errors()->toArray()
             ];
+        }
+
+        $user = Auth::user();
+        $user->name = $request->name;
+
+        if ($request->phone) {
+            $user->phone = $request->phone;
+        }
+
+        if ($request->password) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return [
+            'success' => true,
+            'message' => 'update user success!',
+        ];
     }
 
     /**
      * update member name
      */
-    public function updateMemberName(Request $request){
+    public function updateMemberName(Request $request) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
-                'message' => '更新用戶名稱失敗，請檢查輸入資料',
-                'errors'=> $validator->errors()->toArray()
+                'message' => 'updateUsernameFailed',
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
@@ -292,26 +302,26 @@ class ApiController extends Controller
         $user->save();
 
         return [
-            'success'=>true,
-            'message'=>'update member name success!'
+            'success' => true,
+            'message' => 'update member name success!'
         ];
     }
 
     /**
      * update password
      */
-    public function updatePassword(Request $request){
+    public function updatePassword(Request $request) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'password' => 'required|password|confirmed',
-            'old_password'=>'required|current_password'
+            'old_password' => 'required|current_password'
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
-                'message' => '更新密碼失敗，請檢查輸入資料',
-                'errors'=> $validator->errors()->toArray()
+                'message' => 'updatePasswordFailed',
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
@@ -320,67 +330,80 @@ class ApiController extends Controller
         $user->save();
 
         return [
-            'success'=>true,
-            'message'=>'update password success!'
+            'success' => true,
+            'message' => 'update password success!'
         ];
     }
 
     /**
      * query order list
      */
-    public function queryOrderList(){
+    public function queryOrderList() {
+        
+        $query = Order::where(function ($query) use ($request) {
+            $query
+            ->where('user_id', Auth::id())
+            ->WhereDoesntHave('product_solution_order');
+        })
+        ->orWhere(function ($query) use ($request) {
+            $query
+            ->where('user_id', Auth::id())
+            ->whereHas('product_solution_order', function($orderQuery) {
+                $orderQuery->where('is_activated', 1);
+            });
+        });
 
         return [
-            'success'=>true,
-            'message'=>new OrderCollection (Order::where('user_id', Auth::id())->latest()->paginate(999999)),
+            'success' => true,
+            'message' => new OrderCollection($query->latest()->paginate(999999)),
         ];
     }
 
     /**
      * update video name
      */
-    public function updateVideoName(Request $request,$id){
+    public function updateVideoName(Request $request,$id) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'id'=>'required|exists:media,id'
+            'id' => 'required|exists:media,id'
         ]);
 
-        if($video = Media::find($id)){
+        if ($video = Media::find($id)) {
             $video->name = $request->name;
             $video->save();
         };
 
         return [
-            'success'=>true,
-            'message'=>'update video name success!'
+            'success' => true,
+            'message' => 'update video name success!'
         ];
     }
 
     /**
      * upload video
      */
-    public function uploadVideo(Request $request){
+    public function uploadVideo(Request $request) {
         try{
-            $validator = Validator::make($request->all(),[
+            $validator = Validator::make($request->all(), [
                 'video' => 'required|mimes:mp4,mov,ogg,qt|max:1048576', // aaaa
             ]);
 
-            if($validator->fails()){
+            if ($validator->fails()) {
                 return [
                     'success' => false,
-                    'message' => '上傳影片失敗，請檢查輸入資料',
-                    'errors'=> $validator->errors()->toArray()
+                    'message' => 'uploadVideoFailed',
+                    'errors' => $validator->errors()->toArray()
                 ];
             }
 
             $cpuUsage = $this->get_cpu_usage();
 
-            if($cpuUsage>7){
+            if ($cpuUsage>7) {
                 return[
-                    'success'=>false,
-                    'message'=>'系統忙碌中，請稍後再試 !',
-                    'cpu'=>$cpuUsage,
+                    'success' => false,
+                    'message' => 'systemBusy',
+                    'cpu' => $cpuUsage,
                 ];
             }
 
@@ -393,15 +416,15 @@ class ApiController extends Controller
             event(new PicUploaded($media));
 
             return [
-                'success'=>true,
-                'message'=>'upload video success!',
-                'cpu'=>$cpuUsage,
+                'success' => true,
+                'message' => 'upload video success!',
+                'cpu' => $cpuUsage,
             ];
         }
-        catch(e){
+        catch(e) {
             return [
-                'success'=>false,
-                'message'=>e.message,
+                'success' => false,
+                'message' => e.message,
             ];
         }
     }
@@ -409,27 +432,27 @@ class ApiController extends Controller
     /**
      * upload picture
      */
-    public function uploadPicture(Request $request){
+    public function uploadPicture(Request $request) {
         try{
-            $validator = Validator::make($request->all(),[
+            $validator = Validator::make($request->all(), [
                 'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
             ]);
 
-            if($validator->fails()){
+            if ($validator->fails()) {
                 return [
                     'success' => false,
-                    'message' => '上傳圖片失敗，請檢查輸入資料',
-                    'errors'=> $validator->errors()->toArray()
+                    'message' => 'uploadImageFailed',
+                    'errors' => $validator->errors()->toArray()
                 ];
             }
 
             $cpuUsage = $this->get_cpu_usage();
 
-            if($cpuUsage>7){
+            if ($cpuUsage > 7) {
                 return[
-                    'success'=>false,
-                    'message'=>'系統忙碌中，請稍後再試 !',
-                    'cpu'=>$cpuUsage,
+                    'success' => false,
+                    'message' => 'systemBusy',
+                    'cpu' => $cpuUsage,
                 ];
             }
 
@@ -442,15 +465,15 @@ class ApiController extends Controller
             event(new PicUploaded($media));
 
             return [
-                'success'=>true,
-                'message'=>'upload picture success!',
-                'cpu'=>$cpuUsage,
+                'success' => true,
+                'message' => 'upload picture success!',
+                'cpu' => $cpuUsage,
             ];
         }
-        catch(e){
+        catch(e) {
             return [
-                'success'=>false,
-                'message'=>e.message,
+                'success' => false,
+                'message' => e.message,
             ];
         }
     }
@@ -458,32 +481,31 @@ class ApiController extends Controller
     /**
      * upload canvas picture
      */
-    public function uploadCanvas(Request $request){
+    public function uploadCanvas(Request $request) {
         try{        
-            $validator = Validator::make($request->all(),[
+            $validator = Validator::make($request->all(), [
                 'pic' => 'required', // |string
             ]);
 
-            if($validator->fails()){
+            if ($validator->fails()) {
                 return [
                     'success' => false,
-                    'message' => '上傳圖片失敗，請檢查輸入資料',
-                    'errors'=> $validator->errors()->toArray()
+                    'message' => 'uploadImageFailed',
+                    'errors' => $validator->errors()->toArray()
                 ];
             }
 
             $cpuUsage = $this->get_cpu_usage();
 
-            if($cpuUsage>50){
+            if ($cpuUsage > 50) {
                 return[
-                    'success'=>false,
-                    'message'=>'系統忙碌中，請稍後再試 !',
-                    'cpu'=>$cpuUsage,
+                    'success' => false,
+                    'message' => 'systemBusy',
+                    'cpu' => $cpuUsage,
                 ];
             }
 
             // =====
-
 
             //create new order, media and store file to storage
             $repository = new OrderRepository();
@@ -494,46 +516,44 @@ class ApiController extends Controller
             $user = Auth::user();
 
             $target = 'points';
-            if($request->to){
+            if ($request->to) {
                 $target = $request->to;
             }
             
             //create new order, media and store file to storage
-            if($user->$target<-(int)$request->value){
+            if ($user->$target<-(int)$request->value) {
                 $repository->userAddValueFailed($request);
 
                 return [
-                    'success'=>false,
-                    'message'=>[
-                        'type'=> 'not enough points. Please add value !',
+                    'success' => false,
+                    'message' => [
+                        'type' => 'not enough points. Please add value !',
                     ]
                 ];
             }
 
             // if succ, then add value
-            $user->$target+=(int)$request->value;
+            $user->$target += (int)$request->value;
             $user->save();
 
             if ($media->user_id == 1)
             {
-                // addSeconds, addMinutes
-
-                AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addMinutes(1));
+                AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addMinutes(10));
                 // AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addSeconds(30));
             }
 
             event(new PicUploaded($media));
 
             return [
-                'success'=>true,
-                'message'=>'upload picture success! media id: '.$media->id,
-                'cpu'=>$cpuUsage,
+                'success' => true,
+                'message' => 'upload picture success! media id: '.$media->id,
+                'cpu' => $cpuUsage
             ];
         }
-        catch(e){
+        catch(e) {
             return [
-                'success'=>false,
-                'message'=>e.message,
+                'success' => false,
+                'message' => e.message,
             ];
         }
     }
@@ -541,101 +561,146 @@ class ApiController extends Controller
     /**
      * get user videos
      */
-    public function videos(Request $request){
+    public function videos(Request $request) {
 
         $validator = Validator::make($request->all(),[
             'page' => 'nullable|integer',
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
         ]);
-        if($validator->fails()){
+
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
         $query = Media::where('user_id', Auth::id());
 
-        if(($request->type ||  $request->type === 0 || $request->type==='0') && $request->type != 'all'){
+        $type_check = $request->type || $request->type === 0 || $request->type === '0';
+        if ($type_check && $request->type != 'all') {
             $query->whereHas('order', function($orderQuery) use ($request) {
                 $orderQuery->where('type', $request->type);
             });
         }
 
         return [
-            'success'=>true,
-            'message'=>new MediaCollection ($query->paginate(10)),
-          /*   'sql'=>$query->toSql(),
-            'bindings'=>$query->getBindings() */
+            'success' => true,
+            'message' => new MediaCollection($query->paginate(10)),
+          /*   'sql' => $query->toSql(),
+            'bindings' => $query->getBindings() */
         ];
     }
 
     /**
      * get user orders
      */
-    public function orders(Request $request){
+    public function orders(Request $request) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'page' => 'nullable|integer',
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
-
         $query = Order::where('user_id', Auth::id())->orderBy('created_at', 'desc');
 
-        if($request->dt_condition){
+        if ($request->dt_condition) 
+        {
             $dt_condition = Carbon::now()->subDays($request->dt_condition)->toDateString();
             $query->whereDate('created_at', '>=', $dt_condition);
         }
         
-        if(($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all'){
-            $query->where('type', $request->order_type); // 
+        $type_check = $request->order_type || $request->order_type === 0 || $request->order_type === '0';
+        if ($type_check && $request->order_type != 'all')
+        {
+            $query->where('type', $request->order_type); 
         }
 
+
+        if ($request->activeFilter)
+        {
+            if ($request->order_type === "1" || $request->order_type === 1) 
+            {
+                $query->whereHas('product_solution_order', function($orderQuery) {
+                    $orderQuery->where('is_activated', 1);
+                });
+            }
+
+            if ($request->order_type == 'all') 
+            {
+                $query->where(function ($orderQuery) {
+                    $orderQuery->whereHas('product_solution_order', function ($pQuery) {
+                        $pQuery
+                        ->where('type', 1)
+                        ->where('is_activated', 1);
+                    })->orWhere(function ($pQuery) {
+                        $pQuery
+                        ->where('type', 0);
+                    });
+                });
+            }
+        }
+
+        if ($request->hasImg) 
+        {
+            $query->where(function ($tmp) {
+                $tmp
+                ->where('type', 0)
+                ->whereHas('media', function ($m_query) {
+                    $m_query->where('status', "!=", 3);
+                })
+                ->orWhere('type', 1);
+            });
+        }
+        
         return [
-            'success'=>true,
-            'message'=>new OrderCollection ($query->paginate(10)),
-/*             'sql'=>$query->toSql(),
-            'bindings'=>$query->getBindings(),
-            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+            'success' => true,
+            'message' => new OrderCollection($query->paginate(30)),
+/*             'sql' => $query->toSql(),
+            'bindings' => $query->getBindings(),
+            'condition' =>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+        ];
+    }
+
+
+    public function notifications(Request $request) {
+        $dt_condition = Carbon::now();
+        
+        $query = Notification::where(function ($query) use ($dt_condition) {
+            $query
+            ->where('user_id', Auth::id())
+            ->where('release_at', '<=', $dt_condition); 
+        })
+        ->orWhere(function ($query) use ($dt_condition) {
+            $query
+            ->whereNull('user_id')
+            ->where('release_at', '<=', $dt_condition); 
+        });
+
+        $query = $query->where('is_activated', 1)->get();
+
+        return [
+            'success' => true,
+            'message' => $query
         ];
     }
 
     /**
      * get projects
      */
-    public function projects(Request $request){
-
-        /* $validator = Validator::make($request->all(),[
-            'page' => 'nullable|integer',
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
-        ]);
-
-        if($validator->fails()){
-            return [
-                'success' => false,
-                'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
-            ];
-        } */
-
-        $query = Project::get();
-
+    public function projects(Request $request) {
         return [
-            'success'=>true,
-            'message'=>$query,
-/*             'sql'=>$query->toSql(),
-            'bindings'=>$query->getBindings(),
-            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+            'success' => true,
+            'message' => Project::get(),
         ];
     }
 
@@ -671,55 +736,56 @@ class ApiController extends Controller
      /**
      * get stores
      */
-    public function stores(Request $request){
+    public function stores(Request $request) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'page' => 'nullable|integer',
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
         $query = Store::get();
-        //'message'=>new OrderCollection ($query->paginate(10)),
+        //'message' => new OrderCollection ($query->paginate(10)),
         return [
-            'success'=>true,
-            'message'=>new StoreCollection ($query), // new ProductCollection ($query)
-/*             'sql'=>$query->toSql(),
-            'bindings'=>$query->getBindings(),
-            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+            'success' => true,
+            'message' => new StoreCollection($query), // new ProductCollection ($query)
+/*             'sql' => $query->toSql(),
+            'bindings' => $query->getBindings(),
+            'condition' =>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
         ];
     }
 
     /**
      * get albums
      */
-    public function albums(Request $request){
+    public function albums(Request $request) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'page' => 'nullable|integer',
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
         $query = Album::where('user_id', Auth::id())->get();
-        //'message'=>new OrderCollection ($query->paginate(10)),
+
         return [
-            'success'=>true,
-            'message'=>new AlbumCollection ($query), // new ProductCollection ($query)
+            'success' => true,
+            'message' => new AlbumCollection($query)
+            
         ];
     }
 
@@ -747,6 +813,14 @@ class ApiController extends Controller
         ];
     }
 
+    public function plan_solutions(Request $request) {
+        $query = Plan_solution::where('is_activated', 1);
+        return [
+            'success' => true,
+            'message' => $query->get(),
+        ];
+    }
+
     public function get2Dpics(){
 
         $videos = Media::where('type', 1)->where('status', 0)->whereNotNull('original')->where('is_staff_uploaded',0)->get();
@@ -763,69 +837,83 @@ class ApiController extends Controller
         ];
     }
 
-    public function mediaChangeStatus($media){
+    public function mediaChangeStatus($media) {
+        define("TYPE_VID", 0);
+        define("TYPE_PIC", 1);
+
         $repo = new OrderRepository($media->order);
-            $media->status = 1;
-            if($media->type == 1){
-                $media->obj = $repo->getPath($media->id);
+        $media->status = 1;
+        
+        if ($media->type == TYPE_PIC) {
+            $media->obj = $repo->getPath($media->id);
+        }
+
+        if ($media->type == TYPE_VID) {
+            $media->obj = $repo->getVideoPath($media->id);
+
+            //if media is created by staff, add cover
+            if ($media->is_staff_uploaded == 1) {
+                $media->cover = $repo->getVideoCoverPath($media->id);
             }
-            if($media->type ==0){
-                $media->obj = $repo->getVideoPath($media->id);
-                //if media is created by staff, add cover
-                if($media->is_staff_uploaded == 1){
-                    $media->cover = $repo->getVideoCoverPath($media->id);
-                }
-            }
-            $media->finish_time=now();
-            $media->save();
-            if($media->type == 0){
-                event(new CompleteTransformVideo($media));
-            }
-            if($media->type == 1){
-                event(new CompleteTransformPic($media));
-            }
+        }
+
+        $media->finish_time = now();
+        $media->save();
+
+        if ($media->type == TYPE_VID) {
+            event(new CompleteTransformVideo($media));
+        }
+
+        if ($media->type == TYPE_PIC) {
+            event(new CompleteTransformPic($media));
+        }
     }
 
-    public function set2DpicFinish(Request $request){
+    public function set2DpicFinish(Request $request) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'id' => 'required|exists:media,id',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
-                'message' => '查無此媒體，請檢查輸入資料',
-                'errors'=> $validator->errors()->toArray()
+                'message' => 'mediaNotFound',
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
         $media = Media::where('id', $request->id)->first();
-        if($media){
+        if ($media) {
             $this->mediaChangeStatus($media);
         }
+
         return [
-            'success'=>true
+            'success' => true
         ];
     }
 
-    public function deleteVideo(Request $request, Media $media){
+    public function deleteVideo(Request $request, Media $media) {
+        define("STATUS_DELETED", 3);
 
         if ($request->user()->cannot('update', $media)) {
             abort(403);
         }
 
-        $media->status = 3;
+        $media->status = STATUS_DELETED;
+
         //delete original file
-        if($media->original && Storage::disk('s3')->exists($media->original)){
+        if ($media->original && Storage::disk('s3')->exists($media->original)) {
             Storage::disk('s3')->delete($media->original);
         }
+
         //delete obj file
-        if($media->obj && Storage::disk('s3')->exists($media->obj)){
+        if ($media->obj && Storage::disk('s3')->exists($media->obj)) {
             Storage::disk('s3')->delete($media->obj);
         }
+
         //delete cover file
-        if($media->cover && Storage::disk('s3')->exists($media->cover)){
+        if ($media->cover && Storage::disk('s3')->exists($media->cover)) {
             Storage::disk('s3')->delete($media->cover);
         }
 
@@ -834,59 +922,63 @@ class ApiController extends Controller
         $media->cover = null;
 
         $media->save();
+
         return [
-            'success'=>true
+            'success' => true
         ];
     }
 
-    public function videoFailed(Request $request, Media $media){
+    public function videoFailed(Request $request, Media $media) {
+        define("STATUS_FAILED", 2);
 
         if ($request->user()->cannot('update', $media)) {
             abort(403);
         }
 
-        $media->status = 2;
+        $media->status = STATUS_FAILED;
         $media->save();
+
         event(new PicUploadFailed($media));
+
         return [
-            'success'=>true
+            'success' => true
         ];
     }
 
-    public function getVideos(){
+    public function getVideos() {
         $media = Media::where('type', 0)->where('status', 0)->whereNotNull('original')->where('is_staff_uploaded',0)->get();
         $videos = [];
-        foreach($media as $medium){
-            $videos[] = (object)['id'=>$medium->id,
-            'name'=>$medium->name,
-            'original'=>Storage::disk('s3')->temporaryUrl($medium->original, now()->addHour()),
-            'path'=> (new OrderRepository($medium->order))->getVideoPath($medium->id)];
+        foreach ($media as $medium) {
+            $videos[] = (object)['id' => $medium->id,
+            'name' => $medium->name,
+            'original' => Storage::disk('s3')->temporaryUrl($medium->original, now()->addHour()),
+            'path' => (new OrderRepository($medium->order))->getVideoPath($medium->id)];
         }
         return [
-            'success'=>true,
-            'message'=>$videos,
+            'success' => true,
+            'message' => $videos,
         ];
     }
 
-    public function setVideoFinish(Request $request){
-        $validator = Validator::make($request->all(),[
+    public function setVideoFinish(Request $request) {
+        $validator = Validator::make($request->all(), [
             'id' => 'required|exists:media,id',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
-                'message' => '查無此媒體，請檢查輸入資料',
-                'errors'=> $validator->errors()->toArray()
+                'message' => 'mediaNotFound',
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
         $media = Media::where('id', $request->id)->first();
-        if($media){
+        if ($media) {
             $this->mediaChangeStatus($media);
         }
         return [
-            'success'=>true
+            'success' => true
         ];
     }
 
@@ -944,30 +1036,62 @@ class ApiController extends Controller
         }
     }
 
-    public function test(){
+    public function test(Request $request) {
+        // return [
+        //     'success' => true,
+        //     'message' =>Auth::id(),
+        // ];
+
+        $query = Order::where(function ($query) use ($request) {
+            $query
+            ->where('user_id', Auth::id())
+            ->WhereDoesntHave('product_solution_order');
+        })
+        ->orWhere(function ($query) use ($request) {
+            $query
+            ->where('user_id', Auth::id())
+            ->whereHas('product_solution_order', function($orderQuery) {
+                $orderQuery->where('is_activated', 1);
+            });
+        });
+        $res = clone $query;
+        
         return [
-            'success'=>true,
-            'message'=>[
-                'mess'=>"oof",
-            ],
+            'success' => true,
+            'message' => $res->toSql()
         ];
+        // $dt_condition = Carbon::now()->toDateString();
+
+        // $query = Notification::where(function ($query) use ($dt_condition) {
+        //     $query->where('user_id', Auth::id())
+        //           ->whereDate('release_at', '<=', $dt_condition);
+        // })
+        // ->orWhere(function ($query) use ($dt_condition) {
+        //     $query->whereNull('user_id')
+        //           ->whereDate('release_at', '<=', $dt_condition);
+        // });
+
+        // return [
+        //     'success' => true,
+        //     'message' => $query->get(),
+        // ];
     }
 
     /**
      * get projects
      */
-    public function checkPaymentFlow(Request $request){
+    public function checkPaymentFlow(Request $request) {
         // check programming error
         /* $validator = Validator::make($request->all(),[
             'value' => 'nullable', //|integer
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         } */
 
@@ -975,7 +1099,7 @@ class ApiController extends Controller
 
         $target = 'points';
        
-        if($request->to){
+        if ($request->to) {
             $target = $request->to;
         }
 
@@ -984,11 +1108,11 @@ class ApiController extends Controller
             // check 2to3 available
             case 0:
                 //create new order, media and store file to storage
-                if($user->$target<-(int)$request->value){
+                if ($user->$target<-(int)$request->value) {
                     return [
-                        'success'=>false,
-                        'message'=>[
-                            'type'=> 'not enough points. Please add value !',
+                        'success' => false,
+                        'message' => [
+                            'type' => 'not enough points. Please add value !',
                         ]
                     ];
                 }
@@ -998,11 +1122,11 @@ class ApiController extends Controller
                 $repository = new OrderRepository();
                 $repository->createOrder($request);
 
-                if($user->$target<-(int)$request->value){
+                if ($user->$target<-(int)$request->value) {
                     return [
-                        'success'=>false,
-                        'message'=>[
-                            'type'=> 'not enough points to buy. Please add value !',
+                        'success' => false,
+                        'message' => [
+                            'type' => 'not enough points to buy. Please add value !',
                         ]
                     ];
                 }
@@ -1017,18 +1141,16 @@ class ApiController extends Controller
                 $repository->createOrder($request);
                 // ====== check paypal trasaction status =======
                 
-
-
                 // ====================
 
                 // after trasaction succ
                 $repository->userAddValueSucc($request);
 
-                if(!$request->from){
+                if (!$request->from) {
                     break;
                 }
 
-                if($request->from == 'ads'){
+                if ($request->from == 'ads') {
                     $user->ads_times += 1;
                 }
                 
@@ -1042,9 +1164,9 @@ class ApiController extends Controller
             
             default:
                 return [
-                    'success'=>false,
-                    'message'=>[
-                        'type'=> 'ain\'t regular type',
+                    'success' => false,
+                    'message' => [
+                        'type' => 'ain\'t regular type',
                     ]
                 ];
         }
@@ -1054,14 +1176,14 @@ class ApiController extends Controller
         $user->save();
 
         return [
-            'success'=>true,
-            'message'=>[
-                'points'=> $user->points,
-                'free_points'=> $user->free_points,
+            'success' => true,
+            'message' => [
+                'points' => $user->points,
+                'free_points' => $user->free_points,
             ]
-/*           'sql'=>$query->toSql(),
-            'bindings'=>$query->getBindings(),
-            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+/*           'sql' => $query->toSql(),
+            'bindings' => $query->getBindings(),
+            'condition' =>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
         ];
     }
 
@@ -1069,17 +1191,17 @@ class ApiController extends Controller
     /**
      * create album
      */
-    public function albumCreate(Request $request){
+    public function albumCreate(Request $request) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => __('register.failed'),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
@@ -1097,6 +1219,32 @@ class ApiController extends Controller
             'message' => [
                 'id' =>  $album->id,
                 'name' =>  $album->name,
+            ]
+        ];
+    }
+    
+    public function deleteAlbum(Request $request) {
+        $albumID = $request->album['id'];
+        $productsWithoutAlbum = !Product::whereHas('album', function ($query) use ($albumID) {
+            $query->where('album_id', $albumID);
+        })->exists();
+
+        if (!$productsWithoutAlbum) {
+            return [
+                'success' => false,
+                'message' => 'albumInProduct'
+            ];
+        }
+
+        $album = Album::where('id', $request->album['id'])->first();
+        $album->delete();
+
+        // $album->save();
+        
+        return [
+            'success' => true,
+            'message' => [
+                'id' =>  ''
             ]
         ];
     }
