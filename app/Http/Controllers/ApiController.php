@@ -1308,57 +1308,96 @@ class ApiController extends Controller
      * add media to album
      */
     public function product_subscribe(Request $request){
-// check programming error
-        /* $validator = Validator::make($request->all(),[
-            'value' => 'nullable', //|integer
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+        $validator = Validator::make($request->all(), [
+            'product_solution' => 'nullable', // |integer
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
-        } */
+        }
 
         $user = Auth::user();
 
-        /* $temp = Product_solution::where('id', $request->product_solution['id'])->get();
-        return [
-            'success'=>true,
-            'message'=>[
-                'points'=> $temp,
-            ]
-        ]; */
-        // check action type
-        /* switch ($request->type) {
-            // check 2to3 available
-            case 0:
-                //create new order, media and store file to storage
-                if($user->$target<-(int)$request->value){
-                    return [
-                        'success'=>false,
-                        'message'=>[
-                            'type'=> 'not enough points. Please add value !',
-                        ]
-                    ];
-                }
-        } */
+        if ($request->product_solution["isFree"])
+        {
+            // 找該 plan 內的0元方案
+            $FreePlan = Product_solution::where('product_id', $request->product_solution["id"])->Where('costs', 0)->first();
+            
+            $copy = clone $FreePlan;
+            foreach ($copy as $key => $value) {
+                $request->request->add([$key => $value]);
+            }
+
+            $product_solution = $FreePlan;
+            $product = $product_solution->product;
+            $product_solution_orders = $product_solution->product_solution_order;
+        }
+        else
+        {
+            // $have_order = Product_solution_order::where('email', 'example@example.com')->exists();
+            $product_solution = Product_solution::where('id', $request->product_solution['id'])->first();
+            $product = $product_solution->product;
+            $product_solution_orders = $product_solution->product_solution_order;
+        }
+
+
+        // Prevent subscribe self.
+        if ($product->type == 0) {
+            $media_list = [$product->media];
+        }
+        else{
+            $album = collect([$product->album]);
+            $albumCollection = new AlbumCollection($album);
+            $media_list = $albumCollection->first()->media;
+        }
+
+        foreach($media_list as $media) {
+            if ($media->order->user->id == $user->id) {
+                return [
+                    'success' => false,
+                    'message' => 'yourPhoto',
+                ];
+            }
+        }
+
+        // Prevent subscribe same product.
+        foreach($product_solution_orders as $product_solution_order) {
+            if ($product_solution_order->order->user->id == $user->id && $product_solution_order->status == 0 && $product_solution_order->is_activated != 0) {
+                return [
+                    'success' => false,
+                    'message' => 'alreadySubscribed',
+                ];
+            }
+        }
 
         // if succ, then make an order and make a solution order
         $repository = new OrderRepository();
-        $order_detail = $repository->subscribeProduct($request);
+        if ($request->product_solution["isFree"])
+            $order_detail = $repository->subscribeProductFree($request, $product_solution);
+        else 
+        {
+            $order_detail = $repository->subscribeProduct($request);
+
+            $payment = Payment::where('transaction_id', $request->resource_id)->first();
+            $payment->order_id = $order_detail->solution_order->order_id;
+            $payment->save();
+        }
 
         $media = $repository->getMedia();
+
 
         event(new PicUploaded($media));
         // ====== check paypal trasaction status =======
 
         return [
-            'success'=>true,
-            'message'=>[
-                'order'=> $order_detail,
+            'success' => true,
+            'message' => [
+                'order' => $order_detail
             ]
         ];
     }
