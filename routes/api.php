@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\PayPalWebhookController;
 use App\Jobs\GitPull;
 use Illuminate\Support\Facades\Log;
 use OpenSpout\Common\Entity\Row;
@@ -111,6 +110,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //get user orders
     Route::get('/orders',[ApiController::class, 'orders']);
 
+    //get user orders
+    Route::get('/notifications',[ApiController::class, 'notifications']);
+
     //get user videos
     Route::get('/videos',[ApiController::class, 'videos']);
 
@@ -147,8 +149,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     //add media to album
     Route::post('/editToAlbum',[ApiController::class, 'editToAlbum']);
 
+    //delete album
+    Route::post('/deleteAlbum',[ApiController::class, 'deleteAlbum']);
+
     //subscribe a product
     Route::post('/product_subscribe',[ApiController::class, 'product_subscribe']);
+
+    //subscribe a product
+    Route::post('/plan_subscribe',[ApiController::class, 'plan_subscribe']);
     
     //unsubscribe a product
     Route::post('/product_unsubscribe',[ApiController::class, 'product_unsubscribe']);
@@ -158,7 +166,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/checkout_order', [ApiController::class, 'checkout_order_approved']);
 
-    Route::post('/paypal/webhook', [PayPalWebhookController::class, 'handleWebhook']);
+    //get plan solutions
+    Route::get('/plan_solutions',[ApiController::class, 'plan_solutions']);
+    
+    Route::get('/getUserUsage',[ApiController::class, 'getUserUsage']);
+
+    Route::post('/getCurrentPlan', [ApiController::class, 'getCurrentPlan']);
+
+    Route::get('/getTest',[ApiController::class, 'test']);
 });
 
 

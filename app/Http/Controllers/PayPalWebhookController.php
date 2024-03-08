@@ -36,11 +36,13 @@ class PayPalWebhookController extends Controller
                 $jsonData = json_encode($webhookData, JSON_PRETTY_PRINT);
                 $SavePath = storage_path('PaymentDetails');
                 if(!file_exists($SavePath)){
-                    mkdir($SavePath, 0755, true);
+                    mkdir($SavePath, 0777, true);
                 }
 
                 $filePath = $SavePath . '/' .$paymentData['id'] . '-PAYMENT_COMPLETED.json';
                 file_put_contents($filePath, $jsonData);
+
+            }elseif($eventType === 'CHECKOUT.ORDER.APPROVED'){
                 
             }elseif($eventType === 'PAYMENT.CAPTURE.REFUNDED'){
                 $paymentData = $webhookData['resource'];
@@ -61,7 +63,7 @@ class PayPalWebhookController extends Controller
                 $jsonData = json_encode($webhookData, JSON_PRETTY_PRINT);
                 $SavePath = storage_path('PaymentDetails');
                 if(!file_exists($SavePath)){
-                    mkdir($SavePath, 0755, true);
+                    mkdir($SavePath, 0777, true);
                 }
 
                 $filePath = $SavePath . '/' .$paymentData['id'] . '-PAYMENT_REFUNDED.json';
@@ -87,7 +89,7 @@ class PayPalWebhookController extends Controller
                 $jsonData = json_encode($webhookData, JSON_PRETTY_PRINT);
                 $SavePath = storage_path('CustomerDispute');
                 if(!file_exists($SavePath)){
-                    mkdir($SavePath, 0755, true);
+                    mkdir($SavePath, 0777, true);
                 }
 
                 $filePath = $SavePath . '/' .$transaction_id . '-CREATED.json';
@@ -113,7 +115,7 @@ class PayPalWebhookController extends Controller
                 $jsonData = json_encode($webhookData, JSON_PRETTY_PRINT);
                 $SavePath = storage_path('CustomerDispute');
                 if(!file_exists($SavePath)){
-                    mkdir($SavePath, 0755, true);
+                    mkdir($SavePath, 0777, true);
                 }
 
                 $filePath = $SavePath . '/' .$transaction_id . '-UPDATED.json';
@@ -139,7 +141,7 @@ class PayPalWebhookController extends Controller
                 $jsonData = json_encode($webhookData, JSON_PRETTY_PRINT);
                 $SavePath = storage_path('CustomerDispute');
                 if(!file_exists($SavePath)){
-                    mkdir($SavePath, 0755, true);
+                    mkdir($SavePath, 0777, true);
                 }
 
                 $filePath = $SavePath . '/' .$transaction_id . '-RESOLVED.json';

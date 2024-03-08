@@ -5,6 +5,8 @@ use FFMpeg\FFMpeg;
 use Carbon\Carbon;
 use App\Models\Media;
 use App\Models\Order;
+use App\Models\Plan_solution;
+use App\Models\Plan_solution_order;
 use App\Models\Product_solution;
 use App\Models\Product_solution_order;
 use FFMpeg\Coordinate\TimeCode;
@@ -64,13 +66,25 @@ class OrderRepository
         return $media;
     }
 
-    public function createProductSolutionOrder($request){
+    // add by jason
+    public function createPlanSolutionOrder($request){
+        $solution_order = new Plan_solution_order;
+        $solution_order->order()->associate($this->order);
+        $solution_order->plan_solution()->associate(Plan_solution::where('id', $request->plan_solution['id'])->first()); 
+        $solution_order->expired_at = Carbon::now()->addMonths($request->plan_solution['period']);
+        $solution_order->is_activated = true;
+        $solution_order->save();
+        // $this->solution_order = $solution_order;
+        return $solution_order;
+    }
+
+    public function createProductSolutionOrder($product_solution){
         $solution_order = new Product_solution_order;
         $solution_order->order()->associate($this->order);
-        $solution_order->product_solution()->associate(Product_solution::where('id', $request->product_solution['id'])->first()); 
-        $solution_order->expired_at = Carbon::now()->addMonths($request->product_solution['period']);
-        if($request->product_solution['period']< 1){
-            $solution_order->next_expired_at = Carbon::now()->addMonths($request->product_solution['period']);
+        $solution_order->product_solution()->associate(Product_solution::where('id', $product_solution['id'])->first()); 
+        $solution_order->expired_at = Carbon::now()->addMonths($product_solution['period']);
+        if($product_solution['period']< 1){
+            $solution_order->next_expired_at = Carbon::now()->addMonths($product_solution['period']);
         }
         else{
             $solution_order->next_expired_at = Carbon::now()->addMonths(1);
@@ -187,7 +201,22 @@ class OrderRepository
 
         return $this;
     }
+    /**
+     * subcscirbe a product
+     * 1 create order
+     * 2 create product_solution_order
+     * 3 
+     */
+    // add by jason
+    public function subscribePlan($request){
+        DB::transaction(function () use ($request) {
+            $this->createOrder($request);
+            $solution_order = $this->createPlanSolutionOrder($request);
+            $this->solution_order = $solution_order;
+        });
 
+        return $this;
+    }
     /**
      * subcscirbe a product
      * 1 create order
@@ -197,7 +226,17 @@ class OrderRepository
     public function subscribeProduct($request){
         DB::transaction(function () use ($request) {
             $this->createOrder($request);
-            $solution_order = $this->createProductSolutionOrder($request);
+            $solution_order = $this->createProductSolutionOrder($request->product_solution);
+            $this->solution_order = $solution_order;
+        });
+
+        return $this;
+    }
+
+    public function subscribeProductFree($request, $product_solution){
+        DB::transaction(function () use ($request, $product_solution) {
+            $this->createOrder($request);
+            $solution_order = $this->createProductSolutionOrder($product_solution);
             $this->solution_order = $solution_order;
         });
 
@@ -217,6 +256,7 @@ class OrderRepository
     public function userUploadMediaFromCanvas($request){
         DB::transaction(function () use ($request) {
             $this->createOrder($request);
+
             foreach ($request->pic as $pic) {
                 $media = $this->createMedia();
                 $file = $this->dataUrlToFile($pic);
@@ -228,6 +268,35 @@ class OrderRepository
                 $media->save();
                 $this->media = $media;
             }
+
+            // $i = 0;
+            // foreach ($request->pic as $pic) {
+            //     $media = $this->createMedia();
+            //     $file_corp = $this->dataUrlToFile($pic);
+            //     // //resize image to cover
+            //     // $media->cover = $this->imageToCover($file);
+            //     // $path = $file->store($this->getOrigianlFolderPath($media->id),'s3');
+
+            //     // // save original pic
+            //     // $file_origin = $this->dataUrlToFile($request->origin_pic[$i]);
+            //     // $path_crop = $file_origin->store($this->getCropFolderPath($media->id),'s3');
+
+            //     // crop 版本
+            //     $file_origin = $this->dataUrlToFile($request->origin_pic[$i]);
+            //     $path = $file_origin->store($this->getOrigianlFolderPath($media->id),'s3');
+
+            //     // save original pic
+            //     $media->cover = $this->imageToCover($file_corp);
+            //     $path_crop = $file_corp->store($this->getCropFolderPath($media->id),'s3');
+
+            //     $media->obj = $path_crop;
+            //     $media->original = $path;
+            //     $media->crop = $path_crop;
+            //     $media->save();
+            //     $this->media = $media;
+
+            //     $i++;
+            // }
         });
 
         return $this;
@@ -240,7 +309,7 @@ class OrderRepository
         file_put_contents($tmpFilePath, $data);
         $image = Image::make($tmpFilePath);
         // Access underlying Imagick instance and trim image
-        $image->getCore()->trimImage(0);
+        // $image->getCore()->trimImage(0);
         $image->save($tmpFilePath);
 
         return new \Illuminate\Http\UploadedFile($tmpFilePath, 'image.png', 'image/png', null, true);
@@ -264,6 +333,11 @@ class OrderRepository
     public function getOrigianlFolderPath($mediaId=null){
         $mediaId = $mediaId?? $this->order->media->first()->id;
         return env('APP_ENV')."/".$this->order->user->id."/".$this->order->id."/$mediaId/original";
+    }
+
+    public function getCropFolderPath($mediaId=null){
+        $mediaId = $mediaId?? $this->order->media->first()->id;
+        return env('APP_ENV')."/".$this->order->user->id."/".$this->order->id."/$mediaId/crop";
     }
 
     public function getObjFolderPath($mediaId=null){
