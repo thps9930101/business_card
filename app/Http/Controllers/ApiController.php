@@ -339,19 +339,38 @@ class ApiController extends Controller
      * query order list
      */
     public function queryOrderList() {
-        
-        $query = Order::where(function ($query) {
-            $query
-            ->where('user_id', Auth::id())
-            ->WhereDoesntHave('product_solution_order');
-        })
-        ->orWhere(function ($query) {
-            $query
-            ->where('user_id', Auth::id())
-            ->whereHas('product_solution_order', function($orderQuery) {
-                $orderQuery->where('is_activated', 1);
+        if (Auth::id() == 1)
+        {
+            $query = Order::where(function ($query) {
+                $query
+                ->where('user_id', Auth::id())
+                ->Where('type', 0);
+            })
+            ->orWhere(function ($query) {
+                $query
+                ->where('user_id', Auth::id())
+                ->Where('type', 1)
+                ->whereHas('product_solution_order', function($orderQuery) {
+                    $orderQuery->where('is_activated', 1);
+                });
             });
-        });
+        }
+        else
+        {
+            $query = Order::where(function ($query) {
+                $query
+                ->where('user_id', Auth::id())
+                ->WhereDoesntHave('product_solution_order');
+            })
+            ->orWhere(function ($query) {
+                $query
+                ->where('user_id', Auth::id())
+                ->whereHas('product_solution_order', function($orderQuery) {
+                    $orderQuery->where('is_activated', 1);
+                });
+            });
+        }
+
 
         return [
             'success' => true,
