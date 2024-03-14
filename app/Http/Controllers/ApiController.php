@@ -231,15 +231,14 @@ class ApiController extends Controller
 
             $user->save();
 
+            return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=true";</script>';
             return [
                 'success' => true,
                 'message' => '註冊成功！'
-                // 'message' => '<script>window.location = https://4dbox.lightmatrix3d.com/;<script>',
             ];
-
         };
 
-        return '<script>window.location = "https://4dbox.lightmatrix3d.com/";</script>';
+        return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=false";</script>';
         return [
             'success' => false,
             'message' => 'incorrectVerificationCode'
