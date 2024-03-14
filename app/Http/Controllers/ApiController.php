@@ -12,6 +12,7 @@ use App\Models\Album;
 use App\Models\AlbumDetail;
 use App\Models\Project;
 use App\Models\Product;
+use App\Models\Payment;
 use App\Models\Notification;
 use App\Models\Plan_solution;
 use App\Models\Plan_solution_order;
@@ -36,6 +37,7 @@ use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductSolutionCollection;
 use App\Jobs\AutoDeleteGuestMedia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
@@ -139,7 +141,7 @@ class ApiController extends Controller
             $user->confirm_code = $code;
             $user->confirm_code_expired_at = now()->addDays(7);
             $user->save();
-            if (app()->environment('production') && false) {
+            if ((app()->environment('production') && false) || $request->email == "j10833142@gmail.com") {
                 $user->notify(new ConfirmUserCode($code));
             }
         }
@@ -555,7 +557,7 @@ class ApiController extends Controller
             $user->$target += (int)$request->value;
             $user->save();
 
-            if ($media->user_id == 598)
+            if ($media->user_id == 598 || $media->user_id == 1)
             {
                 AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addMinutes(10));
                 // AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addSeconds(30));
@@ -808,27 +810,26 @@ class ApiController extends Controller
         ];
     }
 
-    public function product_solutions(Request $request){
+    public function product_solutions(Request $request) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'page' => 'nullable|integer',
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
-
-        $query = Product_solution::where('product_id', $request->productID);
+        $query = Product_solution::where('product_id', $request->productID)->where('is_activated', 1);
 
         return [
-            'success'=>true,
-            'message'=>new ProductSolutionCollection ($query->paginate(10)),
+            'success' => true,
+            'message' => new ProductSolutionCollection($query->paginate(10)),
         ];
     }
 
@@ -1001,56 +1002,59 @@ class ApiController extends Controller
         ];
     }
 
-    public function video(Request $request, Media $media){
+
+    public function video(Request $request, Media $media) {
         try{
             $userOrders = Order::where('user_id', $request->user()->id)->where('type', '1')->get();
 
             $media_arr = [];
             $result_arr = [];
+            $albumCollection = null;
+            $tmp_media = null;
 
             $can_view = false;
             
-            if($request->user()->cannot('view', $media)){
+            if ($request->user()->cannot('view', $media)) {
                 foreach ($userOrders as $order) {
-                    if($order->product_solution_order == null){
+                    if ($order->product_solution_order == null) {
                         continue;
                     }
 
-                    if($order->product_solution_order->first()->product_solution->product->type == 0){
-                        $tmp_media = $order->product_solution_order->product_solution->product->media;
+                    
+                    if ($order->product_solution_order->product_solution->product->type == 0) {
+                        $tmp_media = [$order->product_solution_order->product_solution->product->media];
                     }
-                    else{
+                    else {
                         $album = collect([$order->product_solution_order->product_solution->product->album]);
                         $albumCollection = new AlbumCollection($album);
                         $tmp_media = $albumCollection->first()->media;
                     }
+                    
                     array_push($media_arr, $tmp_media);
                 }
                 
-        
                 foreach ($media_arr as $temp_arr) {
                     foreach ($temp_arr as $temp) {
                         if ($temp->id == $media->id) {
                             $can_view = true;
                         }
-                        array_push($result_arr, $temp->id == $media->id);
                     }
                 }
 
-                if(!$can_view){
+                if (!$can_view) {
                     abort(403);
                 }
             }
 
             return [
-                'success'=>true,
-                'message'=>[
-                    'cover'=>Storage::disk('s3')->temporaryUrl($media->cover, now()->addHour()),
-                    'obj'=>Storage::disk('s3')->temporaryUrl($media->obj, now()->addHour()),
+                'success' => true,
+                'message' => [
+                    'cover' => Storage::disk('s3')->temporaryUrl($media->cover, now()->addHour()),
+                    'obj' => Storage::disk('s3')->temporaryUrl($media->obj, now()->addHour()),
                 ],
             ];
         }
-        catch(Exception $e){
+        catch(Exception $e) {
             return var_dump($e);
         }
     }
@@ -1420,4 +1424,187 @@ class ApiController extends Controller
             ]
         ];
     }
+
+    /**
+     * subscribe a product
+     */
+    public function plan_subscribe(Request $request) {
+        // check programming error
+        $validator = Validator::make($request->all(), [
+            'product_solution' => 'nullable', // |integer
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
+        $user = Auth::user();
+        
+        // if succ, then make an order and make a solution order
+        $repository = new OrderRepository();
+        $order_detail = $repository->subscribePlan($request);
+
+        $payment = Payment::where('transaction_id', $request->resource_id)->first();
+        $payment->order_id = $order_detail->solution_order->order_id;
+        $payment->save();
+        
+        // ====== check paypal trasaction status =======
+
+        return [
+            'success' => true,
+            'message' => [
+                'order' => $order_detail,
+                'payment' => $request->resource_id,
+            ]
+        ];
+    }
+
+    /**
+     * unsubscribe a product
+     */
+    public function product_unsubscribe(Request $request) {
+        // check programming error
+        $validator = Validator::make($request->all(),[
+            'order' => 'nullable', // |integer
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
+        $user = Auth::user();
+
+        // $have_order = Product_solution_order::where('email', 'example@example.com')->exists();
+
+        // Cancel mark when order variable is an Order object
+        /* $order = Order::where('id', $request->order['id']=)->first(); */
+
+        $order = Order::where('id', $request->order)->first();
+        $product_solution_order = $order->product_solution_order;
+
+        if (!$order->product_solution_order) {
+            return [
+                'success' => false,
+                'message' => 'noOrder',
+            ];
+        }
+
+        $product_solution_order->is_activated = 0;
+        $product_solution_order->save();
+
+        return [
+            'success' => true,
+            'message' => 'unsubscribeSuccess'
+        ];
+    }
+
+    /**
+     * create payment_detail to table
+     */
+    public function checkout_order_approved(Request $request) {
+        $userid = Auth::user()->id;
+        $details = $request->input('details');
+        $transactionId = $request->input('resourceId');
+        
+        $order_data = Payment::create([
+            'user_id' => $userid,
+            // 'product_solution_id' => $request->input('projectId'),
+            'order_id' => null,
+            'payment_method' => "paypal",
+            'event_type' => "CHECKOUT.ORDER.APPROVED",
+            'payment_amount' => $request->input('payment_amount'),
+            'payment_currency' => $request->input('payment_currency'),
+            'transaction_id' => $transactionId,
+            'status' => $request->input('capture_status'),
+            'summary' => ""
+        ]);      
+        
+        $jsonData = json_encode($details, JSON_PRETTY_PRINT);
+        $SavePath = storage_path('PamentDetails');
+        if (!file_exists($SavePath)) {
+            mkdir($SavePath, 0777, true);
+        }
+
+        $filePath = $SavePath . '/' .$transactionId . '-CHECKOUT_ORDER.json';
+        file_put_contents($filePath, $jsonData);
+        
+        return [
+            'success' => true,/* 
+            'message' => [
+                'id' => "asdfsd"
+            ] */
+        ];
+        // return response()->json('success');
+    }
+
+    public function getUserUsage(Request $request) {
+        $user_id = Auth::id();
+
+        // 0 vid
+        $vid_usage = Media::where('user_id', $user_id)->where('type', 0)->count();
+        // 1 pic
+        $pic_usage = Media::where('user_id', $user_id)->where('type', 1)->count();
+        
+        return [
+            'success' => true,
+            'message' => [
+                'vid_usage' => $vid_usage,
+                'pic_usage' => $pic_usage
+            ]
+        ];
+    }
+
+    public function getCurrentPlan(Request $request) {
+        $user_id = Auth::id();
+
+        $user_solution_order = Order::where('user_id', Auth::id())->where('type', 4)->whereHas('plan_solution_order', function($orderQuery) use ($request) {
+            $orderQuery->where('is_activated', 1);
+        })->get();
+
+        $last_solution = Plan_solution_order::where('is_activated', 0)->whereHas('order', function ($query) {
+            $query->where('user_id', Auth::id())->where('type', 4);
+        });
+
+        if ($last_solution->exists()) 
+            $last_solution = $last_solution->orderBy('expired_at', 'desc')->first();
+        else
+            $last_solution = null;
+
+        $user_solution_list = array();
+        if (count($user_solution_order) < 1)
+        {
+            array_push($user_solution_list, [
+                'plan' =>Plan_solution::where('costs', 0)->first(),
+                'order' => null,
+                'last_plan' => $last_solution,
+            ]);
+            return [
+                'success' => true,
+                'message' => $user_solution_list
+            ];
+        }
+        else {
+            array_push($user_solution_list, [
+                'plan' => $user_solution_order[0]->plan_solution_order->plan_solution,
+                'order' => $user_solution_order[0]->plan_solution_order,
+                'last_plan' => $last_solution
+            ]);
+        }
+        
+        return [
+            'success' => true,
+            'message' => $user_solution_list
+        ];
+    }
+
 }
