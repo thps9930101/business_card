@@ -219,6 +219,7 @@ class ApiController extends Controller
         if ($user = User::where('confirm_code', $code)->first()) {
 
             if (now() > $user->confirm_code_expired_at) {
+                return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=expiredVerificationCode";</script>';
                 return [
                     'success' => false,
                     'message' => 'expiredVerificationCode'
@@ -231,14 +232,14 @@ class ApiController extends Controller
 
             $user->save();
 
-            return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=true";</script>';
+            return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=success";</script>';
             return [
                 'success' => true,
                 'message' => '註冊成功！'
             ];
         };
 
-        return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=false";</script>';
+        return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=incorrectVerificationCode";</script>';
         return [
             'success' => false,
             'message' => 'incorrectVerificationCode'
