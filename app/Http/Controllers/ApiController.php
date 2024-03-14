@@ -234,13 +234,15 @@ class ApiController extends Controller
             return [
                 'success' => true,
                 'message' => '註冊成功！'
+                // 'message' => '<script>window.location = https://4dbox.lightmatrix3d.com/;<script>',
             ];
 
         };
 
         return [
             'success' => false,
-            'message' => 'incorrectVerificationCode'
+            // 'message' => 'incorrectVerificationCode'
+            'message' => '<script>window.location = https://4dbox.lightmatrix3d.com/;<script>',
         ];
     }
 
