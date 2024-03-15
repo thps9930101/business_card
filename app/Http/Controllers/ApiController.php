@@ -699,7 +699,7 @@ class ApiController extends Controller
         return [
             'success' => true,
             'message' => new OrderCollection($query->paginate(30)),
-            'hasImg' => $query->toSql()
+            'request_type' => $request->order_type
 /*             'sql' => $query->toSql(),
             'bindings' => $query->getBindings(),
             'condition' =>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
