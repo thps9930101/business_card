@@ -686,6 +686,7 @@ class ApiController extends Controller
                 ->orWhere('type', 1);
             });
             
+            
             // $filteredResults = $results->filter(function ($item) {
             //     // 假设 `media` 是加载了的关系，并且 `cover` 是存储在 S3 上的文件路径
             //     if ($item->media && Storage::disk('s3')->exists($item->media->cover)) {
