@@ -679,10 +679,20 @@ class ApiController extends Controller
                 $tmp
                 ->where('type', 0)
                 ->whereHas('media', function ($m_query) {
-                    $m_query->where('status', "!=", 3);
+                    // $m_query->where('status', "!=", 3);
+                    // ->where('status', '!=', 2);
+                    $m_query->whereNotIn('status', [2, 3]);
                 })
                 ->orWhere('type', 1);
             });
+            
+            // $filteredResults = $results->filter(function ($item) {
+            //     // 假设 `media` 是加载了的关系，并且 `cover` 是存储在 S3 上的文件路径
+            //     if ($item->media && Storage::disk('s3')->exists($item->media->cover)) {
+            //         return true;
+            //     }
+            //     return false;
+            // });
         }
         
         return [
@@ -858,24 +868,24 @@ class ApiController extends Controller
         define("TYPE_PIC", 1);
         define("STATUS_PROCESSING", 0);
 
-        // $videos = Media::where('type', 1)->where('status', 0)->whereNotNull('original')->where('is_staff_uploaded',0)->get();
-        // $pics = [];
-        // foreach($videos as $video) {
-        //     $pics[] = (object)['id' => $video->id,
-        //     'name' => $video->name,
-        //     'obj' =>Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()),
-        //     'path' => (new OrderRepository($video->order))->getPath($video->id)];
-        // }
-
-        // crop 版本
-        $videos = Media::where('type', TYPE_PIC)->where('status', STATUS_PROCESSING)->whereNotNull('crop')->where('is_staff_uploaded', 0)->get();        
+        $videos = Media::where('type', 1)->where('status', 0)->whereNotNull('original')->where('is_staff_uploaded',0)->get();
         $pics = [];
-        foreach ($videos as $video) {
+        foreach($videos as $video) {
             $pics[] = (object)['id' => $video->id,
             'name' => $video->name,
-            'obj' =>Storage::disk('s3')->temporaryUrl($video->crop??$video->obj, now()->addHour()),
+            'obj' =>Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()),
             'path' => (new OrderRepository($video->order))->getPath($video->id)];
         }
+
+        // crop 版本
+        // $videos = Media::where('type', TYPE_PIC)->where('status', STATUS_PROCESSING)->whereNotNull('crop')->where('is_staff_uploaded', 0)->get();        
+        // $pics = [];
+        // foreach ($videos as $video) {
+        //     $pics[] = (object)['id' => $video->id,
+        //     'name' => $video->name,
+        //     'obj' =>Storage::disk('s3')->temporaryUrl($video->crop??$video->obj, now()->addHour()),
+        //     'path' => (new OrderRepository($video->order))->getPath($video->id)];
+        // }
 
 
         return [
@@ -1465,7 +1475,8 @@ class ApiController extends Controller
             return [
                 'success' => true,
                 'message' => [
-                    'order' => $order_detail
+                    'order' => $order_detail,
+                    'payment' => $request->resource_id,
                 ]
             ];
         }
