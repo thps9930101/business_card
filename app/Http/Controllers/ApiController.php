@@ -730,29 +730,40 @@ class ApiController extends Controller
      /**
      * get products
      */
-    public function products(Request $request){
+    public function products(Request $request) {
 
-        $validator = Validator::make($request->all(),[
+        $validator = Validator::make($request->all(), [
             'page' => 'nullable|integer',
-            'type' =>['nullable','regex:/^([0-9]+|all)$/'],
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => $validator->messages()->first(),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         }
 
-        $query = Product::get();
-        //'message'=>new OrderCollection ($query->paginate(10)),
+        
+        $query = Product_solution::select('product_id')->where('is_activated', 1)
+        ->groupBy('product_id')
+        ->with('product', function ($child_query) {
+            $child_query
+            ->where('type', 0)
+            ->orWhere('type', 1)->has('album.albumDetail');
+        })->get()->filter(function ($item) {
+            return $item->product !== null;
+        })->pluck('product'); 
+        
+        // $query = Product::get();
+        //'message' => new OrderCollection ($query->paginate(10)),
         return [
-            'success'=>true,
-            'message'=>new ProductCollection ($query), // new ProductCollection ($query)
-/*             'sql'=>$query->toSql(),
-            'bindings'=>$query->getBindings(),
-            'condition'=>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
+            'success' => true,
+            'message' => new ProductCollection($query),
+/*             'sql' => $query->toSql(),
+            'bindings' => $query->getBindings(),
+            'condition' =>($request->order_type || $request->order_type === 0 || $request->order_type==='0') && $request->order_type != 'all' */
         ];
     }
 
@@ -843,19 +854,33 @@ class ApiController extends Controller
         ];
     }
 
-    public function get2Dpics(){
+    public function get2Dpics() {
+        define("TYPE_PIC", 1);
+        define("STATUS_PROCESSING", 0);
 
-        $videos = Media::where('type', 1)->where('status', 0)->whereNotNull('original')->where('is_staff_uploaded',0)->get();
+        // $videos = Media::where('type', 1)->where('status', 0)->whereNotNull('original')->where('is_staff_uploaded',0)->get();
+        // $pics = [];
+        // foreach($videos as $video) {
+        //     $pics[] = (object)['id' => $video->id,
+        //     'name' => $video->name,
+        //     'obj' =>Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()),
+        //     'path' => (new OrderRepository($video->order))->getPath($video->id)];
+        // }
+
+        // crop 版本
+        $videos = Media::where('type', TYPE_PIC)->where('status', STATUS_PROCESSING)->whereNotNull('crop')->where('is_staff_uploaded', 0)->get();        
         $pics = [];
-        foreach($videos as $video){
-            $pics[] = (object)['id'=>$video->id,
-            'name'=>$video->name,
-            'obj'=>Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()),
-            'path'=> (new OrderRepository($video->order))->getPath($video->id)];
+        foreach ($videos as $video) {
+            $pics[] = (object)['id' => $video->id,
+            'name' => $video->name,
+            'obj' =>Storage::disk('s3')->temporaryUrl($video->crop??$video->obj, now()->addHour()),
+            'path' => (new OrderRepository($video->order))->getPath($video->id)];
         }
+
+
         return [
-            'success'=>true,
-            'message'=>$pics,
+            'success' => true,
+            'message' => $pics,
         ];
     }
 
@@ -1003,7 +1028,6 @@ class ApiController extends Controller
             'success' => true
         ];
     }
-
 
     public function video(Request $request, Media $media) {
         try{
@@ -1247,7 +1271,7 @@ class ApiController extends Controller
             ]
         ];
     }
-    
+
     public function deleteAlbum(Request $request) {
         $albumID = $request->album['id'];
         $productsWithoutAlbum = !Product::whereHas('album', function ($query) use ($albumID) {
@@ -1277,19 +1301,20 @@ class ApiController extends Controller
     /**
      * add media to album
      */
-    public function editToAlbum(Request $request){
+    public function editToAlbum(Request $request) {
 
-        /* $validator = Validator::make($request->all(), [
+        /* $validator = Validator::make($request->all(),[
             'name' => 'required',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return [
                 'success' => false,
                 'message' => __('register.failed'),
-                'errors'=> $validator->errors()->toArray()
+                'errors' => $validator->errors()->toArray()
             ];
         } */
+
         $albumID = $request->album['id'];
         $productsWithoutAlbum = !Product::whereHas('album', function ($query) use ($albumID) {
             $query->where('album_id', $albumID);
@@ -1298,26 +1323,36 @@ class ApiController extends Controller
         if (!$productsWithoutAlbum) {
             return [
                 'success' => false,
-                'message' => 'your album is in product. You can\'t edit it.'
+                'message' => 'albumInProduct'
             ];
-    
         }
 
         $album = Album::where('id', $request->album['id'])->first();
         $request_media = $request->chosenMedia;
 
-        if($request->editType == 'add'){
-            foreach ($request->chosenMedia as $key => $value) {
-                $media = Media::where('id', $value['id'])->first();
-                $media->album()->associate($album);
-                $media->save();
+        if ($request->editType == 'add') {
+            foreach ($request->chosenMedia as $key => $media) {
+                $albumDetail = AlbumDetail::where('album_id', $request->album['id'])->where('media_id', $media['id']);
+                if (!$albumDetail->exists())
+                {
+                    AlbumDetail::create([
+                        'album_id' => $request->album['id'],
+                        'media_id' => $media['id']
+                    ]);
+                }
+                // $media = Media::where('id', $media['id'])->first();
+                // $media->album()->associate($album);
+                // $media->save();
             }    
         }
-        else if($request->editType == 'delete'){
-            foreach ($request->chosenMedia as $key => $value) {
-                $media = Media::where('id', $value['id'])->first();
-                $media->album_id = null;
-                $media->save();
+        else if ($request->editType == 'delete') {
+            foreach ($request->chosenMedia as $key => $media) {
+                $albumDetail = AlbumDetail::where('album_id', $request->album['id'])->where('media_id', $media['id']);
+                if ($albumDetail->exists())
+                    $albumDetail->delete();
+                // $media = Media::where('id', $value['id'])->first();
+                // $media->album_id = null;
+                // $media->save();
             }    
         }
         
@@ -1328,11 +1363,11 @@ class ApiController extends Controller
             ]
         ];
     }
-    
+
     /**
-     * add media to album
+     * subscribe a product
      */
-    public function product_subscribe(Request $request){
+    public function product_subscribe(Request $request) {
         $validator = Validator::make($request->all(), [
             'product_solution' => 'nullable', // |integer
             'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
@@ -1347,7 +1382,7 @@ class ApiController extends Controller
         }
 
         $user = Auth::user();
-
+                
         if ($request->product_solution["isFree"])
         {
             // 找該 plan 內的0元方案
@@ -1369,7 +1404,6 @@ class ApiController extends Controller
             $product = $product_solution->product;
             $product_solution_orders = $product_solution->product_solution_order;
         }
-
 
         // Prevent subscribe self.
         if ($product->type == 0) {
@@ -1419,12 +1453,22 @@ class ApiController extends Controller
         event(new PicUploaded($media));
         // ====== check paypal trasaction status =======
 
-        return [
-            'success' => true,
-            'message' => [
-                'order' => $order_detail
-            ]
-        ];
+        if ($request->product_solution["isFree"]){
+            return [
+                'success' => true,
+                'message' => [
+                    'order' => $order_detail
+                ]
+            ];
+        }
+        else {
+            return [
+                'success' => true,
+                'message' => [
+                    'order' => $order_detail
+                ]
+            ];
+        }
     }
 
     /**
@@ -1465,7 +1509,7 @@ class ApiController extends Controller
             ]
         ];
     }
-
+    
     /**
      * unsubscribe a product
      */
@@ -1606,6 +1650,70 @@ class ApiController extends Controller
         return [
             'success' => true,
             'message' => $user_solution_list
+        ];
+    }
+
+    /**
+     * check if subscribed 
+     */
+    public function check_product_subscribe(Request $request) {
+        // check programming error
+        $validator = Validator::make($request->all(), [
+            'product' => 'nullable', // |integer
+            'type' => ['nullable', 'regex:/^([0-9]+|all)$/'],
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => $validator->messages()->first(),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
+        $user = Auth::user();
+        
+        // $have_order = Product_solution_order::where('email', 'example@example.com')->exists();
+        $product = Product::where('id', $request->product['id'])->first();
+
+        $product_solution = $product->product_solution;
+
+        // Prevent subscribe self.
+        if ($product->type == 0) {
+            $media_list = [$product->media];
+        }
+        else {
+            $album = collect([$product->album]);
+            $albumCollection = new AlbumCollection($album);
+            $media_list = $albumCollection->first()->media;
+        }
+
+        foreach ($media_list as $media) {
+            if ($media->order->user->id == $user->id) {
+                return [
+                    'success' => false,
+                    'message' => 'yourPhoto',
+                ];
+            }
+        }
+
+        // Prevent subscribe same product.
+        foreach ($product_solution as $solution) {
+            $product_solution_orders = $solution->product_solution_order;
+
+            foreach ($product_solution_orders as $product_solution_order) {
+                if ($product_solution_order->order->user->id == $user->id && $product_solution_order->status == 0) {
+                    return [
+                        'success' => false,
+                        'message' => 'alreadySubscribed',
+                    ];
+                }
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => "可以訂閱"
         ];
     }
 

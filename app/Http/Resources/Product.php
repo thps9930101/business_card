@@ -15,12 +15,15 @@ class Product extends JsonResource
     public function toArray(Request $request): array
     {
         $store = $this->store()->latest()->get();
-
-        if($this->type == 0){
+        
+        if ($this->type == 0)
             $media = $this->media()->latest()->get();
-        }
-        else{
-            $media = collect($this->album()->get()->first()->media);
+        else {
+            // 有detail
+            $media = $this->album->albumDetail()->with('media')->get()->pluck('media');
+
+            // 沒detail
+            // $media = collect($this->album()->get()->first()->media);
         }
 
         return [
