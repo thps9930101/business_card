@@ -58,6 +58,12 @@ class ApiController extends Controller
      */
     public function login(Request $request) {
         $msg = "";
+        return [
+            'success' => false,
+            // 'message' => __('auth.failed'),
+            'message' => $msg."0",
+            'errors' => $validator->errors()->toArray()
+        ];
 
         $validator = Validator::make($request->all(),[
             'email' => 'required|email',
