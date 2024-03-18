@@ -12,6 +12,6 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        'https://4dbox.lightmatrix3d.com/api/*'//
+        '*'//https://4dbox.lightmatrix3d.com/api/*
     ];
 }
