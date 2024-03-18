@@ -57,16 +57,20 @@ class ApiController extends Controller
      * login
      */
     public function login(Request $request) {
+        $msg = "";
 
         $validator = Validator::make($request->all(),[
             'email' => 'required|email',
             'password' => 'required'
         ]);
 
+
+        
         if ($validator->fails()) {
             return [
                 'success' => false,
-                'message' => __('auth.failed'),
+                // 'message' => __('auth.failed'),
+                'message' => $msg."1",
                 'errors' => $validator->errors()->toArray()
             ];
         }
@@ -87,7 +91,8 @@ class ApiController extends Controller
         } else {
             return [
                 'success' => false,
-                'message' => __('auth.failed'),
+                // 'message' => __('auth.failed'),
+                'message' => $msg."2",
                 'errors' => $result
             ];
         }
@@ -685,7 +690,6 @@ class ApiController extends Controller
                 })
                 ->orWhere('type', 1);
             });
-            
             
             // $filteredResults = $results->filter(function ($item) {
             //     // 假设 `media` 是加载了的关系，并且 `cover` 是存储在 S3 上的文件路径
