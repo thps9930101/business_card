@@ -13,6 +13,9 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
+use App\Models\Media;
+use App\Http\Resources\MediaCollection;
+
 class PicUploaded  implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -21,6 +24,7 @@ class PicUploaded  implements ShouldBroadcastNow
     public $name;
     public $obj;
     public $path;
+    public $mediaCollection;
 
     /**
      * Create a new event instance.
@@ -31,6 +35,8 @@ class PicUploaded  implements ShouldBroadcastNow
         $this->name=$video->name??'null';
         $this->obj=isset($video->obj)?Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()) : 'null';
         $this->path=isset($vide->order)?(new OrderRepository($video->order))->getPath($video->id) : 'null';
+
+        $this->mediaCollection = Media::collection(Media::Where('id', $video->id)->latest()->get());
     }
 
     /**
