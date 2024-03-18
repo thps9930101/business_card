@@ -58,13 +58,6 @@ class ApiController extends Controller
      */
     public function login(Request $request) {
         $msg = "";
-        return [
-            'success' => false,
-            // 'message' => __('auth.failed'),
-            'message' => $msg."0",
-            'errors' => $validator->errors()->toArray()
-        ];
-
         $validator = Validator::make($request->all(),[
             'email' => 'required|email',
             'password' => 'required'
@@ -75,8 +68,7 @@ class ApiController extends Controller
         if ($validator->fails()) {
             return [
                 'success' => false,
-                // 'message' => __('auth.failed'),
-                'message' => $msg."1",
+                'message' => __('auth.failed'),
                 'errors' => $validator->errors()->toArray()
             ];
         }
@@ -97,8 +89,7 @@ class ApiController extends Controller
         } else {
             return [
                 'success' => false,
-                // 'message' => __('auth.failed'),
-                'message' => $msg."2",
+                'message' => __('auth.failed'),
                 'errors' => $result
             ];
         }
