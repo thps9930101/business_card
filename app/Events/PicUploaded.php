@@ -14,6 +14,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 
 use App\Models\Media;
+use App\Http\Resources\Media as MediaResource;
 use App\Http\Resources\MediaCollection;
 
 class PicUploaded  implements ShouldBroadcastNow
@@ -36,7 +37,7 @@ class PicUploaded  implements ShouldBroadcastNow
         $this->obj=isset($video->obj)?Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()) : 'null';
         $this->path=isset($vide->order)?(new OrderRepository($video->order))->getPath($video->id) : 'null';
 
-        $this->mediaCollection = Media::collection(Media::Where('id', $video->id)->latest()->get());
+        $this->mediaCollection = MediaResource::collection(Media::Where('id', $video->id)->latest()->get());
     }
 
     /**
