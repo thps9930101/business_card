@@ -39,7 +39,12 @@ class PicUploaded  implements ShouldBroadcastNow
         $this->path=isset($vide->order)?(new OrderRepository($video->order))->getPath($video->id) : 'null';
 
         if ($video->id)
-            $this->mediaCollection = MediaResource::collection(Media::Where('id', $video->id)->latest()->get())->toJson();
+        {
+            $media = Media::Where('id', $video->id)->latest()->get();
+            $mCollection = MediaResource::collection($media);
+
+            $this->mediaCollection = $mCollection->toJson();
+        }
     }
 
     /**
