@@ -38,7 +38,8 @@ class PicUploaded  implements ShouldBroadcastNow
         $this->obj=isset($video->obj)?Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()) : 'null';
         $this->path=isset($vide->order)?(new OrderRepository($video->order))->getPath($video->id) : 'null';
 
-        $this->mediaCollection = MediaResource::collection(Media::Where('id', $video->id)->latest()->get())->toJson();
+        if ($video->id)
+            $this->mediaCollection = MediaResource::collection(Media::Where('id', $video->id)->latest()->get())->toJson();
     }
 
     /**
