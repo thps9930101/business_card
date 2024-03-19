@@ -33,17 +33,24 @@ class PicUploaded  implements ShouldBroadcastNow
      */
     public function __construct($video)
     {
-        $this->id=$video->id??'null';
-        $this->name=$video->name??'null';
-        $this->obj=isset($video->obj)?Storage::disk('s3')->temporaryUrl($video->original??$video->obj, now()->addHour()) : 'null';
-        $this->path=isset($vide->order)?(new OrderRepository($video->order))->getPath($video->id) : 'null';
+        if ($video !== null) {
+            $this->id = $video->id ?? 'null';
+            $this->name = $video->name ?? 'null';
+            $this->obj = isset($video->obj) ? Storage::disk('s3')->temporaryUrl($video->original ?? $video->obj, now()->addHour()) : 'null';
+            $this->path = isset($video->order) ? (new OrderRepository($video->order))->getPath($video->id) : 'null';
 
-        if ($video->id)
-        {
-            $media = Media::Where('id', $video->id)->latest()->get();
-            $mCollection = MediaResource::collection($media);
+            if ($video->id) {
+                $media = Media::Where('id', $video->id)->latest()->get();
+                $mCollection = MediaResource::collection($media);
 
-            $this->mediaCollection = $mCollection->toJson();
+                $this->mediaCollection = $mCollection->toJson();
+            }
+        } else {
+            $this->id = 'null';
+            $this->name = 'null';
+            $this->obj = 'null';
+            $this->path = 'null';
+            $this->mediaCollection = 'null';
         }
     }
 
