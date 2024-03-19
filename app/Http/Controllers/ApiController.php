@@ -1461,9 +1461,9 @@ class ApiController extends Controller
         }
 
         $media = $repository->getMedia();
-
-
-        event(new PicUploaded($media));
+        foreach($media_list as $media) {
+            event(new PicUploaded($media));
+        }
         // ====== check paypal trasaction status =======
 
         if ($request->product_solution["isFree"]){
