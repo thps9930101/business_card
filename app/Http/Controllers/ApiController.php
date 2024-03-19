@@ -561,8 +561,9 @@ class ApiController extends Controller
             $user->$target += (int)$request->value;
             $user->save();
 
-            if ($media->user_id == 598 || $media->user_id == 1)
+            if ($media->user_id == 598)
             {
+                // || $media->user_id == 1
                 AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addMinutes(10));
                 // AutoDeleteGuestMedia::dispatch($media->id)->delay(now()->addSeconds(30));
             }
