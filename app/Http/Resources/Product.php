@@ -25,9 +25,11 @@ class Product extends JsonResource
             // 沒detail
             // $media = collect($this->album()->get()->first()->media);
         }
+        $hasFreeProductSolution = $this->product_solution()->where('costs', '=', 0)->where('is_activated', 1)->exists();
 
         return [
             'id'=>$this->id,
+            'hasFree' => $hasFreeProductSolution,
             'store'=> Store::collection($store),
             'costs'=>$this->costs,
             'type'=>$this->type,
