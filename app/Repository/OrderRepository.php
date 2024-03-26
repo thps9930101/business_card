@@ -78,12 +78,20 @@ class OrderRepository
         return $solution_order;
     }
 
-    public function createProductSolutionOrder($product_solution){
+    public function createProductSolutionOrder($product_solution, $isFree){
         $solution_order = new Product_solution_order;
         $solution_order->order()->associate($this->order);
         $solution_order->product_solution()->associate(Product_solution::where('id', $product_solution['id'])->first()); 
-        $solution_order->expired_at = Carbon::now()->addMonths($product_solution['period']);
-        if($product_solution['period']< 1){
+        
+        if (!$isFree) {
+            // $solution_order->expired_at = Carbon::now()->addMonths($product_solution['period']);
+            $solution_order->expired_at = Carbon::now()->addYear($product_solution['period']);
+        }
+        else {
+            $solution_order->expired_at = Carbon::now()->addYear(99);
+        }
+
+        if($product_solution['period'] < 1){
             $solution_order->next_expired_at = Carbon::now()->addMonths($product_solution['period']);
         }
         else{
@@ -226,7 +234,7 @@ class OrderRepository
     public function subscribeProduct($request){
         DB::transaction(function () use ($request) {
             $this->createOrder($request);
-            $solution_order = $this->createProductSolutionOrder($request->product_solution);
+            $solution_order = $this->createProductSolutionOrder($request->product_solution, false);
             $this->solution_order = $solution_order;
         });
 
@@ -236,7 +244,7 @@ class OrderRepository
     public function subscribeProductFree($request, $product_solution){
         DB::transaction(function () use ($request, $product_solution) {
             $this->createOrder($request);
-            $solution_order = $this->createProductSolutionOrder($product_solution);
+            $solution_order = $this->createProductSolutionOrder($product_solution, true);
             $this->solution_order = $solution_order;
         });
 

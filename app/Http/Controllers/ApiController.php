@@ -36,11 +36,14 @@ use App\Http\Resources\StoreCollection;
 use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductSolutionCollection;
 use App\Jobs\AutoDeleteGuestMedia;
+use App\Jobs\ProductUnsubscribe;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Password;
+// use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Password;
+
 
 
 class ApiController extends Controller
@@ -1464,6 +1467,12 @@ class ApiController extends Controller
         $media = $repository->getMedia();
         foreach($media_list as $media) {
             event(new PicUploaded($media));
+        }
+
+        if ($user->id == 1) {
+            Log::info('ID: '.$order_detail->solution_order->order_id);
+            ProductUnsubscribe::dispatch($order_detail->solution_order)->delay(now()->addMinutes(1));
+            // ProductUnsubscribe::dispatch($order_detail->solution_order->order_id)->delay(now()->addSeconds(20));
         }
         // ====== check paypal trasaction status =======
 
