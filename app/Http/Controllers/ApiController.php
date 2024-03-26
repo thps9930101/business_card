@@ -44,8 +44,6 @@ use Illuminate\Support\Facades\Validator;
 // use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Password;
 
-
-
 class ApiController extends Controller
 {
     public function get_cpu_usage() {

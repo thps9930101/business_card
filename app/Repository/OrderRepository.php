@@ -260,7 +260,6 @@ class OrderRepository
      * 5 save image to s3
      * 6 save media to db
      */
-
     public function userUploadMediaFromCanvas($request){
         DB::transaction(function () use ($request) {
             $this->createOrder($request);
