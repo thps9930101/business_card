@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Order;
 use App\Models\Plan_solution;
 use App\Models\Product_solution_order;
+use App\Events\AIBoxRefresh;
 
 class ProductUnsubscribe implements ShouldQueue
 {
@@ -41,6 +42,6 @@ class ProductUnsubscribe implements ShouldQueue
 
         $ps_order->is_activated = 0;
         $ps_order->save();
-        // event(new PicUploadFailed($copy));
+        event(new AIBoxRefresh());
     }
 }
