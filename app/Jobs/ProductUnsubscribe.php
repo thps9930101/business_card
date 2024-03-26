@@ -42,6 +42,7 @@ class ProductUnsubscribe implements ShouldQueue
 
         $ps_order->is_activated = 0;
         $ps_order->save();
+        
         event(new AIBoxRefresh());
     }
 }

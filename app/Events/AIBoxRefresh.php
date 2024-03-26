@@ -20,6 +20,7 @@ class AIBoxRefresh implements ShouldBroadcast
     public function __construct()
     {
         //
+        
     }
 
     /**
