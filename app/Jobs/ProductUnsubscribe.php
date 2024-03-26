@@ -35,6 +35,7 @@ class ProductUnsubscribe implements ShouldQueue
     public function handle(): void
     {
         $ps_order = product_solution_order::where('order_id', $this->ps_order_id)->first();
+        $order = Order::where('id', $this->ps_order_id)->first();
         
         if (!$ps_order) {
             return;
@@ -43,6 +44,6 @@ class ProductUnsubscribe implements ShouldQueue
         $ps_order->is_activated = 0;
         $ps_order->save();
         
-        event(new AIBoxRefresh());
+        event(new AIBoxRefresh($order->user_id));
     }
 }

@@ -14,13 +14,15 @@ class AIBoxRefresh implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    private $userId;
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct($userId)
     {
         //
-        
+        $this->userId = $userId;
+
     }
 
     /**
@@ -32,7 +34,7 @@ class AIBoxRefresh implements ShouldBroadcast
     {
         return [
             new Channel('service'),
-            new Channel('user.'.auth()->user()->id),
+            new Channel('user.'.$this->userId),
         ];
     }
 
@@ -41,6 +43,6 @@ class AIBoxRefresh implements ShouldBroadcast
      */
     public function broadcastAs(): string
     {
-        return 'pic.refresh';
+        return 'refresh';
     }
 }
