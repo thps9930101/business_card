@@ -1469,7 +1469,7 @@ class ApiController extends Controller
 
         if ($user->id == 1) {
             Log::info('ID: '.$order_detail->solution_order->order_id);
-            ProductUnsubscribe::dispatch($order_detail->solution_order)->delay(now()->addMinutes(1));
+            ProductUnsubscribe::dispatch($order_detail->solution_order->order_id)->delay(now()->addMinutes(1));
             // ProductUnsubscribe::dispatch($order_detail->solution_order->order_id)->delay(now()->addSeconds(20));
         }
         // ====== check paypal trasaction status =======
