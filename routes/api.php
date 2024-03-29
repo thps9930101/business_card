@@ -32,6 +32,12 @@ Route::post('/register',[ApiController::class, 'register']);
 //forget password
 Route::post('/forgetPassword',[ApiController::class, 'forgetPassword']);
 
+//forget password
+Route::any('/resetPassword',[ApiController::class, 'resetPassword'])->name('resetPassword');
+
+//forget password
+Route::post('/changePassword',[ApiController::class, 'changePassword'])->name('changePassword');
+
 //register member
 Route::any('/registerMember/{code}',[ApiController::class, 'registerMember'])->name('registerMember');
 

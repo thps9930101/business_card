@@ -14,6 +14,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\ProductUnsubscribe;
+use App\Jobs\PlanUnsubscribe;
 
 class OrderRepository
 {
@@ -74,6 +76,10 @@ class OrderRepository
         $solution_order->expired_at = Carbon::now()->addMonths($request->plan_solution['period']);
         $solution_order->is_activated = true;
         $solution_order->save();
+
+        // PlanUnsubscribe::dispatch($solution_order->order_id)->delay(now()->addMinutes(1));
+        PlanUnsubscribe::dispatch($solution_order->order_id)->delay(now()->addYear($request->plan_solution['period']));
+
         // $this->solution_order = $solution_order;
         return $solution_order;
     }
@@ -86,9 +92,11 @@ class OrderRepository
         if (!$isFree) {
             // $solution_order->expired_at = Carbon::now()->addMonths($product_solution['period']);
             $solution_order->expired_at = Carbon::now()->addYear($product_solution['period']);
+            ProductUnsubscribe::dispatch($solution_order->order_id)->delay(now()->addMonth($product_solution['period']));
         }
         else {
             $solution_order->expired_at = Carbon::now()->addYear(99);
+            ProductUnsubscribe::dispatch($solution_order->order_id)->delay(now()->addYear(99));
         }
 
         if($product_solution['period'] < 1){

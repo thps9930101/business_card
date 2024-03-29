@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Events\CompleteTransformVideo;
 use App\Notifications\ConfirmUserCode;
 use App\Notifications\SolutionExpiredNotify;
+use App\Notifications\ResetPasswordLink;
 use App\Http\Resources\MediaCollection;
 use App\Http\Resources\OrderCollection;
 use App\Http\Resources\AlbumCollection;
@@ -37,6 +38,7 @@ use App\Http\Resources\ProductCollection;
 use App\Http\Resources\ProductSolutionCollection;
 use App\Jobs\AutoDeleteGuestMedia;
 use App\Jobs\ProductUnsubscribe;
+use App\Jobs\ResetPasswordTokenExpired;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
@@ -79,6 +81,14 @@ class ApiController extends Controller
         if ($result = Auth::attempt($credentials)) {
             $auth = Auth::user();
 
+            if (!$auth->email_auth)
+            {
+                return [
+                    'success' => false,
+                    'message' => "EmailNotVerified"
+                ];
+            }
+
             return [
                 'success' => true,
                 'message' => [
@@ -94,9 +104,6 @@ class ApiController extends Controller
                 'errors' => $result
             ];
         }
-
-
-
     }
 
     /**
@@ -104,24 +111,24 @@ class ApiController extends Controller
      */
     public function register(Request $request) {
 
-        $validator = Validator::make($request->all(),[
-            'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|confirmed',
-            'recaptcha' => 'required'
-        ]);
+        // $validator = Validator::make($request->all(),[
+        //     'name' => 'required',
+        //     'email' => 'required|email',
+        //     'password' => 'required|confirmed',
+        //     'recaptcha' => 'required'
+        // ]);
 
-        if (!Recaptcha::check()) {
-            $validator->errors()->add('recaptcha', __('validation.recaptcha'));
-        }
+        // if (!Recaptcha::check()) {
+        //     $validator->errors()->add('recaptcha', __('validation.recaptcha'));
+        // }
 
-        if ($validator->fails()) {
-            return [
-                'success' => false,
-                'message' => __('register.failed'),
-                'errors' => $validator->errors()->toArray()
-            ];
-        }
+        // if ($validator->fails()) {
+        //     return [
+        //         'success' => false,
+        //         'message' => __('register.failed'),
+        //         'errors' => $validator->errors()->toArray()
+        //     ];
+        // }
 
         $res = User::Where('email', $request->email)->get();
 
@@ -197,21 +204,66 @@ class ApiController extends Controller
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we
         // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        // $status = Password::sendResetLink(
+        //     $request->only('email')
+        // );
 
-        return $status == Password::RESET_LINK_SENT
-                    ? [
-                        'success' => true,
-                        'message' => __('passwords.sent')
-                    ]
-                    : [
-                        'success' => false,
-                        'message' => 'emailSendingFailed', 
-                        'error' => __($status)
-                    ];
+        // 紀錄至資料庫
+        $user = User::Where('email', $request->email)->first();
+        
+        if (!$user)
+        {
+            return [
+                'success' => false,
+                'message' => 'UserNotFound', 
+                'error' => __($status)
+            ];
+        }
 
+        $resetPasswordToken = Str::random(60);
+        $user->resetPasswordToken = $resetPasswordToken;
+        $user->save();
+        
+        // 紀錄5分鐘Token失效
+        // ResetPasswordTokenExpired::dispatch($user->id)->delay(now()->addMinutes(1));
+        
+
+        // 將連結寄給使用者
+        $user->notify(new ResetPasswordLink($resetPasswordToken, $user->email));
+
+        return [
+            'success' => true,
+            'message' => "sendResetLink"
+        ];
+        // return $status == Password::RESET_LINK_SENT
+        //             ? [
+        //                 'success' => true,
+        //                 'message' => __('passwords.sent')
+        //             ]
+        //             : [
+        //                 'success' => false,
+        //                 'message' => 'emailSendingFailed', 
+        //                 'error' => __($status)
+        //             ];
+
+    }
+
+    public function resetPassword(Request $request) {
+        $resetPasswordToken = $request->query('resetPasswordToken');
+        $email = $request->query('email');
+
+        if ($user = User::where('email', $email)->first()) {
+            if ($user->resetPasswordToken == $resetPasswordToken)
+            {
+                return '<script>window.location = "http://192.168.0.112:5173/ForgetPassword/?resetPasswordToken='.$user->resetPasswordToken.'&email='.$email.'";</script>';
+                // return '<script>window.location = "https://4dbox.lightmatrix3d.com/?resetPasswordToken='.$user->resetPasswordToken.'&email='.$email.'";</script>';
+            }
+            else
+            {                
+                return '<script>window.location = "http://192.168.0.112:5173/ForgetPassword/";</script>';
+                // token 失效
+            }
+        }
     }
 
     /**
@@ -222,7 +274,8 @@ class ApiController extends Controller
         if ($user = User::where('confirm_code', $code)->first()) {
 
             if (now() > $user->confirm_code_expired_at) {
-                return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=expiredVerificationCode";</script>';
+                return '<script>window.location = "http://192.168.0.112:5173/?memberRegistResult=expiredVerificationCode";</script>';
+                // return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=expiredVerificationCode";</script>';
                 return [
                     'success' => false,
                     'message' => 'expiredVerificationCode'
@@ -231,18 +284,21 @@ class ApiController extends Controller
 
             $user->confirm_code = null;
             $user->confirm_code_expired_at = null;
+            $user->email_auth = true;
             $user->email_verified_at = now();
 
             $user->save();
 
-            return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=success";</script>';
+            return '<script>window.location = "http://192.168.0.112:5173/?memberRegistResult=registerSuccess";</script>';
+            // return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=success";</script>';
             return [
                 'success' => true,
                 'message' => '註冊成功！'
             ];
         };
 
-        return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=incorrectVerificationCode";</script>';
+        return '<script>window.location = "http://192.168.0.112:5173/?memberRegistResult=incorrectVerificationCode";</script>';
+        // return '<script>window.location = "https://4dbox.lightmatrix3d.com/?memberRegistResult=incorrectVerificationCode";</script>';
         return [
             'success' => false,
             'message' => 'incorrectVerificationCode'
@@ -339,6 +395,52 @@ class ApiController extends Controller
         return [
             'success' => true,
             'message' => 'update password success!'
+        ];
+    }
+
+    public function changePassword(Request $request) {
+
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
+            'email' => 'required|email',
+            'newPassword' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
+        $resetPasswordToken = $request->token;
+        $email = $request->email;
+        $user = User::where('email', $email)->first();
+
+        if ($user) {
+            if ($user->resetPasswordToken == $resetPasswordToken)
+                $user->password = Hash::make($request->newPassword);
+            else
+            {
+                return [
+                    'success' => false,
+                    'message' => "TokenExpired"
+                ];
+            }
+
+            $user->save();
+        }
+        else {
+            return [
+                'success' => false,
+                'message' => "UserNotFound"
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => "ChangeSuccess"
         ];
     }
 
@@ -1467,11 +1569,11 @@ class ApiController extends Controller
             event(new PicUploaded($media));
         }
 
-        if ($user->id == 1) {
-            Log::info('ID: '.$order_detail->solution_order->order_id);
-            ProductUnsubscribe::dispatch($order_detail->solution_order->order_id)->delay(now()->addMinutes(1));
+        // if ($user->id == 1) {
+            // Log::info('ID: '.$order_detail->solution_order->order_id);
+            // ProductUnsubscribe::dispatch($order_detail->solution_order->order_id)->delay(now()->addMinutes(1));
             // ProductUnsubscribe::dispatch($order_detail->solution_order->order_id)->delay(now()->addSeconds(20));
-        }
+        // }
         // ====== check paypal trasaction status =======
 
         if ($request->product_solution["isFree"]){
@@ -1570,6 +1672,8 @@ class ApiController extends Controller
         $product_solution_order->is_activated = 0;
         $product_solution_order->save();
 
+        event(new AIBoxRefresh($order->user_id));
+        
         return [
             'success' => true,
             'message' => 'unsubscribeSuccess'
