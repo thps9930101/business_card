@@ -91,6 +91,7 @@ class OrderRepository
         
         if (!$isFree) {
             // $solution_order->expired_at = Carbon::now()->addMonths($product_solution['period']);
+            
             $solution_order->expired_at = Carbon::now()->addYear($product_solution['period']);
             ProductUnsubscribe::dispatch($solution_order->order_id)->delay(now()->addMonth($product_solution['period']));
         }

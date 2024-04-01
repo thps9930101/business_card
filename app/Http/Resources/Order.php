@@ -26,7 +26,6 @@ class Order extends JsonResource
                 'messages'=> 'It\'s add value.',
             ];
         }
-        $res1 = null;
         $isAlbum = false;
 
         if($this->type == 1){        
