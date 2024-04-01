@@ -27,6 +27,7 @@ use App\Events\CompleteTransformPic;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Events\CompleteTransformVideo;
+use App\Events\AIBoxRefresh;
 use App\Notifications\ConfirmUserCode;
 use App\Notifications\SolutionExpiredNotify;
 use App\Notifications\ResetPasswordLink;
