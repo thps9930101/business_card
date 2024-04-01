@@ -112,24 +112,24 @@ class ApiController extends Controller
      */
     public function register(Request $request) {
 
-        // $validator = Validator::make($request->all(),[
-        //     'name' => 'required',
-        //     'email' => 'required|email',
-        //     'password' => 'required|confirmed',
-        //     'recaptcha' => 'required'
-        // ]);
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed',
+            'recaptcha' => 'required'
+        ]);
 
-        // if (!Recaptcha::check()) {
-        //     $validator->errors()->add('recaptcha', __('validation.recaptcha'));
-        // }
+        if (!Recaptcha::check()) {
+            $validator->errors()->add('recaptcha', __('validation.recaptcha'));
+        }
 
-        // if ($validator->fails()) {
-        //     return [
-        //         'success' => false,
-        //         'message' => __('register.failed'),
-        //         'errors' => $validator->errors()->toArray()
-        //     ];
-        // }
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
 
         $res = User::Where('email', $request->email)->get();
 
@@ -152,7 +152,7 @@ class ApiController extends Controller
             $user->confirm_code = $code;
             $user->confirm_code_expired_at = now()->addDays(7);
             $user->save();
-            if ((app()->environment('production') && false) || $request->email == "j10833142@gmail.com") {
+            if ((app()->environment('production'))) {
                 $user->notify(new ConfirmUserCode($code));
             }
         }
