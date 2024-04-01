@@ -1565,11 +1565,12 @@ class ApiController extends Controller
             $payment->save();
         }
 
-        $media = $repository->getMedia();
-        foreach($media_list as $media) {
-            event(new PicUploaded($media));
-        }
+        // $media = $repository->getMedia();
+        // foreach($media_list as $media) {
+        //     event(new PicUploaded($media));
+        // }
 
+        event(new AIBoxRefresh($user->id));
         // if ($user->id == 1) {
             // Log::info('ID: '.$order_detail->solution_order->order_id);
             // ProductUnsubscribe::dispatch($order_detail->solution_order->order_id)->delay(now()->addMinutes(1));
