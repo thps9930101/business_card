@@ -95,8 +95,8 @@ class OrderRepository
             ProductUnsubscribe::dispatch($solution_order->order_id)->delay(now()->addMonth($product_solution['period']));
         }
         else {
-            $solution_order->expired_at = Carbon::now()->addYear(99);
-            ProductUnsubscribe::dispatch($solution_order->order_id)->delay(now()->addYear(99));
+            $solution_order->expired_at = Carbon::now()->addYear(81);
+            ProductUnsubscribe::dispatch($solution_order->order_id)->delay(now()->addYear(81));
         }
 
         if($product_solution['period'] < 1){

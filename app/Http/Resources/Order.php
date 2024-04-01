@@ -26,12 +26,13 @@ class Order extends JsonResource
                 'messages'=> 'It\'s add value.',
             ];
         }
-        $copy = clone $product_solution_order;
-        $res = null;
+        $res1 = null;
+        $isAlbum = false;
 
         if($this->type == 1){        
-            if (count($product_solution_order) == 0)
+            if (count($product_solution_order) == 0) {
                 $media = collect([]);
+            }
             else
             {
                 if($product_solution_order->first()->status == 0){
@@ -44,7 +45,10 @@ class Order extends JsonResource
                         $album = collect([$product_solution_order->first()->product_solution->product->album]);
                         $albumCollection = Album::Collection($album);
                         $media = $albumCollection->first()->media;
+
+                        $copyAlbumCollection = json_decode(json_encode($albumCollection->first()));
                         // $media = collect([$albumCollection->first()->media]);
+                        $isAlbum = true;
                     }
                 }  
                 else{
@@ -59,13 +63,19 @@ class Order extends JsonResource
         $processed = $media->filter(fn($item) => $item->status === 1)->count();
         $total = $media->count();
 
+        if ($isAlbum) 
+            $media = collect($copyAlbumCollection->media);
+        else 
+            $media = Media::collection($media);
+
         return [
             'id'=>$this->id,
             'date'=>$this->created_at->format('Y/m/d H:i:s'),
             'type'=>$this->type,
             'status'=>$this->getResourceStatus(),
             'progress'=>$processed .'/' . $total,
-            'media'=> Media::collection($media),
+            // 'media'=> Media::collection($media),
+            'media'=>$media,
         ];
     }
 }
