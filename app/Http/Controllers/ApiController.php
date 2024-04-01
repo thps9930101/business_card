@@ -1721,7 +1721,7 @@ class ApiController extends Controller
         $jsonData = json_encode($details, JSON_PRETTY_PRINT);
         $SavePath = storage_path('PamentDetails');
         if (!file_exists($SavePath)) {
-            mkdir($SavePath, 0777, true);
+            mkdir($SavePath, 0775, true);
         }
 
         $filePath = $SavePath . '/' .$transactionId . '-CHECKOUT_ORDER.json';
