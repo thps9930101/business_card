@@ -93,6 +93,9 @@ class User extends Resource
             Boolean::make('訪客模式','guest'),
 
             //VIP Mode
+            Boolean::make('信箱驗證','email_auth'),
+
+            //VIP Mode
             Boolean::make('VIP','VIP'),
             
         ];

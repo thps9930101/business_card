@@ -260,6 +260,27 @@ class OrderRepository
         return $this;
     }
 
+
+    public function userUploadMediaFromFile($request){
+        DB::transaction(function () use ($request) {
+            $this->createOrder($request);
+
+            foreach ($request->pic as $pic) {
+                $media = $this->createMedia();
+                $file = $this->store($pic);
+                $media->cover = $this->imageToCover($file);
+                $path = $file->store($this->getOrigianlFolderPath($media->id),'s3');
+                $media->obj = $path;
+                $media->original = $path;
+                $media->save();
+
+                $this->media = $media;
+            }
+        });
+
+        return $this;
+    }
+
     /**
      * upload media from canvas
      * 1 create order
@@ -328,6 +349,15 @@ class OrderRepository
         // $image->getCore()->trimImage(0);
         $image->save($tmpFilePath);
 
+        return new \Illuminate\Http\UploadedFile($tmpFilePath, 'image.png', 'image/png', null, true);
+    }
+
+    public function store($file)
+    {
+        $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
+        $image = Image::make($file);
+        $image->save($tmpFilePath);
+        
         return new \Illuminate\Http\UploadedFile($tmpFilePath, 'image.png', 'image/png', null, true);
     }
 

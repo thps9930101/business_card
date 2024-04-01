@@ -230,7 +230,17 @@ class ApiController extends Controller
         
 
         // 將連結寄給使用者
-        $user->notify(new ResetPasswordLink($resetPasswordToken, $user->email));
+        try {
+            $user->notify(new ResetPasswordLink($resetPasswordToken, $user->email));
+        }
+        catch(e) {
+            return [
+                'success' => false,
+                'message' => 'CanNotSendMail', 
+                'error' => __($status)
+            ];
+        }
+
 
         return [
             'success' => true,
@@ -638,7 +648,12 @@ class ApiController extends Controller
 
             //create new order, media and store file to storage
             $repository = new OrderRepository();
-            $repository->userUploadMediaFromCanvas($request);
+            // $repository->userUploadMediaFromCanvas($request);
+
+            // if ($request->picFile)
+            //     $repository->userUploadMediaFromFile($request);
+            // else
+                $repository->userUploadMediaFromCanvas($request);
 
             $media = $repository->getMedia();
             
