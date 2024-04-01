@@ -34,7 +34,7 @@ class PayPalWebhookController extends Controller
                 ]);
                 //----------------------------------------------------------------
                 $jsonData = json_encode($webhookData, JSON_PRETTY_PRINT);
-                $SavePath = storage_path('PaymentDetails');
+                $SavePath = storage_path('PamentDetails');
                 if(!file_exists($SavePath)){
                     mkdir($SavePath, 0775, true);
                 }
@@ -61,7 +61,7 @@ class PayPalWebhookController extends Controller
                 ]);
                 //----------------------------------------------------------------
                 $jsonData = json_encode($webhookData, JSON_PRETTY_PRINT);
-                $SavePath = storage_path('PaymentDetails');
+                $SavePath = storage_path('PamentDetails');
                 if(!file_exists($SavePath)){
                     mkdir($SavePath, 0775, true);
                 }
