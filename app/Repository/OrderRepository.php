@@ -265,7 +265,7 @@ class OrderRepository
         DB::transaction(function () use ($request) {
             $this->createOrder($request);
 
-            foreach ($request->pic as $pic) {
+            foreach ($request->picFile as $pic) {
                 $media = $this->createMedia();
                 $file = $this->store($pic);
                 $media->cover = $this->imageToCover($file);

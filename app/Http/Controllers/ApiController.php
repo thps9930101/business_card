@@ -573,12 +573,8 @@ class ApiController extends Controller
      */
     public function uploadPicture(Request $request) {
         try{
-            // $validator = Validator::make($request->all(), [
-            //     'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
-            // ]);
             $validator = Validator::make($request->all(), [
-                'pic' => 'required_without:picFile|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
-                'picFile' => 'required_without:pic|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:1048576'
+                'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
             ]);
 
             if ($validator->fails()) {
@@ -626,8 +622,12 @@ class ApiController extends Controller
      */
     public function uploadCanvas(Request $request) {
         try{        
+            // $validator = Validator::make($request->all(), [
+            //     'pic' => 'required', // |string
+            // ]);
             $validator = Validator::make($request->all(), [
-                'pic' => 'required', // |string
+                'pic' => 'required_without:picFile',
+                'picFile' => 'required_without:pic',
             ]);
 
             if ($validator->fails()) {
