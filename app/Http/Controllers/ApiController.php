@@ -573,8 +573,12 @@ class ApiController extends Controller
      */
     public function uploadPicture(Request $request) {
         try{
+            // $validator = Validator::make($request->all(), [
+            //     'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
+            // ]);
             $validator = Validator::make($request->all(), [
-                'pic' => 'required|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
+                'pic' => 'required_without:picFile|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
+                'picFile' => 'required_without:pic|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
             ]);
 
             if ($validator->fails()) {
