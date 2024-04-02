@@ -650,9 +650,9 @@ class ApiController extends Controller
             $repository = new OrderRepository();
             // $repository->userUploadMediaFromCanvas($request);
 
-            // if ($request->picFile)
-            //     $repository->userUploadMediaFromFile($request);
-            // else
+            if ($request->picFile)
+                $repository->userUploadMediaFromFile($request);
+            else
                 $repository->userUploadMediaFromCanvas($request);
 
             $media = $repository->getMedia();
