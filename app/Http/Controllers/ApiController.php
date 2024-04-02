@@ -578,7 +578,7 @@ class ApiController extends Controller
             // ]);
             $validator = Validator::make($request->all(), [
                 'pic' => 'required_without:picFile|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
-                'picFile' => 'required_without:pic|image|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:20000',
+                'picFile' => 'required_without:pic|mimes:jpeg,png,jpg,gif,svg,bmp,webp|max:1048576'
             ]);
 
             if ($validator->fails()) {
