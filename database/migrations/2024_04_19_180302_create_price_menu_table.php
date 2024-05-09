@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('payments', function (Blueprint $table) {
-            $table->renameColumn('project_id', 'product_solution_id');
+        Schema::create('price_menu', function (Blueprint $table) {
+            $table->id();
+            $table->integer('quantity');
+            $table->integer('price');
+            $table->boolean('is_actived')->default(0);
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('payments', function (Blueprint $table) {
-            $table->renameColumn('product_solution_id', 'project_id');
-        });
+        Schema::dropIfExists('price_menu');
     }
 };

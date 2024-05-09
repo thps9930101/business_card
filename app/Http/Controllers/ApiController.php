@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use Recaptcha;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\cards;
+use App\Models\materials;
+use App\Models\payments;
+use App\Models\models;
+use App\Models\companies;
 use App\Models\Media;
 use App\Models\Order;
 use App\Models\Store;
@@ -61,13 +66,12 @@ class ApiController extends Controller
      * login
      */
     public function login(Request $request) {
-        $msg = "";
+        
         $validator = Validator::make($request->all(),[
-            'email' => 'required|email',
+            'account' => 'required',
             'password' => 'required'
         ]);
-
-
+        
         
         if ($validator->fails()) {
             return [
@@ -77,18 +81,10 @@ class ApiController extends Controller
             ];
         }
 
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('account', 'password');
 
         if ($result = Auth::attempt($credentials)) {
             $auth = Auth::user();
-
-            if (!$auth->email_auth)
-            {
-                return [
-                    'success' => false,
-                    'message' => "EmailNotVerified"
-                ];
-            }
 
             return [
                 'success' => true,
@@ -96,7 +92,8 @@ class ApiController extends Controller
                     'id' =>  $auth->id,
                     'name' =>  $auth->name,
                     'email' =>  $auth->email,
-                    'token' =>  $auth->createToken($request->email)->plainTextToken]
+                    'token'=>  $auth->createToken($request->account)->plainTextToken
+                ]
             ];
         } else {
             return [
@@ -107,52 +104,235 @@ class ApiController extends Controller
         }
     }
 
+    public function company_login(Request $request) {
+        
+        $validator = Validator::make($request->all(),[
+            'account' => 'required',
+            'password' => 'required'
+        ]);
+        
+        
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => __('auth.failed'),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
+        $credentials = $request->only('account', 'password');
+
+        if ($result = Auth::attempt($credentials)) {
+            $auth = Auth::user();
+
+            return [
+                'success' => true,
+                'message' => [
+                    'id' =>  $auth->id,
+                    'name' =>  $auth->name,
+                    'email' =>  $auth->email,
+                    'token'=>  $auth->createToken($request->account)->plainTextToken
+                ]
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => __('auth.failed'),
+                'errors' => $result
+            ];
+        }
+    }
+
+    public function testBC(Request $request) {
+        $getAllBC_Result = [
+            'bearerToken_requery' => true,
+            'input_param' => [
+                
+            ],
+            "success" => [
+                'success' => true,
+                'message' => [
+                    [
+                        "id" => 1,
+                        "name" => "bc_1",
+                        "releaseName" => "Joe's Buysiness Card",
+                        "update_at" => "2023/12/05 12:00:09",
+                        "create_at" => "2023/12/04 12:00:09",
+                        "downloadTimes" => 15
+                    ],
+                    [
+                        "id" => 2,
+                        "name" => "bc_2",
+                        "releaseName" => "Joe's Buysiness Card 2",
+                        "update_at" => "2023/12/05 13:00:29",
+                        "create_at" => "2023/12/04 12:10:59",
+                        "downloadTimes" => 7
+                    ],
+                ]
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "getAllBC error"
+            ],
+        ];
+
+        $addBC_Result = [
+            'bearerToken_requery' => true,
+            'input_param' => [
+                
+            ],
+            "success" => [
+                'success' => true,
+                'message' => [
+                    "id" => 1
+                ]
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "addBC error"
+            ],
+        ];
+
+        $editBC_Result = [
+            'bearerToken_requery' => true,
+            'input_param' => [
+                'id' => 'bc_id',
+                'card' => [
+                    "ig" => "...",
+                    "twitter/x" => "...",
+                    "line" => "...",
+                    "fb" => "...",
+                    "card_front" => "pic_id",
+                    "card_back" => "pic_id",
+                    "model" => "model_id"
+                ]
+            ],
+            "success" => [
+                'success' => true,
+                'message' => "change success"
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "editBC error"
+            ],
+        ];
+
+        $getMaterial_Result = [
+            'bearerToken_requery' => true,
+            'input_param' => [
+            ],
+            "success" => [
+                'success' => true,
+                'message' => [
+                    "modelList" => [
+                        [
+                            "id" => "1",
+                            "texture" => "url",
+                            "mesh" => "url",
+                        ],
+                        [
+                            "id" => "2",
+                            "texture" => "url",
+                            "mesh" => "url",
+                        ],
+                        [
+                            "id" => "3",
+                            "texture" => "url",
+                            "mesh" => "url",
+                        ],
+                    ],
+                    "cardPicList" => [
+                        [
+                            "id" => "4",
+                            "url" => "url",
+                        ],
+                        [
+                            "id" => "5",
+                            "url" => "url",
+                        ],
+                        [
+                            "id" => "6",
+                            "url" => "url",
+                        ],
+                    ]
+                ]
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "getMaterial error"
+            ],
+        ];
+
+        $getBC_Result = [
+            'bearerToken_requery' => false,
+            'input_param' => [
+                'id' => 'bc_id'
+            ],
+            "success" => [
+                'success' => true,
+                'message' => [
+                    "ig" => "...",
+                    "twitter/x" => "...",
+                    "line" => "...",
+                    "fb" => "...",
+                    "card_front" => "url",
+                    "card_back" => "url",
+                    "model" => [
+                        "texture" => "url",
+                        "mesh" => "url"
+                    ]
+                ]
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "getBC error"
+            ],
+        ];
+
+        return [
+            'message' => [
+                "getAllBC_Result" => $getAllBC_Result,
+                "addBC_Result" => $addBC_Result,
+                "editBC_Result" => $editBC_Result,
+                "getMaterial_Result" => $getMaterial_Result,
+                "getBC_Result" => $getBC_Result,
+            ]
+        ];
+    }
+
     /**
      * register
      */
     public function register(Request $request) {
 
         $validator = Validator::make($request->all(),[
+            'account' => 'required',
+            'email' => 'required',
             'name' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|confirmed',
-            'recaptcha' => 'required'
+            'password' => 'required',
         ]);
 
-        if (!Recaptcha::check()) {
-            $validator->errors()->add('recaptcha', __('validation.recaptcha'));
-        }
-
-        if ($validator->fails()) {
+        if($validator->fails()){
             return [
                 'success' => false,
                 'message' => __('register.failed'),
-                'errors' => $validator->errors()->toArray()
+                'errors'=> $validator->errors()->toArray()
             ];
         }
-
-        $res = User::Where('email', $request->email)->get();
-
-        if ($res->count() > 0) {
-            return [
-                'success' => false,
-                'message' => "this email already exist !"
-            ];
-        }
-
+    
         $user = User::create([
-            'name' => $request->name,
+            'account' => $request->account,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'VIP' => true
+            'name' => $request->name,
+            'password' => Hash::make($request->password)
         ]);
 
-        if ($user) {
+        if($user ){
             $code = Str::random(60);
             $user->confirm_code = $code;
             $user->confirm_code_expired_at = now()->addDays(7);
             $user->save();
-            if ((app()->environment('production'))) {
+            if(app()->environment('production')){
                 $user->notify(new ConfirmUserCode($code));
             }
         }
@@ -161,13 +341,11 @@ class ApiController extends Controller
             'success' => true,
             'message' => [
                 'id' =>  $user->id,
-                'name' =>  $user->name,
+                'account' =>  $user->account,
                 'email' =>  $user->email,
-                'token' =>  $user->createToken($request->email)->plainTextToken,
-                'confirm_url' =>  route('registerMember', ['code' => $user->confirm_code])]
+                'token'=>  $user->createToken($request->email)->plainTextToken,
+                'confirm_url'=>  route('registerMember', ['code'=>$user->confirm_code])]
         ];
-
-
 
     }
 
@@ -259,7 +437,613 @@ class ApiController extends Controller
 
     }
 
+    /**
+     *  api
+     */
+    public function getAllBC(Request $request){
+        $user = Auth::user();
+        $BC_cards = cards::where('user_id', $user->id)->get();
+
+        $getAllBC_Result = [
+            'bearerToken_requery' => true,
+            'input_param' => [
+                
+            ],
+            "success" => [
+                'success' => true,
+                'message' => []
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "getAllBC error"
+            ],
+        ];
+
+        foreach ($BC_cards as $BC_card) {
+            $newData  = $BC_card->email;
+            $name = $BC_card->name;
+            
+            $newData = [
+                "id"   => $BC_card->id,
+                "name" => $BC_card->edit_name,
+                "releaseName" => $BC_card->release_name,
+                "update_at" => $BC_card->update_at,
+                "create_at" => $BC_card->create_at,
+                "downloadTimes" => $BC_card->download_time
+            ];
+            array_push($getAllBC_Result['success']['message'], $newData);
+        }
+        return [
+            $getAllBC_Result['success']
+        ];
+
+    }
+
+    public function addBC(Request $request){
+        $user = Auth::user();
+
+        $card = new cards();
+
+        $card->user_id = $user->id;
+
+        $card->save();
+
+        $addBC_Result = [
+            'bearerToken_requery' => true,
+            'input_param' => [
+                
+            ],
+            "success" => [
+                'success' => true,
+                'message' => [
+                    "id" => $card->id
+                ]
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "addBC error"
+            ],
+        ];
+
+        return [
+            $addBC_Result['success']
+        ];
+    }
+
+    public function editBC(Request $request){
+        $BC_id = $request->input('id');
+        $card_info = $request->input('card');
+        $user = Auth::user();
+
+        $card = cards::find($BC_id);
+
+        if($card->user_id != $user->id)
+        {
+            return[
+                "failed" => [
+                    'success' => false,
+                    'message' => "editBC error"
+                ]
+            ];
+        }
+
+        foreach ($card_info as $key => $info) {
+            $card->$key = $info;
+        }
+        $card->save();
+        $card = cards::find($BC_id);
+
+
+        return[
+            "success" => [
+                'success' => true,
+                'message' => "change success"
+            ]
+        ];
+    }
+    public function addMaterials(Request $request){
+        $validator = Validator::make($request->all(),[
+            'user_id' => 'required',
+            'card_url' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $material = new materials();
+        $material->user_id = $request->user_id;
+        $material->card_url = $request->card_url;
+
+        $material->save();
+
+        return [
+            'success' => true,
+            'message' => [
+                'user_id' => $material->user_id,
+                'card_url' => $material->card_url,
+            ],
+        ];
+    }
+
+    public function addModels(Request $request){
+        $validator = Validator::make($request->all(),[
+            'user_id' => 'required',
+            'texture_url' => 'required',
+            'mesh_url' => 'required',
+            'pic_url' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $model = new models();
+        $model->user_id = $request->user_id;
+        $model->mesh_url = $request->mesh_url;
+        $model->texture_url = $request->texture_url;
+        $model->pic_url = $request->pic_url;
+
+        $model->save();
+
+        return [
+            'success' => true,
+            'message' => [
+                'user_id' => $model->user_id,
+                'mesh_url' => $model->mesh_url,
+                'texture_url' => $model->texture_url,
+                'pic_url' => $model->pic_url,
+            ],
+        ];
+    }
+
+    public function getMaterial(Request $request){
+        $user = Auth::user();
+        
+        $materials = materials::where('user_id', $user->id)->get();
+        $models = models::where('user_id', $user->id)->get();
+       
+        $getMaterial_Result = [
+            'bearerToken_requery' => true,
+            'input_param' => [
+            ],
+            "success" => [
+                'success' => true,
+                'message' => [
+                    "modelList" => [],
+                    "cardPicList" => []
+                ]
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "getMaterial error"
+            ],
+        ];
+        
+        foreach ($materials as $material) {
+            $newData = [
+                "id"   => $material->id,
+                "url" => $material->card_url,
+            ];
+            array_push($getMaterial_Result['success']['message']['cardPicList'], $newData);
+        }
+       
+        foreach ($models as $model) {
+            $newData = [
+                "id"   => $model->id,
+                "texture" => $model->texture_url,
+                "mesh" => $model->mesh_url,
+            ];
+            array_push($getMaterial_Result['success']['message']['modelList'], $newData);
+        }
+        return[
+            $getMaterial_Result['success']
+         ];
+    }
+
+    public function getBC(Request $request){
+        
+        $BC_id = $request->input('id');
+        $card = cards::where('id',$BC_id)->first();
+        $model = models::where('id',$card->model_id)->first();
+        $card_front = materials::where('id',$card->card_front_id)->first();
+        $card_back = materials::where('id',$card->card_back_id)->first();
+
+        
+        
+        $getBC_Result = [
+            'bearerToken_requery' => false,
+            'input_param' => [
+                'id' => 'bc_id'
+            ],
+            "success" => [
+                'success' => true,
+                'message' => [
+                    
+                    "edit_name"=> $card->edit_name,
+                    "relesae_name"=> $card->relesae_name,
+                    "card_front" => $card_front->card_url,
+                    "card_back" => $card_back->card_url,
+
+                    // "address"=> $card->address,
+                    // "fax"=> $card->fax,
+                    // "telegram" =>$card->telegram,
+                    // "whatsapp" =>$card->whatsapp,
+                    // "fb" => $card->facebook,
+                    // "ig" => $card->instagram,
+                    // "x"  => $card->X,
+                    // "web"=> $card->web,
+                    // "line" => $card->line,
+
+                    "model" => [
+                        "texture" => $model->texture_url,
+                        "mesh" => $model->mesh_url
+                    ],
+
+                ]
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "getBC error"
+            ],
+        ];
+
+        $social_array = [
+            'fax' => $card->fax,
+            'address' => $card->address,
+            'telegram' => $card->telegram,
+            'whatsapp' => $card->whatsapp,
+            'facebook' => $card->facebook,
+            'X' => $card->X,
+            'web' => $card->web,
+            'line' =>$card->line,
+            'name' => $card->name,
+            'email' => $card->email,
+            'phone' => $card->phone
+        ];
+
+        foreach($social_array as $name => $social)
+        {
+            if($social != null)
+                $getBC_Result['success']['message'][$name] = $social;
+
+        }
+
+        return [
+            $getBC_Result['success']
+        ];
+    }
+
+    public function send_LinePay(Request $request){
+        $orderId = payments::max('id');
+        $account = $request->input('account');
+        $currency = $request->input('currency');
+        $amount = $request->input('amount');
+
+        $user = User::where('account', $account)->select("id")->first();
+
+        if(!$orderId)
+        {
+            $orderId = 0;
+        }else{
+            $orderId +=1;
+        }
+
+
+        $sandBox = 'https://sandbox-api-pay.line.me';
+        $uri = '/v3/payments/request';
+        $channelId = '2004609569';
+        $channelSecret = '465f27ae2239db90cd82824ec66e2498';
+        $Nonce = date('c') . uniqid('-');
+        $isSandbox = false;
+        
+        $qyery = [
+            'amount' => $amount,
+            'currency' => 'TWD',
+            'orderId' => $orderId,
+            'packages' => [
+                [
+                    'id' => '000001',
+                    'amount' => $amount,
+                    'name' => 'test store',
+                    'products' => [
+                        [
+                            'name' => 'test product',
+                            'quantity' => 1,
+                            'price' => $amount
+                        ],
+                    ],
+                ],
+            ],
+            'redirectUrls' => [
+                'confirmUrl' => 'http://192.168.0.112:8001/api/confirm.php',
+                'cancelUrl' => 'https://test.astralweb.com/cancel.php',
+            ],
+        ];
+        $authMacText = $channelSecret . $uri . json_encode($qyery) . $Nonce;
+        $Authorization = base64_encode(hash_hmac('sha256', $authMacText, $channelSecret, true));
+        
+        
+        $curl = curl_init();
+        
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $sandBox.$uri,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>json_encode($qyery),
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'X-LINE-ChannelId: '.$channelId,
+                'X-LINE-Authorization-Nonce: '.$Nonce,
+                'X-LINE-Authorization: '.$Authorization
+            ),
+        ));
+        
+        $response = curl_exec($curl);
+        
+        curl_close($curl);
+        
+        $data = json_decode($response);
+
+        // 創建一個新的卡片資料
+        $payment = new payments();
+
+        // 設置欄位的值
+        $payment->user_id = $user->id;
+        $payment->payment_method = "LinePay";
+        $payment->payment_currency = $qyery['currency'];
+        $payment->status = "In Progress";
+        $payment->payment_amount = $qyery['amount'];
+        // 繼續設置其他欄位...
+
+        // 儲存資料到資料庫
+        $payment->save();
+
+        // header("Location: ".$data->info->paymentUrl->web);
+        return $data->info->paymentUrl->web;
+        // return [
+        //     'success' => false,
+        //     'message' => $data
+        // ];
+    }
+
+    public function confirm(Request $request) {
+        $transactionId = $request->query('transactionId');
+        $orderId = $request->query('orderId');
+
+        $payment = payments::where('id', $orderId)->first();
+
+        $sandBox = 'https://sandbox-api-pay.line.me';
+        $uri = '/v3/payments/'.$transactionId.'/confirm';
+        $channelId = '2004609569';
+        $channelSecret = '465f27ae2239db90cd82824ec66e2498';
+        $Nonce = date('c') . uniqid('-');
+        $isSandbox = false;
+
+        $qyery = [
+            'amount' => $payment->payment_amount,
+            'currency' => $payment->payment_currency
+        ];
+
+        $authMacText = $channelSecret . $uri . json_encode($qyery) . $Nonce;
+        $Authorization = base64_encode(hash_hmac('sha256', $authMacText, $channelSecret, true));
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $sandBox.$uri,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS =>json_encode($qyery),
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'X-LINE-ChannelId: '.$channelId,
+                'X-LINE-Authorization-Nonce: '.$Nonce,
+                'X-LINE-Authorization: '.$Authorization
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        
+        curl_close($curl);
+
+
+        $responseArray = json_decode($response, true);
+
+        // if ($responseArray === null) {
+        //     echo "JSON 解析失敗";
+        // } else {
+
+        //     if (isset($responseArray['info']) && isset($responseArray['info']['payInfo'])) {
+        //         // 訪問 'payInfo' 鍵的值
+        //         $amount = $responseArray['info']['payInfo'][0]['amount'];
+        //         // 繼續使用 $playInfo 的值
+        //     } else {
+        //         // 如果某些鍵丟失，可以進行錯誤處理
+        //         echo "缺少 'info' 或 'payInfo' 鍵";
+        //     }
+        // }
+
+        // 找到要修改的記錄
+        $payment = payments::find($orderId);
+        // 更新資料
+        if($responseArray['returnCode']== "0000")
+        {
+            $payment->status = 'COMPLETED';
+        }else
+        {
+            $payment->status = 'FAILED';
+
+        }
+        $payment->save();
+
+
+        return[
+            $responseArray
+        ];
+    }
+
+    public function company_register(Request $request){
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+            'account' => 'required',
+            'password' => 'required|confirmed',
+        ]);
+
+        $res = companies::where('account', $request->account)->get();
+
+        if ($res->count() > 0) {
+            return [
+                'success' => false,
+                'message' => "this account already exist !"
+            ];
+        }
+
+        $company = new companies();
+
+        $company->account = $request->account;
+        $company->name = $request->name;
+        $company->password = $request->password;
+
+        $company->save();
+        return [
+            'success' => true,
+            'message' => [
+                'account' =>  $company->account,
+                'name' =>  $company->name,
+            ]
+        ];
+    }
+
+    public function clickCard(Request $request){
+        $user = Auth::user();
+
+        if($user == null)
+        {
+            return[
+                "failed" => [
+                    'success' => false,
+                    'message' => "No Login"
+                ]
+            ];
+        }
+        if($user->download_time <= 0)
+        {
+            return[
+                "failed" => [
+                    'success' => false,
+                    'message' => "No download time"
+                ]
+            ];
+        }
+        
+        $user->download_time -=1;
+        $user->save();
+
+        return[   
+            "success" => [
+                'success' => true,
+                'message' => [
+                    "download_time"=>  $user->download_time
+                ]
+            ]
+        ];
+    }
+
+    public function getMMMM(Request $request) {
+        $validator = Validator::make($request->all(),[
+            'account' => 'required',
+            'password' => 'required'
+        ]);
+        
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => __('auth.failed'),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
+        $credentials = $request->only('account', 'password');
+
+        if ($result = Auth::attempt($credentials)) {
+            $auth = Auth::user();
+
+        $BC_cards = cards::where('user_id', $user->id)->get();
+
+        $getAllBC_Result = [
+            'bearerToken_requery' => true,
+            'input_param' => [
+                
+            ],
+            "success" => [
+                'success' => true,
+                'message' => []
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "getAllBC error"
+            ],
+        ];
+
+        foreach ($BC_cards as $BC_card) {
+            $newData  = $BC_card->email;
+            $name = $BC_card->name;
+            
+            $newData = [
+                "id"   => $BC_card->id,
+                "name" => $BC_card->edit_name,
+                "releaseName" => $BC_card->release_name,
+                "update_at" => $BC_card->update_at,
+                "create_at" => $BC_card->create_at,
+                "downloadTimes" => $BC_card->download_time
+            ];
+            array_push($getAllBC_Result['success']['message'], $newData);
+        }
+        return [
+            $getAllBC_Result['success']
+        ];
+
+            return [
+                'success' => true,
+                'message' => [
+                    'id' =>  $auth->id,
+                    'name' =>  $auth->name,
+                    'email' =>  $auth->email
+                ]
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => __('auth.failed'),
+                'errors' => $result
+            ];
+        }
+
+    }
+
     public function resetPassword(Request $request) {
+
         $resetPasswordToken = $request->query('resetPasswordToken');
         $email = $request->query('email');
 

@@ -15,13 +15,9 @@ return new class extends Migration
             $table->id();
             //forign user_id
             $table->foreignId('user_id')->nullable()->index();
-            //forign project_id
-            $table->foreignId('project_id')->nullable()->index();
-            //forign order_id
-            $table->foreignId('order_id')->nullable()->index();
             $table->string('payment_method');
             $table->string('event_type')->nullable();
-            $table->integer('payment_amount')->default(0);
+            $table->Intger('payment_amount')->default(0);
             $table->string('payment_currency')->nullable();
             $table->string('transaction_id')->nullable();
             $table->string('status')->nullable();

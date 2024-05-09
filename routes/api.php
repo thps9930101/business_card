@@ -26,6 +26,23 @@ Route::post('/login',[ApiController::class, 'login']);
 //staff login
 Route::post('/staffLogin',[StaffController::class, 'login']);
 
+Route::post('/testBC',[ApiController::class, 'testBC']);
+
+// api func
+Route::post('/getBC',[ApiController::class, 'getBC']);
+Route::post('/addMaterials',[ApiController::class, 'addMaterials']);
+Route::post('/addModels',[ApiController::class, 'addModels']);
+
+//company
+Route::post('/company_register',[ApiController::class, 'company_register']);
+
+
+//linepay func
+Route::get('/confirm.php',[ApiController::class, 'confirm']);
+Route::post('/send_LinePay',[ApiController::class,'send_LinePay']);
+
+
+Route::get('/getMMMM',[ApiController::class, 'getMMMM']);
 //register
 Route::post('/register',[ApiController::class, 'register']);
 
@@ -54,6 +71,12 @@ Route::post('/guestLogin',[UserController::class, 'guestLogin']);
 Route::post('/test',[ApiController::class, 'test']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    
+    Route::post('/addBC',[ApiController::class, 'addBC']);
+    Route::post('/editBC',[ApiController::class, 'editBC']);
+    Route::post('/getMaterial',[ApiController::class, 'getMaterial']);
+    Route::post('/getAllBC',[ApiController::class, 'getAllBC']);
+    Route::post('/clickCard',[ApiController::class, 'clickCard']);
 
     Route::get('/user',[UserController::class, 'profile']);
 

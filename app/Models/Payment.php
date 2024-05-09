@@ -19,6 +19,19 @@ class Payment extends Model
         return $this->belongsTo(User::class);
     }
 
+    protected $fillable = [
+        'user_id',
+        'payment_method',
+        'event_type',
+        'payment_amount',
+        'payment_currency',
+        'transaction_id',
+        'summary',
+        'created_at',
+        'status',
+        'created_at',
+        'updated_at'
+    ];
 
     /**
      * belongs to product_solution

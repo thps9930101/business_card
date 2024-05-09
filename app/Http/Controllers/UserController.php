@@ -25,7 +25,7 @@ class UserController extends Controller
             'name' =>$user->name,
             'email'=>$user->email,
             'phone'=>$user->phone,
-            'devices'=>$user->devices,
+            // 'devices'=>$user->devices,
             'points'=>$user->points,
             'freePoints'=>$user->free_points,
             'VIP'=>$user->VIP,

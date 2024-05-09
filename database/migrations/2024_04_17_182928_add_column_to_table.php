@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('devices', function (Blueprint $table) {
-            $table->id();
-            //forign user_id
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            //device id
-            $table->string('device_id')->unique();
-            $table->timestamps();
+        Schema::table('models', function (Blueprint $table) {
+            $table->integer('status')->default(0);
+
+            //
         });
     }
 
@@ -26,6 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('devices');
+        Schema::table('models', function (Blueprint $table) {
+            //
+            $table->dropColumn('status');
+
+        });
     }
 };

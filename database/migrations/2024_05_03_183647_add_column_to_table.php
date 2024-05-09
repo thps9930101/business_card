@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('media', function (Blueprint $table) {
-            $table->bigInteger('staff_id')->unsigned()->nullable();
+        Schema::table('models', function (Blueprint $table) {
             //
+            $table->string('pic_url')->nullable();
+
         });
     }
 
@@ -22,9 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('media', function (Blueprint $table) {
+        Schema::table('models', function (Blueprint $table) {
+            $table->dropColumn('pic_url');
+
             //
-            $table->dropColumn('staff_id');
         });
     }
 };

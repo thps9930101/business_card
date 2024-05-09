@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('media', function (Blueprint $table) {
-            $table->string('original')->nullable();
+        Schema::table('cards', function (Blueprint $table) {
+            $table->string('line')->nullable();
+
+            //
         });
     }
 
@@ -21,9 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('media', function (Blueprint $table) {
+        Schema::table('cards', function (Blueprint $table) {
+            $table->dropColumn('line');
+
             //
-            $table->dropColumn('original');
         });
     }
 };

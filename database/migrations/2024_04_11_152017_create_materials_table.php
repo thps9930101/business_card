@@ -11,14 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('plan_solutions', function (Blueprint $table) {
+        Schema::create('materials', function (Blueprint $table) {
             $table->id();
-            // product costs
-            $table->integer('costs')->default(0);
-            $table->float('period')->default(0);
-            $table->integer('pic_available')->default(0);
-            $table->integer('vid_available')->default(0);
-            $table->boolean('is_activated')->default(false);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('card_url')->nullable();;
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('plan_solutions');
+        Schema::dropIfExists('materials');
     }
 };
