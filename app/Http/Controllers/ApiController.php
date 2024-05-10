@@ -121,24 +121,21 @@ class ApiController extends Controller
         }
 
         $credentials = $request->only('account', 'password');
-
-        if ($result = Auth::attempt($credentials)) {
-            $auth = Auth::user();
-
+        $company = companies::where('account', $request->account)->first();
+        if ($company) {
             return [
                 'success' => true,
                 'message' => [
-                    'id' =>  $auth->id,
-                    'name' =>  $auth->name,
-                    'email' =>  $auth->email,
-                    'token'=>  $auth->createToken($request->account)->plainTextToken
+                    'id' =>  $company->id,
+                    'name' =>  $company->name,
+                    'account' =>  $company->account,
                 ]
             ];
         } else {
             return [
                 'success' => false,
                 'message' => __('auth.failed'),
-                'errors' => $result
+                'errors' => $company
             ];
         }
     }
@@ -543,7 +540,7 @@ class ApiController extends Controller
     }
     public function addMaterials(Request $request){
         $validator = Validator::make($request->all(),[
-            'user_id' => 'required',
+            'user_account' => 'required',
             'card_url' => 'required',
         ]);
 
@@ -554,9 +551,12 @@ class ApiController extends Controller
                 'errors'=> $validator->errors()->toArray()
             ];
         }
-
+        $user = User::where('account', $request->user_account)->first();
+        return[
+            'filename:'=>$request->card_url->getClientOriginalName()
+        ];
         $material = new materials();
-        $material->user_id = $request->user_id;
+        $material->user_id = $user->id;
         $material->card_url = $request->card_url;
 
         $material->save();
@@ -572,7 +572,7 @@ class ApiController extends Controller
 
     public function addModels(Request $request){
         $validator = Validator::make($request->all(),[
-            'user_id' => 'required',
+            'user_account' => 'required',
             'texture_url' => 'required',
             'mesh_url' => 'required',
             'pic_url' => 'required',
@@ -585,9 +585,10 @@ class ApiController extends Controller
                 'errors'=> $validator->errors()->toArray()
             ];
         }
+        $user = User::where('account', $request->user_account)->first();
 
         $model = new models();
-        $model->user_id = $request->user_id;
+        $model->user_id = $user->id;
         $model->mesh_url = $request->mesh_url;
         $model->texture_url = $request->texture_url;
         $model->pic_url = $request->pic_url;

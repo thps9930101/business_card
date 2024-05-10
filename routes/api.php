@@ -22,6 +22,7 @@ use OpenSpout\Common\Entity\Row;
 
 //login
 Route::post('/login',[ApiController::class, 'login']);
+Route::post('/company_login',[ApiController::class, 'company_login']);
 
 //staff login
 Route::post('/staffLogin',[StaffController::class, 'login']);
