@@ -599,6 +599,8 @@ class ApiController extends Controller
         file_put_contents($tmpFilePath, ''); 
         if (file_exists($tmpFilePath)) {
             $file = new \Illuminate\Http\UploadedFile($tmpFilePath, $s3_fileName, 'image/png', null, true);
+            Storage::disk('s3')->putFileAs($s3_url, $file, $s3_fileName);
+
             $file->store($s3_dir, 's3');
     
             $material = new materials();
