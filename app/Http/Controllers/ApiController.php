@@ -524,12 +524,29 @@ class ApiController extends Controller
             ];
         }
 
-        foreach ($card_info as $key => $info) {
-            $card->$key = $info;
-        }
+        $card->name = $card_info->name;
+        $card->email = $card_info->email;
+        $card->phone = $card_info->phone;
+        $card->address = $card_info->address;
+        $card->fax = $card_info->fax;
+        $card->edit_name = $card_info->edit_name;
+        $card->release_name = $card_info->release_name;
+        $card->model_id = $card_info->model_id;
+        $card->card_front_id = $card_info->card_front_id;
+        $card->card_back_id = $card_info->card_back_id;
+        $card->telegram = $card_info->telegram;
+        $card->whatsapp = $card_info->whatsapp;
+        $card->facebook = $card_info->facebook;
+        $card->instagram = $card_info->instagram;
+        $card->X = $card_info->X;
+        $card->web = $card_info->web;
+        $card->is_actived = $card_info->is_actived;
+
+        // foreach ($card_info as $key => $info) {
+        //     $card->$key = $info;
+        // }
         $card->save();
         $card = cards::find($BC_id);
-
 
         return[
             "success" => [
@@ -671,7 +688,7 @@ class ApiController extends Controller
                     
                     "edit_name"=> $card->edit_name,
                     "relesae_name"=> $card->relesae_name,
-                    "card_front" => $card_front->card_url,
+                    "card_front" => $card_front->card_url ?? '',
                     "card_back" => $card_back->card_url,
 
                     // "address"=> $card->address,
