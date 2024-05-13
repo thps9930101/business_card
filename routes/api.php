@@ -31,7 +31,6 @@ Route::post('/testBC',[ApiController::class, 'testBC']);
 
 // api func
 Route::post('/getBC',[ApiController::class, 'getBC']);
-Route::post('/addMaterials',[ApiController::class, 'addMaterials']);
 Route::post('/addModels',[ApiController::class, 'addModels']);
 
 //company
@@ -78,6 +77,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/getMaterial',[ApiController::class, 'getMaterial']);
     Route::post('/getAllBC',[ApiController::class, 'getAllBC']);
     Route::post('/clickCard',[ApiController::class, 'clickCard']);
+    
+    Route::post('/addMaterials',[ApiController::class, 'addMaterials']);
+
 
     Route::get('/user',[UserController::class, 'profile']);
 
