@@ -31,6 +31,7 @@ use App\Repository\OrderRepository;
 use App\Events\CompleteTransformPic;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\UploadedFile;
 use App\Events\CompleteTransformVideo;
 use App\Events\AIBoxRefresh;
 use App\Notifications\ConfirmUserCode;
@@ -557,7 +558,7 @@ class ApiController extends Controller
     }
     public function addMaterials(Request $request){
         $validator = Validator::make($request->all(),[
-            'user_account' => 'required',
+            // 'user_account' => 'required',
             'card_url' => 'required',
         ]);
 
@@ -567,8 +568,38 @@ class ApiController extends Controller
                 'message' => __('register.failed'),
                 'errors'=> $validator->errors()->toArray()
             ];
+        }        
+
+        $user = Auth::user();
+        if (!$user) {
+            return [
+                'success' => false,
+                'message' => "plz login",
+            ];
         }
-        $user = User::where('account', $request->user_account)->first();
+        
+        // $user = User::where('account', $request->user_account)->first();
+
+
+        // 取得 卡片圖 並儲存到 S3
+        $filePath = env('APP_ENV')."/".$user->id.'/'.'material/'.$request->card_url->getClientOriginalName();
+
+        $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
+        $image = Image::make($request->card_url);
+        $image->save($tmpFilePath);
+        $file = new \Illuminate\Http\UploadedFile($tmpFilePath, 'image.png', 'image/png', null, true);
+        $file->store($filePath, 's3');
+
+        $material = new materials();
+        $material->user_id = $user->id;
+        $material->card_url = $filePath;
+        $material->save();
+        return [
+            'success' => true,
+            'message' => [
+            ],
+        ];
+        
         return[
             'filename:'=>$request->card_url->getClientOriginalName()
         ];
