@@ -605,7 +605,6 @@ class ApiController extends Controller
             $material->card_url = $s3_url;
             $material->save();
 
-            unlink($tmpFilePath);
             return [
                 'success' => true,
                 'message' => [
