@@ -689,7 +689,7 @@ class ApiController extends Controller
                     "edit_name"=> $card->edit_name,
                     "relesae_name"=> $card->relesae_name,
                     "card_front" => $card_front->card_url ?? '',
-                    "card_back" => $card_back->card_url,
+                    "card_back" => $card_back->card_url ?? '',
 
                     // "address"=> $card->address,
                     // "fax"=> $card->fax,
