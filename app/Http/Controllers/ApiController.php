@@ -586,8 +586,8 @@ class ApiController extends Controller
         $filePath = env('APP_ENV')."/".$user->id.'/'.'material/'.$request->card_url->getClientOriginalName();
 
         $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
-        $image = Image::make($request->card_url);
-        $image->save($tmpFilePath);
+        // $image = Image::make($request->card_url);
+        // $image->save($tmpFilePath);
         $file = new \Illuminate\Http\UploadedFile($tmpFilePath, 'image.png', 'image/png', null, true);
         $file->store($filePath, 's3');
 
