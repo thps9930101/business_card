@@ -510,6 +510,10 @@ class ApiController extends Controller
     }
 
     public function editBC(Request $request){
+
+        $user = Auth::user();
+        // TODO 檢查該BC是否為該 user 的 card
+
         $BC_id = $request->input('id');
         $card_info = $request->input('card');
         $user = Auth::user();
@@ -526,6 +530,7 @@ class ApiController extends Controller
             ];
         }
 
+        // TODO 檢查該 各個ID 是否為該 user 的 ID
         $card->name = $card_info->name;
         $card->email = $card_info->email;
         $card->phone = $card_info->phone;
@@ -557,6 +562,7 @@ class ApiController extends Controller
             ]
         ];
     }
+
     public function addMaterials(Request $request){
         $validator = Validator::make($request->all(),[
             // 'user_account' => 'required',
@@ -583,17 +589,21 @@ class ApiController extends Controller
 
 
         // 取得 卡片圖 並儲存到 S3
-        $filePath = env('APP_ENV')."/".$user->id.'/'.'material/'.uniqid() . '.png';
+        $id = uniqid();
+        // $filePath = env('APP_ENV')."/".$user->id.'/'.'material/'.$id.'.png';
+        $s3_dir = env('APP_ENV')."/".$user->id.'/'.'material/';
+        $s3_fileName = $id.'.png';
+        $s3_url = $s3_dir.$s3_fileName;
 
-        $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
+        $tmpFilePath = sys_get_temp_dir() . '/'.$s3_fileName;
         file_put_contents($tmpFilePath, ''); 
         if (file_exists($tmpFilePath)) {
-            $file = new \Illuminate\Http\UploadedFile($tmpFilePath, 'image.png', 'image/png', null, true);
-            $file->store($filePath, 's3');
+            $file = new \Illuminate\Http\UploadedFile($tmpFilePath, $s3_fileName, 'image/png', null, true);
+            $file->store($s3_dir, 's3');
     
             $material = new materials();
             $material->user_id = $user->id;
-            $material->card_url = $filePath;
+            $material->card_url = $s3_url;
             $material->save();
 
             unlink($tmpFilePath);
@@ -639,7 +649,7 @@ class ApiController extends Controller
             'user_account' => 'required',
             'texture_url' => 'required',
             'mesh_url' => 'required',
-            'pic_url' => 'required',
+            'cover_url' => 'required',
         ]);
 
         if($validator->fails()){
@@ -655,7 +665,7 @@ class ApiController extends Controller
         $model->user_id = $user->id;
         $model->mesh_url = $request->mesh_url;
         $model->texture_url = $request->texture_url;
-        $model->pic_url = $request->pic_url;
+        $model->cover_url = $request->cover_url;
 
         $model->save();
 
@@ -665,7 +675,7 @@ class ApiController extends Controller
                 'user_id' => $model->user_id,
                 'mesh_url' => $model->mesh_url,
                 'texture_url' => $model->texture_url,
-                'pic_url' => $model->pic_url,
+                'cover_url' => $model->cover_url,
             ],
         ];
     }
@@ -750,7 +760,8 @@ class ApiController extends Controller
 
                     "model" => [
                         "texture" => $model->texture_url ?? '',
-                        "mesh" => $model->mesh_url ?? ''
+                        "mesh" => $model->mesh_url ?? '',
+                        "cover" => $model->cover_url ?? ''
                     ],
 
                 ]
@@ -786,6 +797,8 @@ class ApiController extends Controller
             Storage::disk('s3')->temporaryUrl($msg["model"]["texture"], now()->addHour());
         if ($msg["model"]["mesh"] != '')
             Storage::disk('s3')->temporaryUrl($msg["model"]["mesh"], now()->addHour());
+        if ($msg["model"]["cover"] != '')
+            Storage::disk('s3')->temporaryUrl($msg["model"]["cover"], now()->addHour());
         
         foreach($social_array as $name => $social)
         {
