@@ -696,7 +696,7 @@ class ApiController extends Controller
         foreach ($materials as $material) {
             $newData = [
                 "id"   => $material->id,
-                "url" => $material->card_url,
+                "url" => Storage::disk('s3')->temporaryUrl($material->card_url, now()->addHour()),
             ];
             array_push($getMaterial_Result['success']['message']['cardPicList'], $newData);
         }
@@ -704,8 +704,8 @@ class ApiController extends Controller
         foreach ($models as $model) {
             $newData = [
                 "id"   => $model->id,
-                "texture" => $model->texture_url,
-                "mesh" => $model->mesh_url,
+                "texture" => Storage::disk('s3')->temporaryUrl($model->texture_url, now()->addHour()),
+                "mesh" => Storage::disk('s3')->temporaryUrl($model->mesh_url, now()->addHour()),
             ];
             array_push($getMaterial_Result['success']['message']['modelList'], $newData);
         }
