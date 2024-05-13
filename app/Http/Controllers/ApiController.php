@@ -774,7 +774,19 @@ class ApiController extends Controller
             'email' => $card->email,
             'phone' => $card->phone
         ];
+        
 
+        $msg = $getBC_Result['success']['message'];
+        if ($msg["card_front"] != '')
+            Storage::disk('s3')->temporaryUrl($msg["card_front"], now()->addHour());
+        if ($msg["card_back"] == '')
+            Storage::disk('s3')->temporaryUrl($msg["card_back"], now()->addHour());
+
+        if ($msg["model"]["texture"] == '')
+            Storage::disk('s3')->temporaryUrl($msg["model"]["texture"], now()->addHour());
+        if ($msg["model"]["mesh"] == '')
+            Storage::disk('s3')->temporaryUrl($msg["model"]["mesh"], now()->addHour());
+        
         foreach($social_array as $name => $social)
         {
             if($social != null)
