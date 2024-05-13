@@ -588,14 +588,17 @@ class ApiController extends Controller
         $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
         file_put_contents($tmpFilePath, ''); 
         if (file_exists($tmpFilePath)) {
+            Log::info("1");
             $file = new \Illuminate\Http\UploadedFile($tmpFilePath, 'image.png', 'image/png', null, true);
             $file->store($filePath, 's3');
     
+            Log::info("2");
             $material = new materials();
             $material->user_id = $user->id;
             $material->card_url = $filePath;
             $material->save();
 
+            Log::info("3");
             unlink($tmpFilePath);
             return [
                 'success' => true,
