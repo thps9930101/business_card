@@ -583,7 +583,10 @@ class ApiController extends Controller
 
 
         // 取得 卡片圖 並儲存到 S3
+            Log::info("0");
+            Log::info(env('APP_ENV'));
         $filePath = env('APP_ENV')."/".$user->id.'/'.'material/'.$request->card_url->getClientOriginalName();
+        Log::info($filePath);
 
         $tmpFilePath = sys_get_temp_dir() . '/' . uniqid() . '.png';
         file_put_contents($tmpFilePath, ''); 
