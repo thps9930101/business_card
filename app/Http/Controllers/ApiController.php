@@ -589,7 +589,7 @@ class ApiController extends Controller
 
         // 取得卡片圖並儲存到 S3
         $id = uniqid();
-        $s3_dir = env('APP_ENV') . "/bc/1/material/"; // 修改这里的设定
+        $s3_dir = env('APP_ENV') . "/".$user->id."/"."material"."/"; // 修改这里的设定
         $s3_fileName = $id . '.png';
         $s3_url = $s3_dir . $s3_fileName;
 
