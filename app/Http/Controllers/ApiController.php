@@ -593,11 +593,12 @@ class ApiController extends Controller
         $s3_fileName = $id . '.png';
         $s3_url = $s3_dir . $s3_fileName;
 
-        $tmpFilePath = sys_get_temp_dir() . '/' . $s3_fileName;
-        file_put_contents($tmpFilePath, ''); 
-        if (file_exists($tmpFilePath)) {
-            $file = new \Illuminate\Http\UploadedFile($tmpFilePath, $s3_fileName, 'image/png', null, true);
-            $file->storeAs($s3_dir, $s3_fileName, 's3'); // 修改这里的存储方式
+        $uploadedFile = $request->file('card_url');
+
+        if ($uploadedFile->isValid()) {
+            $uploadedFile->storeAs($s3_dir, $s3_fileName, 's3'); 
+            // $file = new \Illuminate\Http\UploadedFile($tmpFilePath, $s3_fileName, 'image/png', null, true);
+            // $file->storeAs($s3_dir, $s3_fileName, 's3'); // 修改这里的存储方式
             
             $material = new materials();
             $material->user_id = $user->id;
