@@ -52,6 +52,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 // use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Password;
+use Intervention\Image\Facades\Image;
 
 class ApiController extends Controller
 {
