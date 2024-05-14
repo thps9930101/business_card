@@ -520,6 +520,10 @@ class ApiController extends Controller
 
         $card = cards::where('id', $BC_id);
 
+        return[
+            'success' => true,
+            'message' => $card
+        ];
         if($card->user_id != $user->id)
         {
             return[
