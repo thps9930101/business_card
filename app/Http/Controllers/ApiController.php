@@ -532,7 +532,8 @@ class ApiController extends Controller
         //             'message' => "editBC error"
         //         ]
         //     ];
-        // }
+        // }        
+        Log::info("card model_id: ".$card->model_id.", card_info model_id: ".$card_info->model_id);
 
         // TODO 檢查該 各個ID 是否為該 user 的 ID
         $card->name = $card_info->name ?? $card->name;
