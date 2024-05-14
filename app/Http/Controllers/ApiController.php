@@ -484,7 +484,8 @@ class ApiController extends Controller
         $card = new cards();
 
         $card->user_id = $user->id;
-
+        $card->public_id = $user->id.Str::random(20);
+    
         $card->save();
 
         $addBC_Result = [
@@ -755,8 +756,11 @@ class ApiController extends Controller
     }
 
     public function getBC(Request $request){
-        
+
         $BC_id = $request->input('id');
+        if (!$BC_id)
+            $BC_id = $request->input('public_id');
+
         $card = cards::where('id',$BC_id)->first();
         $model = models::where('id',$card->model_id)->first();
         $card_front = materials::where('id',$card->card_front_id)->first();
