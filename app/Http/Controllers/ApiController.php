@@ -518,7 +518,7 @@ class ApiController extends Controller
         $card_info = $request->input('card');
         $user = Auth::user();
 
-        $card = cards::where('id', $BC_id)->get();
+        $card = cards::where('id', $BC_id)->first();
 
         // return[
         //     'success' => true,
@@ -533,11 +533,14 @@ class ApiController extends Controller
         //         ]
         //     ];
         // }
-
-        Log::info("===");
-        Log::info("card id: ".$card->id);
-        Log::info("card name: ".$card->name);
-        Log::info("user id: ".$card->user_id);
+        if ($card) {
+            Log::info("===");
+            Log::info("card id: ".$card->id);
+            Log::info("card name: ".$card->name);
+            Log::info("user id: ".$card->user_id);
+        } else {
+            Log::info("No card found with id 1");
+        }
 
         // TODO 檢查該 各個ID 是否為該 user 的 ID
         $card->name = $card_info->name ?? $card->name;
