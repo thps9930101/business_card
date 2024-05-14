@@ -809,19 +809,17 @@ class ApiController extends Controller
             'phone' => $card->phone
         ];
         
+        if ($getBC_Result['success']['message']["card_front"] != '')
+            $getBC_Result['success']['message']["card_front"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["card_front"], now()->addHour());
+        if ($getBC_Result['success']['message']["card_back"] != '')
+            $getBC_Result['success']['message']["card_back"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["card_back"], now()->addHour());
 
-        $msg = $getBC_Result['success']['message'];
-        if ($msg["card_front"] != '')
-            $msg["card_front"] = Storage::disk('s3')->temporaryUrl($msg["card_front"], now()->addHour());
-        if ($msg["card_back"] != '')
-            $msg["card_back"] = Storage::disk('s3')->temporaryUrl($msg["card_back"], now()->addHour());
-
-        if ($msg["model"]["texture"] != '')
-            $msg["model"]["texture"] = Storage::disk('s3')->temporaryUrl($msg["model"]["texture"], now()->addHour());
-        if ($msg["model"]["mesh"] != '')
-            $msg["model"]["mesh"] = Storage::disk('s3')->temporaryUrl($msg["model"]["mesh"], now()->addHour());
-        if ($msg["model"]["cover"] != '')
-            $msg["model"]["cover"] = Storage::disk('s3')->temporaryUrl($msg["model"]["cover"], now()->addHour());
+        if ($getBC_Result['success']['message']["model"]["texture"] != '')
+            $getBC_Result['success']['message']["model"]["texture"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["texture"], now()->addHour());
+        if ($getBC_Result['success']['message']["model"]["mesh"] != '')
+            $getBC_Result['success']['message']["model"]["mesh"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["mesh"], now()->addHour());
+        if ($getBC_Result['success']['message']["model"]["cover"] != '')
+            $getBC_Result['success']['message']["model"]["cover"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["cover"], now()->addHour());
         
         foreach($social_array as $name => $social)
         {
