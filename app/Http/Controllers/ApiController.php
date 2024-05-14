@@ -518,12 +518,12 @@ class ApiController extends Controller
         $card_info = $request->input('card');
         $user = Auth::user();
 
-        $card = cards::where('id', $BC_id);
+        $card = cards::where('id', $BC_id)->get();
 
-        return[
-            'success' => true,
-            'message' => $card->get()
-        ];
+        // return[
+        //     'success' => true,
+        //     'message' => $card->get()
+        // ];
         if($card->user_id != $user->id)
         {
             return[
