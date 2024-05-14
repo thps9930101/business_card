@@ -671,11 +671,12 @@ class ApiController extends Controller
         $meshFile = $request->file('mesh_url');
         $coverFile = $request->file('cover_url');
 
-        if ($uploadedFile->isValid()) {
+        if ($textureFile->isValid()) 
             $textureFile->storeAs($s3_texture_dir, $s3_fileName, 's3'); 
+        if ($textureFile->isValid()) 
             $meshFile->storeAs($s3_mesh_dir, $s3_fileName, 's3'); 
+        if ($textureFile->isValid()) 
             $coverFile->storeAs($s3_cover_dir, $s3_fileName, 's3'); 
-        }
 
         $model = new models();
         $model->user_id = $user->id;
