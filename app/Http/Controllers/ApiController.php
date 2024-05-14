@@ -533,6 +533,7 @@ class ApiController extends Controller
         //         ]
         //     ];
         // }        
+        Log::info($card_info);
 
         // TODO 檢查該 各個ID 是否為該 user 的 ID
         $card->name = $card_info['name'] ?? $card->name;
@@ -650,6 +651,7 @@ class ApiController extends Controller
             'texture_url' => 'required',
             'mesh_url' => 'required',
             'cover_url' => 'required',
+            'cover_half_url' => 'required',
         ]);
 
         if($validator->fails()){
@@ -671,10 +673,12 @@ class ApiController extends Controller
         $textureFile = $request->file('texture_url');
         $meshFile = $request->file('mesh_url');
         $coverFile = $request->file('cover_url');
+        $coverHalfFile = $request->file('cover_half_url');
 
         $s3_texture_fileName = $id . '.' . $textureFile->getClientOriginalExtension();
         $s3_mesh_fileName = $id . '.' . $meshFile->getClientOriginalExtension();
         $s3_cover_fileName = $id . '.' . $coverFile->getClientOriginalExtension();
+        $s3_coverHalf_fileName = $id . '.' . $coverHalfFile->getClientOriginalExtension();
 
         if ($textureFile->isValid()) 
             $textureFile->storeAs($s3_texture_dir, $s3_texture_fileName, 's3'); 
@@ -682,12 +686,15 @@ class ApiController extends Controller
             $meshFile->storeAs($s3_mesh_dir, $s3_mesh_fileName, 's3'); 
         if ($coverFile->isValid()) 
             $coverFile->storeAs($s3_cover_dir, $s3_cover_fileName, 's3'); 
+        if ($coverHalfFile->isValid()) 
+            $coverHalfFile->storeAs($s3_cover_dir, $s3_coverHalf_fileName, 's3'); 
 
         $model = new models();
         $model->user_id = $user->id;
         $model->texture_url = $s3_texture_dir.'/'.$s3_texture_fileName;
         $model->mesh_url = $s3_mesh_dir.'/'.$s3_mesh_fileName;
         $model->cover_url = $s3_cover_dir.'/'.$s3_cover_fileName;
+        $model->cover_half_url = $s3_cover_dir.'/'.$s3_coverHalf_fileName;
 
         $model->save();
 
@@ -788,7 +795,8 @@ class ApiController extends Controller
                         "id" => $model->id ?? null,
                         "texture" => $model->texture_url ?? '',
                         "mesh" => $model->mesh_url ?? '',
-                        "cover" => $model->cover_url ?? ''
+                        "cover" => $model->cover_url ?? '',
+                        "cover_half" => $model->cover_half_url ?? ''
                     ],
 
                 ]
