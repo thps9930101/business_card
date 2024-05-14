@@ -765,6 +765,8 @@ class ApiController extends Controller
                     
                     "edit_name"=> $card->edit_name,
                     "relesae_name"=> $card->relesae_name,
+                    "card_front_id" => $card_front->id ?? null,
+                    "card_back_id" => $card_back->id ?? null,
                     "card_front" => $card_front->card_url ?? '',
                     "card_back" => $card_back->card_url ?? '',
                     "is_actived" => $card->is_actived,
@@ -810,16 +812,16 @@ class ApiController extends Controller
 
         $msg = $getBC_Result['success']['message'];
         if ($msg["card_front"] != '')
-            Storage::disk('s3')->temporaryUrl($msg["card_front"], now()->addHour());
+            $msg["card_front"] = Storage::disk('s3')->temporaryUrl($msg["card_front"], now()->addHour());
         if ($msg["card_back"] != '')
-            Storage::disk('s3')->temporaryUrl($msg["card_back"], now()->addHour());
+            $msg["card_back"] = Storage::disk('s3')->temporaryUrl($msg["card_back"], now()->addHour());
 
         if ($msg["model"]["texture"] != '')
-            Storage::disk('s3')->temporaryUrl($msg["model"]["texture"], now()->addHour());
+            $msg["model"]["texture"] = Storage::disk('s3')->temporaryUrl($msg["model"]["texture"], now()->addHour());
         if ($msg["model"]["mesh"] != '')
-            Storage::disk('s3')->temporaryUrl($msg["model"]["mesh"], now()->addHour());
+            $msg["model"]["mesh"] = Storage::disk('s3')->temporaryUrl($msg["model"]["mesh"], now()->addHour());
         if ($msg["model"]["cover"] != '')
-            Storage::disk('s3')->temporaryUrl($msg["model"]["cover"], now()->addHour());
+            $msg["model"]["cover"] = Storage::disk('s3')->temporaryUrl($msg["model"]["cover"], now()->addHour());
         
         foreach($social_array as $name => $social)
         {
