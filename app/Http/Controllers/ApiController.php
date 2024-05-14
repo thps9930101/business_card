@@ -663,7 +663,6 @@ class ApiController extends Controller
         $user = User::where('account', $request->user_account)->first();
         $id = uniqid();
         $s3_model_dir = env('APP_ENV') . "/".$user->id."/"."model"."/".$id."/"; // 修改这里的设定
-        $s3_fileName = $id . '.png';
 
         $s3_texture_dir = $s3_model_dir."texture";
         $s3_mesh_dir = $s3_model_dir."mesh";
@@ -673,18 +672,22 @@ class ApiController extends Controller
         $meshFile = $request->file('mesh_url');
         $coverFile = $request->file('cover_url');
 
+        $s3_texture_fileName = $id . '.' . $textureFile->getClientOriginalExtension();
+        $s3_mesh_fileName = $id . '.' . $meshFile->getClientOriginalExtension();
+        $s3_cover_fileName = $id . '.' . $coverFile->getClientOriginalExtension();
+
         if ($textureFile->isValid()) 
-            $textureFile->storeAs($s3_texture_dir, $s3_fileName, 's3'); 
-        if ($textureFile->isValid()) 
-            $meshFile->storeAs($s3_mesh_dir, $s3_fileName, 's3'); 
-        if ($textureFile->isValid()) 
-            $coverFile->storeAs($s3_cover_dir, $s3_fileName, 's3'); 
+            $textureFile->storeAs($s3_texture_dir, $s3_texture_fileName, 's3'); 
+        if ($meshFile->isValid()) 
+            $meshFile->storeAs($s3_mesh_dir, $s3_mesh_fileName, 's3'); 
+        if ($coverFile->isValid()) 
+            $coverFile->storeAs($s3_cover_dir, $s3_cover_fileName, 's3'); 
 
         $model = new models();
         $model->user_id = $user->id;
-        $model->mesh_url = $s3_mesh_dir.'/'.$s3_fileName;
-        $model->texture_url = $s3_texture_dir.'/'.$s3_fileName;
-        $model->cover_url = $s3_cover_dir.'/'.$s3_fileName;
+        $model->texture_url = $s3_texture_dir.'/'.$s3_texture_fileName;
+        $model->mesh_url = $s3_mesh_dir.'/'.$s3_mesh_fileName;
+        $model->cover_url = $s3_cover_dir.'/'.$s3_cover_fileName;
 
         $model->save();
 
