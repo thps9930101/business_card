@@ -556,10 +556,8 @@ class ApiController extends Controller
         $card = cards::find($BC_id);
 
         return[
-            "success" => [
-                'success' => true,
-                'message' => "change success"
-            ]
+            'success' => true,
+            'message' => "change success"
         ];
     }
 
