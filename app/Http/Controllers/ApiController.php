@@ -514,8 +514,8 @@ class ApiController extends Controller
         $user = Auth::user();
         // TODO 檢查該BC是否為該 user 的 card
 
-        $BC_id = $request->input('id');
-        $card_info = $request->input('card');
+        $BC_id = $request->id;
+        $card_info = $request->card;
         $user = Auth::user();
 
         $card = cards::where('id', $BC_id)->first();
