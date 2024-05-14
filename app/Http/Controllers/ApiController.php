@@ -785,6 +785,7 @@ class ApiController extends Controller
                     // "line" => $card->line,
 
                     "model" => [
+                        "id" => $model->id ?? null,
                         "texture" => $model->texture_url ?? '',
                         "mesh" => $model->mesh_url ?? '',
                         "cover" => $model->cover_url ?? ''
