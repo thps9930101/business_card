@@ -731,8 +731,9 @@ class ApiController extends Controller
         foreach ($models as $model) {
             $newData = [
                 "id"   => $model->id,
-                "texture" => Storage::disk('s3')->temporaryUrl($model->texture_url, now()->addHour()),
-                "mesh" => Storage::disk('s3')->temporaryUrl($model->mesh_url, now()->addHour()),
+                // "texture" => Storage::disk('s3')->temporaryUrl($model->texture_url, now()->addHour()),
+                // "mesh" => Storage::disk('s3')->temporaryUrl($model->mesh_url, now()->addHour()),
+                "cover" => Storage::disk('s3')->temporaryUrl($model->cover_url, now()->addHour()),
             ];
             array_push($getMaterial_Result['success']['message']['modelList'], $newData);
         }
