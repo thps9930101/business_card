@@ -660,7 +660,7 @@ class ApiController extends Controller
 
         $user = User::where('account', $request->user_account)->first();
         $id = uniqid();
-        $s3_model_dir = env('APP_ENV') . "/".$user->id."/"."model"."/"; // 修改这里的设定
+        $s3_model_dir = env('APP_ENV') . "/".$user->id."/"."model"."/".$id."/"; // 修改这里的设定
         $s3_fileName = $id . '.png';
 
         $s3_texture_dir = $s3_model_dir."texture";
