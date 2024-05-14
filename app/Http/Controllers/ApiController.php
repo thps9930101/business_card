@@ -537,23 +537,43 @@ class ApiController extends Controller
         Log::info($card_info);
 
         // TODO 檢查該 各個ID 是否為該 user 的 ID
-        $card->name = $card_info['name'] ?? $card->name;
-        $card->email = $card_info['email'] ?? $card->email;
-        $card->phone = $card_info['phone'] ?? $card->phone;
-        $card->address = $card_info['address'] ?? $card->address;
-        $card->fax = $card_info['fax'] ?? $card->fax;
-        $card->edit_name = $card_info['edit_name'] ?? $card->edit_name;
-        $card->release_name = $card_info['release_name'] ?? $card->release_name;
-        $card->model_id = $card_info['model_id'] ?? $card->model_id;
-        $card->card_front_id = $card_info['card_front_id'] ?? $card->card_front_id;
-        $card->card_back_id = $card_info['card_back_id'] ?? $card->card_back_id;
-        $card->telegram = $card_info['telegram'] ?? $card->telegram;
-        $card->whatsapp = $card_info['whatsapp'] ?? $card->whatsapp;
-        $card->facebook = $card_info['facebook'] ?? $card->facebook;
-        $card->instagram = $card_info['instagram'] ?? $card->instagram;
-        $card->X = $card_info['X'] ?? $card->X;
-        $card->web = $card_info['web'] ?? $card->web;
-        $card->is_actived = $card_info['is_actived'] ?? $card->is_actived;
+
+        // $card->name = $card_info['name'] ?? $card->name;
+        // $card->email = $card_info['email'] ?? $card->email;
+        // $card->phone = $card_info['phone'] ?? $card->phone;
+        // $card->address = $card_info['address'] ?? $card->address;
+        // $card->fax = $card_info['fax'] ?? $card->fax;
+        // $card->edit_name = $card_info['edit_name'] ?? $card->edit_name;
+        // $card->release_name = $card_info['release_name'] ?? $card->release_name;
+        // $card->model_id = $card_info['model_id'] ?? $card->model_id;
+        // $card->card_front_id = $card_info['card_front_id'] ?? $card->card_front_id;
+        // $card->card_back_id = $card_info['card_back_id'] ?? $card->card_back_id;
+        // $card->telegram = $card_info['telegram'] ?? $card->telegram;
+        // $card->whatsapp = $card_info['whatsapp'] ?? $card->whatsapp;
+        // $card->facebook = $card_info['facebook'] ?? $card->facebook;
+        // $card->instagram = $card_info['instagram'] ?? $card->instagram;
+        // $card->X = $card_info['X'] ?? $card->X;
+        // $card->web = $card_info['web'] ?? $card->web;
+        // $card->is_actived = $card_info['is_actived'] ?? $card->is_actived;
+
+        $card->name = array_key_exists('name', $card_info) ? $card_info['name'] : $card->name;
+        $card->email = array_key_exists('email', $card_info) ? $card_info['email'] : $card->email;
+        $card->phone = array_key_exists('phone', $card_info) ? $card_info['phone'] : $card->phone;
+        $card->address = array_key_exists('address', $card_info) ? $card_info['address'] : $card->address;
+        $card->fax = array_key_exists('fax', $card_info) ? $card_info['fax'] : $card->fax;
+        $card->edit_name = array_key_exists('edit_name', $card_info) ? $card_info['edit_name'] : $card->edit_name;
+        $card->release_name = array_key_exists('release_name', $card_info) ? $card_info['release_name'] : $card->release_name;
+        $card->model_id = array_key_exists('model_id', $card_info) ? $card_info['model_id'] : $card->model_id;
+        $card->card_front_id = array_key_exists('card_front_id', $card_info) ? $card_info['card_front_id'] : $card->card_front_id;
+        $card->card_back_id = array_key_exists('card_back_id', $card_info) ? $card_info['card_back_id'] : $card->card_back_id;
+        $card->telegram = array_key_exists('telegram', $card_info) ? $card_info['telegram'] : $card->telegram;
+        $card->whatsapp = array_key_exists('whatsapp', $card_info) ? $card_info['whatsapp'] : $card->whatsapp;
+        $card->facebook = array_key_exists('facebook', $card_info) ? $card_info['facebook'] : $card->facebook;
+        $card->instagram = array_key_exists('instagram', $card_info) ? $card_info['instagram'] : $card->instagram;
+        $card->X = array_key_exists('X', $card_info) ? $card_info['X'] : $card->X;
+        $card->web = array_key_exists('web', $card_info) ? $card_info['web'] : $card->web;
+        $card->is_actived = array_key_exists('is_actived', $card_info) ? $card_info['is_actived'] : $card->is_actived;
+
 
         // foreach ($card_info as $key => $info) {
         //     $card->$key = $info;
