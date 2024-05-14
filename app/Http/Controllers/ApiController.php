@@ -533,6 +533,7 @@ class ApiController extends Controller
         //         ]
         //     ];
         // }        
+        Log::info("card_info: ".json_encode($card_info));
         Log::info("card_info model_id: ".$card_info->model_id);
         Log::info("card model_id: ".$card->model_id);
 
