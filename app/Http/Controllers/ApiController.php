@@ -534,6 +534,11 @@ class ApiController extends Controller
         //     ];
         // }
 
+        Log::info("===");
+        Log::info("card id: ".$card->id);
+        Log::info("card name: ".$card->name);
+        Log::info("user id: ".$card->user_id);
+
         // TODO 檢查該 各個ID 是否為該 user 的 ID
         $card->name = $card_info->name ?? $card->name;
         $card->email = $card_info->email ?? $card->email;
