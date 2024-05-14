@@ -524,15 +524,15 @@ class ApiController extends Controller
         //     'success' => true,
         //     'message' => $card->get()
         // ];
-        if($card->user_id != $user->id)
-        {
-            return[
-                "failed" => [
-                    'success' => false,
-                    'message' => "editBC error"
-                ]
-            ];
-        }
+        // if($card->user_id != $user->id)
+        // {
+        //     return[
+        //         "failed" => [
+        //             'success' => false,
+        //             'message' => "editBC error"
+        //         ]
+        //     ];
+        // }
 
         // TODO 檢查該 各個ID 是否為該 user 的 ID
         $card->name = $card_info->name ?? $card->name;
