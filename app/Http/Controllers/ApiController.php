@@ -518,7 +518,7 @@ class ApiController extends Controller
         $card_info = $request->input('card');
         $user = Auth::user();
 
-        $card = cards::find($BC_id);
+        $card = cards::where('id', $BC_id);
 
         if($card->user_id != $user->id)
         {
@@ -557,7 +557,7 @@ class ApiController extends Controller
 
         return[
             'success' => true,
-            'message' => "change success"
+            'message' => $card
         ];
     }
 
