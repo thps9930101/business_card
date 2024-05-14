@@ -522,7 +522,7 @@ class ApiController extends Controller
 
         return[
             'success' => true,
-            'message' => $card
+            'message' => $card->get()
         ];
         if($card->user_id != $user->id)
         {
