@@ -533,14 +533,6 @@ class ApiController extends Controller
         //         ]
         //     ];
         // }
-        if ($card) {
-            Log::info("===");
-            Log::info("card id: ".$card->id);
-            Log::info("card name: ".$card->name);
-            Log::info("user id: ".$card->user_id);
-        } else {
-            Log::info("No card found with id 1");
-        }
 
         // TODO 檢查該 各個ID 是否為該 user 的 ID
         $card->name = $card_info->name ?? $card->name;
@@ -550,7 +542,7 @@ class ApiController extends Controller
         $card->fax = $card_info->fax ?? $card->fax;
         $card->edit_name = $card_info->edit_name ?? $card->edit_name;
         $card->release_name = $card_info->release_name ?? $card->release_name;
-        $card->model_id = $card_info->model_ide ?? $card->model_id;
+        $card->model_id = $card_info->model_id ?? $card->model_id;
         $card->card_front_id = $card_info->card_front_id ?? $card->card_front_id;
         $card->card_back_id = $card_info->card_back_id ?? $card->card_back_id;
         $card->telegram = $card_info->telegram ?? $card->telegram;
