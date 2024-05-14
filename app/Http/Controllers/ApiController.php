@@ -680,9 +680,9 @@ class ApiController extends Controller
 
         $model = new models();
         $model->user_id = $user->id;
-        $model->mesh_url = $request->mesh_url;
-        $model->texture_url = $request->texture_url;
-        $model->cover_url = $request->cover_url;
+        $model->mesh_url = $s3_mesh_dir.$s3_fileName;
+        $model->texture_url = $s3_texture_dir.$s3_fileName;
+        $model->cover_url = $s3_cover_dir.$s3_fileName;
 
         $model->save();
 
