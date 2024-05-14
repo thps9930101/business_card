@@ -765,6 +765,7 @@ class ApiController extends Controller
                     "relesae_name"=> $card->relesae_name,
                     "card_front" => $card_front->card_url ?? '',
                     "card_back" => $card_back->card_url ?? '',
+                    "is_actived" => $card->is_actived,
 
                     // "address"=> $card->address,
                     // "fax"=> $card->fax,
