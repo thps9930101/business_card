@@ -482,7 +482,7 @@ class ApiController extends Controller
                 "releaseName" => $BC_card->release_name,
                 "update_at" => $BC_card->update_at,
                 "create_at" => $BC_card->create_at,
-                "downloadTimes" => $BC_card->download_time
+                "download_times" => $BC_card->download_time
             ];
             array_push($getAllBC_Result['success']['message'], $newData);
         }
