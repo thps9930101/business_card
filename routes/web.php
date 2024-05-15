@@ -29,7 +29,8 @@ Route::middleware('auth')->group(function () {
 }); */
 
 Route::get('/', function () {
-    return redirect('/admin/login');
+    // return redirect('/admin/login');
+    return redirect('server.index');
 });
 
 Route::get('/test', function () {
