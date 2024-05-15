@@ -786,7 +786,7 @@ class ApiController extends Controller
         }
         else
             $card = cards::where('id',$BC_id)->first();
-        
+
         $model = models::where('id',$card->model_id)->first();
         $card_front = materials::where('id',$card->card_front_id)->first();
         $card_back = materials::where('id',$card->card_back_id)->first();
@@ -803,7 +803,7 @@ class ApiController extends Controller
                 'message' => [
                     
                     "edit_name"=> $card->edit_name,
-                    "relesae_name"=> $card->relesae_name,
+                    "release_name"=> $card->release_name,
                     "card_front_id" => $card_front->id ?? null,
                     "card_back_id" => $card_back->id ?? null,
                     "card_front" => $card_front->card_url ?? '',
