@@ -318,6 +318,14 @@ class ApiController extends Controller
                 'errors'=> $validator->errors()->toArray()
             ];
         }
+
+        if (User::where('account', $request->account)->exists())
+        {
+            return [
+                'success' => false,
+                'message' => "account is already exists",
+            ];
+        }
     
         $user = User::create([
             'account' => $request->account,
