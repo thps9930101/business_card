@@ -690,6 +690,7 @@ class ApiController extends Controller
         $s3_texture_dir = $s3_model_dir."texture";
         $s3_mesh_dir = $s3_model_dir."mesh";
         $s3_cover_dir = $s3_model_dir."cover";
+        $s3_coverHalf_dir = $s3_model_dir."cover_half";
 
         $textureFile = $request->file('texture_url');
         $meshFile = $request->file('mesh_url');
@@ -708,14 +709,14 @@ class ApiController extends Controller
         if ($coverFile->isValid()) 
             $coverFile->storeAs($s3_cover_dir, $s3_cover_fileName, 's3'); 
         if ($coverHalfFile->isValid()) 
-            $coverHalfFile->storeAs($s3_cover_dir, $s3_coverHalf_fileName, 's3'); 
+            $coverHalfFile->storeAs($s3_coverHalf_dir, $s3_coverHalf_fileName, 's3'); 
 
         $model = new models();
         $model->user_id = $user->id;
         $model->texture_url = $s3_texture_dir.'/'.$s3_texture_fileName;
         $model->mesh_url = $s3_mesh_dir.'/'.$s3_mesh_fileName;
         $model->cover_url = $s3_cover_dir.'/'.$s3_cover_fileName;
-        $model->cover_half_url = $s3_cover_dir.'/'.$s3_coverHalf_fileName;
+        $model->cover_half_url = $s3_coverHalf_dir.'/'.$s3_coverHalf_fileName;
 
         $model->save();
 
@@ -856,7 +857,9 @@ class ApiController extends Controller
             $getBC_Result['success']['message']["model"]["mesh"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["mesh"], now()->addHour());
         if ($getBC_Result['success']['message']["model"]["cover"] != '')
             $getBC_Result['success']['message']["model"]["cover"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["cover"], now()->addHour());
-        
+        if ($getBC_Result['success']['message']["model"]["cover_half"] != '')
+            $getBC_Result['success']['message']["model"]["cover_half"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["cover_half"], now()->addHour());
+    
         foreach($social_array as $name => $social)
         {
             if($social != null)
