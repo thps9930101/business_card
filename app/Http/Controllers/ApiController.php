@@ -129,6 +129,16 @@ class ApiController extends Controller
 
         $credentials = $request->only('account', 'password');
         $company = companies::where('account', $request->account)->first();
+
+        if($company->password != $request->passowrd)
+        {
+            return [
+                'success' => false,
+                'message' => __('auth.failed'),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+        
         if ($company) {
             return [
                 'success' => true,
