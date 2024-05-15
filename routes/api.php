@@ -71,6 +71,7 @@ Route::post('/guestLogin',[UserController::class, 'guestLogin']);
 Route::post('/test',[ApiController::class, 'test']);
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::post('/gettBC',[ApiController::class, 'gettBC']);
     
     Route::post('/addBC',[ApiController::class, 'addBC']);
     Route::post('/editBC',[ApiController::class, 'editBC']);
