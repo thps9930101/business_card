@@ -498,6 +498,7 @@ class ApiController extends Controller
 
         $card->user_id = $user->id;
         $card->public_id = $user->id.Str::random(20);
+        $card->is_actived = true;
     
         $card->save();
 
@@ -831,7 +832,6 @@ class ApiController extends Controller
         }
         else
         {
-            Log::info("計算扣點");
             if (!$card->is_actived)
             {
                 return [
@@ -839,6 +839,28 @@ class ApiController extends Controller
                     'message' => "該名片並未開放"
                 ];
             }
+
+            $user = User::where('id', $card->user_id);
+            if (!user) {
+                return [
+                    'success' => false,
+                    'message' => "查無該名片資料"
+                ];
+            }
+
+            if($user->download_time <= 0)
+            {
+                return [
+                    'success' => false,
+                    'message' => "該名片並未開放"
+                ];
+            }
+
+            $user->download_time -= 1;
+            $user->save();
+
+            $card->download_time += 1;
+            $card->save();
         }
 
         $model = models::where('id',$card->model_id)->first();
@@ -1148,19 +1170,15 @@ class ApiController extends Controller
         if($user == null)
         {
             return[
-                "failed" => [
-                    'success' => false,
-                    'message' => "No Login"
-                ]
+                'success' => false,
+                'message' => "No Login"
             ];
         }
         if($user->download_time <= 0)
         {
             return[
-                "failed" => [
-                    'success' => false,
-                    'message' => "No download time"
-                ]
+                'success' => false,
+                'message' => "No download time"
             ];
         }
         
@@ -1168,11 +1186,9 @@ class ApiController extends Controller
         $user->save();
 
         return[   
-            "success" => [
-                'success' => true,
-                'message' => [
-                    "download_time"=>  $user->download_time
-                ]
+            'success' => true,
+            'message' => [
+                "download_time"=>  $user->download_time
             ]
         ];
     }
