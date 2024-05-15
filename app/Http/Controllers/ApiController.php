@@ -477,6 +477,7 @@ class ApiController extends Controller
             
             $newData = [
                 "id"   => $BC_card->id,
+                "public_id"   => $BC_card->public_id,
                 "name" => $BC_card->edit_name,
                 "releaseName" => $BC_card->release_name,
                 "update_at" => $BC_card->update_at,
