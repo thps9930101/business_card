@@ -29,12 +29,17 @@ Route::middleware('auth')->group(function () {
 }); */
 
 Route::get('/', function () {
+    return view('server.index');
     // return redirect('/admin/login');
-    return redirect('server.index');
+    // return redirect('server.index');
 });
 
 Route::get('/test', function () {
     return view('welcome');
+});
+
+Route::get('/t', function () {
+    return view('server.index');
 });
 
 Route::get('login',function(){

@@ -77,7 +77,24 @@
 		echo '	<title>' . $name . '</title>';
 		echo "\n";
 	?>
-	<link href="video-js.min.css?decache=3" rel="stylesheet">
+    <link href="{{ asset('css/video-js.min.css?decache=3') }}" rel="stylesheet">
+    <!-- <link href="{{ asset('js/jquery-3.4.1.min.js') }}"></script> -->
+	<script type="text/javascript" src="{{ asset('js/jquery-3.4.1.min.js') }}"></script>
+
+    <script type="text/javascript" src="{{ asset('js/video.min.js?decache=3') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/progressbar.min.js') }}"></script>
+
+    <script type="text/javascript" src="{{ asset('js/three/three.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/three/BufferGeometryUtils.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/three/AjaxTextureLoader.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/three/three.doc.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/three/fflate.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/three/FBXLoader.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/three/OBJLoader.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/three/SkeletonUtils.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/three/OrbitControls.js') }}"></script>
+    <!-- <script type="text/javascript" src="{{ asset('js/jquery-3.4.1.min.js') }}" rel="stylesheet"> -->
+	<!-- <link href="video-js.min.css?decache=3" rel="stylesheet"> -->
 	<style>
 		@charset "UTF-8";
 		* {
@@ -343,19 +360,19 @@
 	<script>
 		var vConsole = new window.VConsole();
 	</script>-->
-	<script src="jquery-3.4.1.min.js"></script>
-	<script src="video.min.js?decache=3"></script>
-	<script src="progressbar.min.js"></script>
-	<script src="three/three.min.js"></script>
-	<script src="three/BufferGeometryUtils.js"></script>
-	<script src="three/AjaxTextureLoader.js"></script>
-	<script src="three/three.doc.js"></script>
-	<script src="three/fflate.min.js"></script>
-	<script src="three/FBXLoader.js"></script>
-	<script src="three/OBJLoader.js"></script>
+	<!-- <script src="jquery-3.4.1.min.js"></script> -->
+	<!-- <script src="video.min.js?decache=3"></script> -->
+	<!-- <script src="progressbar.min.js"></script> -->
+	<!-- <script src="three/three.min.js"></script> -->
+	<!-- <script src="three/BufferGeometryUtils.js"></script> -->
+	<!-- <script src="three/AjaxTextureLoader.js"></script> -->
+	<!-- <script src="three/three.doc.js"></script> -->
+	<!-- <script src="three/fflate.min.js"></script> -->
+	<!-- <script src="three/FBXLoader.js"></script> -->
+	<!-- <script src="three/OBJLoader.js"></script> -->
 	<!--<script src="three/GLTFLoader.js"></script>-->
-	<script src="three/SkeletonUtils.js"></script>
-	<script src="three/OrbitControls.js"></script>
+	<!-- <script src="three/SkeletonUtils.js"></script> -->
+	<!-- <script src="three/OrbitControls.js"></script> -->
 	<script>
 		var urlData = {};
 		(function() {
