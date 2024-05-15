@@ -87,6 +87,11 @@ class ApiController extends Controller
 
         if ($result = Auth::attempt($credentials)) {
             $auth = Auth::user();
+            $token = $auth->createToken($request->account)->plainTextToken;
+
+            $user = User::Where('id', $auth->id)->first();
+            $user->remember_token = $token;
+            $user->save();
 
             return [
                 'success' => true,
@@ -94,7 +99,7 @@ class ApiController extends Controller
                     'id' =>  $auth->id,
                     'name' =>  $auth->name,
                     'email' =>  $auth->email,
-                    'token'=>  $auth->createToken($request->account)->plainTextToken
+                    'token'=>  $token
                 ]
             ];
         } else {
@@ -784,111 +789,6 @@ class ApiController extends Controller
          ];
     }
 
-    public function gettBC(Request $request){
-
-        $BC_id = $request->input('id');
-        $card = null;
-        if (!$BC_id) {
-            $BC_id = $request->input('public_id');
-            $card = cards::where('public_id', $BC_id)->first();
-        }
-        else
-            $card = cards::where('id',$BC_id)->first();
-
-        $model = models::where('id',$card->model_id)->first();
-        $card_front = materials::where('id',$card->card_front_id)->first();
-        $card_back = materials::where('id',$card->card_back_id)->first();
-
-        $getBC_Result = [
-            'bearerToken_requery' => false,
-            'input_param' => [
-                'id' => 'bc_id'
-            ],
-            "success" => [
-                'success' => true,
-                'message' => [
-                    
-                    "edit_name"=> $card->edit_name,
-                    "release_name"=> $card->release_name,
-                    "card_front_id" => $card_front->id ?? null,
-                    "card_back_id" => $card_back->id ?? null,
-                    "card_front" => $card_front->card_url ?? '',
-                    "card_back" => $card_back->card_url ?? '',
-                    "is_actived" => $card->is_actived,
-
-                    // "address"=> $card->address,
-                    // "fax"=> $card->fax,
-                    // "telegram" =>$card->telegram,
-                    // "whatsapp" =>$card->whatsapp,
-                    // "fb" => $card->facebook,
-                    // "ig" => $card->instagram,
-                    // "x"  => $card->X,
-                    // "web"=> $card->web,
-                    // "line" => $card->line,
-
-                    "model" => [
-                        "id" => $model->id ?? null,
-                        "texture" => $model->texture_url ?? '',
-                        "mesh" => $model->mesh_url ?? '',
-                        "cover" => $model->cover_url ?? '',
-                        "cover_half" => $model->cover_half_url ?? ''
-                    ],
-
-                ]
-            ],
-            "failed" => [
-                'success' => false,
-                'message' => "getBC error"
-            ],
-        ];
-
-        $social_array = [
-            'fax' => $card->fax,
-            'address' => $card->address,
-            'telegram' => $card->telegram,
-            'whatsapp' => $card->whatsapp,
-            'instagram' => $card->instagram,
-            'facebook' => $card->facebook,
-            'X' => $card->X,
-            'web' => $card->web,
-            'line' =>$card->line,
-            'name' => $card->name,
-            'email' => $card->email,
-            'phone' => $card->phone
-        ];
-        
-        if ($getBC_Result['success']['message']["card_front"] != '')
-            $getBC_Result['success']['message']["card_front"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["card_front"], now()->addHour());
-        if ($getBC_Result['success']['message']["card_back"] != '')
-            $getBC_Result['success']['message']["card_back"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["card_back"], now()->addHour());
-
-        if ($getBC_Result['success']['message']["model"]["texture"] != '')
-            $getBC_Result['success']['message']["model"]["texture"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["texture"], now()->addHour());
-        if ($getBC_Result['success']['message']["model"]["mesh"] != '')
-            $getBC_Result['success']['message']["model"]["mesh"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["mesh"], now()->addHour());
-        if ($getBC_Result['success']['message']["model"]["cover"] != '')
-            $getBC_Result['success']['message']["model"]["cover"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["cover"], now()->addHour());
-        if ($getBC_Result['success']['message']["model"]["cover_half"] != '')
-            $getBC_Result['success']['message']["model"]["cover_half"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["cover_half"], now()->addHour());
-    
-        foreach($social_array as $name => $social)
-        {
-            if($social != null)
-                $getBC_Result['success']['message'][$name] = $social;
-
-        }
-
-        $user = Auth::user();
-        if (!$user) {
-            // 扣 Download 次數
-            Log::info("no token");
-        }
-
-        return [
-            $getBC_Result['success']
-        ];
-    }
-
     public function getBC(Request $request){
 
         $BC_id = $request->input('id');
@@ -900,11 +800,51 @@ class ApiController extends Controller
         else
             $card = cards::where('id',$BC_id)->first();
 
+        if (!$card) {
+            return [
+                'success' => false,
+                'message' => "查無此名片資料"
+            ];
+        }
+        
+        if ($request->token)
+        {
+            $user = User::where('remember_token', $request->token);
+            if ($user)
+            {
+                if ($user->id != $card->user_id)
+                {
+                    // 傳 token 但是不是自己的 token 拒絕存取
+                    return [
+                        'success' => false,
+                        'message' => "無法取得登入資訊請，重新登入"
+                    ];
+                }
+            }
+            else
+            {
+                return [
+                    'success' => false,
+                    'message' => "無法取得登入資訊請，重新登入"
+                ];
+            }
+        }
+        else
+        {
+            Log::info("計算扣點");
+            if (!$card->is_actived)
+            {
+                return [
+                    'success' => false,
+                    'message' => "該名片並未開放"
+                ];
+            }
+        }
+
         $model = models::where('id',$card->model_id)->first();
         $card_front = materials::where('id',$card->card_front_id)->first();
         $card_back = materials::where('id',$card->card_back_id)->first();
 
-        
         
         $getBC_Result = [
             'bearerToken_requery' => false,
