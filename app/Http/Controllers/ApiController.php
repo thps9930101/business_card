@@ -810,7 +810,7 @@ class ApiController extends Controller
         
         if ($request->token)
         {
-            $user = User::where('remember_token', $request->token);
+            $user = User::where('remember_token', $request->token)->first();
             if ($user)
             {
                 if ($user->id != $card->user_id)
