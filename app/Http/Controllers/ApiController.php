@@ -849,6 +849,7 @@ class ApiController extends Controller
             'address' => $card->address,
             'telegram' => $card->telegram,
             'whatsapp' => $card->whatsapp,
+            'instagram' => $card->instagram,
             'facebook' => $card->facebook,
             'X' => $card->X,
             'web' => $card->web,
