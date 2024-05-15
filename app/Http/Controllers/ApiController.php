@@ -841,7 +841,7 @@ class ApiController extends Controller
             }
 
             $user = User::where('id', $card->user_id);
-            if (!user) {
+            if (!$user) {
                 return [
                     'success' => false,
                     'message' => "查無該名片資料"
