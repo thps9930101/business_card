@@ -840,7 +840,7 @@ class ApiController extends Controller
                 ];
             }
 
-            $user = User::where('id', $card->user_id);
+            $user = User::where('id', $card->user_id)->first();
             if (!$user) {
                 return [
                     'success' => false,
