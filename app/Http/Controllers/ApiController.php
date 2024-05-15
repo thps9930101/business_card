@@ -779,10 +779,14 @@ class ApiController extends Controller
     public function getBC(Request $request){
 
         $BC_id = $request->input('id');
-        if (!$BC_id)
+        $card = null;
+        if (!$BC_id) {
             $BC_id = $request->input('public_id');
-
-        $card = cards::where('id',$BC_id)->first();
+            $card = cards::where('public_id', $BC_id)->first();
+        }
+        else
+            $card = cards::where('id',$BC_id)->first();
+        
         $model = models::where('id',$card->model_id)->first();
         $card_front = materials::where('id',$card->card_front_id)->first();
         $card_back = materials::where('id',$card->card_back_id)->first();
