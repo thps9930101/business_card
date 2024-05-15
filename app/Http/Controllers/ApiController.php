@@ -511,7 +511,8 @@ class ApiController extends Controller
             "success" => [
                 'success' => true,
                 'message' => [
-                    "id" => $card->id
+                    "id" => $card->id,
+                    'public_id' => $card->public_id
                 ]
             ],
             "failed" => [
