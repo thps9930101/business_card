@@ -810,6 +810,7 @@ class ApiController extends Controller
             ];
         }
         
+        $isRoot = false;
         if ($request->token)
         {
             $user = User::where('remember_token', $request->token)->first();
@@ -823,6 +824,7 @@ class ApiController extends Controller
                         'message' => "無法取得登入資訊請，重新登入"
                     ];
                 }
+                $isRoot = true;
             }
             else
             {
@@ -948,6 +950,9 @@ class ApiController extends Controller
                 $getBC_Result['success']['message'][$name] = $social;
 
         }
+
+        if ($isRoot)
+            $getBC_Result['success']['message']["download_times"] = $card->download_time;
 
         return [
             $getBC_Result['success']
