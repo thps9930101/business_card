@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Company Register</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js" integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<body class="h-dvh w-full bg-gradient-to-tr from-blue-200 via-indigo-200 to-pink-200 flex items-center justify-center">
+  <div>
+    <div class="flex flex-col justify-center px-6 py-12 lg:px-8 w-[80%] min-w-[300px] w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-lg">
+      <form id="loginForm" class="space-y-4">
+        <div class="text-center">
+          <img src="Logo01-1.png" style="width: 100%;" class="mb-5">
+        </div>
+        <div>
+          <label for="username" class="input_front">暱稱:</label>
+          <input type="text" id="username" name="username" class="form-input" placeholder="請輸入名稱">
+        </div>
+        <div>
+          <label for="account" class="input_front">帳號:</label>
+          <input type="text" id="account" name="account" class="form-input" placeholder="請輸入帳號">
+        </div>
+
+        <div>
+          <label for="password" class="input_front">密碼:</label>
+          <input type="password" id="password" name="password" class="form-input" placeholder="請輸入密碼">
+        </div>
+
+        <div>
+          <label for="checkpassword" class="input_front">確認密碼:</label>
+          <input type="password" id="checkpassword" name="checkpassword" class="form-input" placeholder="請輸入確認密碼">
+        </div>
+
+        <div class="flex justify-center">
+          <button type="button" class="flex h-12 w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-2xl font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            onclick="Register()">送出</button>
+        </div>
+
+        <p class="mt-10 text-xl font-light text-gray-500 dark:text-gray-400 text-left	">
+          已經有帳戶了嗎? <a href="login.html" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 dark:text-cyan-600 dark:hover:text-cyan-500">登入</a>
+        </p>
+      </form>
+    </div>
+    <div id="loader" class="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50">
+      <div class="flex justify-center items-center mt-[50vh]">
+        <div class="fas fa-circle-notch fa-spin fa-5x text-violet-600"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var loader = document.getElementById("loader");
+    function loader_show() {
+        loader.classList.remove('hidden')
+    }
+
+    function loader_hide() {
+        loader.classList.add('hidden')
+    }
+
+    loader_hide();
+
+    function Register() {
+      const username = document.getElementById('username');
+      const account = document.getElementById('account');
+      const password = document.getElementById('password');
+      const checkpassword = document.getElementById('checkpassword');
+
+      if (username.value == "" || account.value == "" || password.value == "" || checkpassword.value == "") {
+        alert("請輸入全部內容");
+        return;
+      }
+
+      if (password.value != checkpassword.value) {
+        password.value = '';
+        checkpassword.value = '';
+        alert("確認密碼不一致!");
+        return;
+      }
+      loader_show();
+
+      axios.post('http://businesscard2.lightmatrix3d.com/api/company_register', {
+          name: username.value,
+          account: account.value,
+          password: password.value,
+        }, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        .then(response => {
+          loader_hide();
+
+          if (!response.data.success) {
+            checkpassword.value = "";
+            password.value = "";
+            alert("註冊失敗：" + response.data.message);
+          }
+          else {
+            alert("註冊成功，請前往登入頁面進行登入");
+            window.location.href = 'login.html';
+
+          }
+        })
+        .catch(error => {
+          loader_hide();
+          console.error('Error fetching data:', error);
+          account.value = "";
+          password.value = "";
+          alert("註冊失敗：" + error);
+
+        });
+    }
+  </script>
+
+  <style>
+    h3 {
+      margin: 40px 0 0;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      display: inline-block;
+      margin: 0 10px;
+    }
+
+    a {
+      color: #42b983;
+    }
+
+    .input_front {
+      color: black;
+      display: block;
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-align: left;
+      /* margin-left: 2rem; */
+    }
+
+    .login-container {
+      background-color: rgba(229, 231, 235, 0.8);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      height: 96%;
+      margin: auto;
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .form-input {
+      color: black;
+      width: 100%;
+      font-size: 1.2rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      padding: 0.8rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .form-input:focus {
+      border-color: #2563eb;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      margin: auto;
+      background-color: #4b5563;
+      color: #ffffff;
+      font-size: 1.5rem;
+      padding: 1rem 2rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      border: 0;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .button:hover {
+      background-color: #6b7280;
+    }
+  </style>
+</body>
+
+</html>
