@@ -345,7 +345,8 @@ class ApiController extends Controller
             'account' => $request->account,
             'email' => $request->email,
             'name' => $request->name,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'download_time' => 9999
         ]);
 
         if($user ){
