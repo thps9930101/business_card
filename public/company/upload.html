@@ -310,7 +310,7 @@
 
       const uploadbtn = document.getElementById('uploadBtn');
 
-      const meshLabel = document.getElementById('coverhalfLabel');
+      const coverhalfLabel = document.getElementById('coverhalfLabel');
 
       fileInput.addEventListener('change', function() {
           const selectedFile = this.files[0];
@@ -326,8 +326,8 @@
             return;
           }
           fileInput.disabled = true;
-          meshLabel.style.backgroundColor = '#718096';
-          meshLabel.innerText = fileName;
+          coverhalfLabel.style.backgroundColor = '#718096';
+          coverhalfLabel.innerText = fileName;
 
           if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
           {
@@ -360,7 +360,7 @@
       const coverfile = coverInput.files[0];
 
       const coverhalfInput = document.getElementById('coverhalfToUpload');
-      const coverhalffile = coverInput.files[0];
+      const coverhalffile = coverhalfInput.files[0];
 
       if(meshInput.files.length === 0&&textureInput.files.length === 0&&coverInput.files.length === 0&&coverhalfInput.files.length === 0)
       {
