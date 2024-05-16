@@ -14,7 +14,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-    <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js" integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
     #app {
@@ -156,9 +155,9 @@
       </form>
     </div>
   </div>
-  <!-- <div id="logoutButtonContainer">
-    <button id="logoutButton" class="logoutButton" onclick="Logout()"></button>
-  </div> -->
+  <div id="logoutButtonContainer" class="absolute top-5 right-5 text-2xl">
+    <button id="logoutButton" class="p-2" onclick="Logout()"><i class="fa-solid fa-right-to-bracket"></i></button>
+  </div>
     <div id="loader" class="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50">
       <div class="flex justify-center items-center mt-[50vh]">
         <div class="fas fa-circle-notch fa-spin fa-5x text-violet-600"></div>
@@ -174,7 +173,25 @@
         loader.classList.add('hidden')
     }
 
-    loader_hide();
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    window.onload = () => {
+          
+      var cookieExists = getCookie('account');
+      if (!cookieExists) {
+          window.location.href = 'login.html';
+          alert("請先登入");
+      }
+      const uploadbtn = document.getElementById('uploadBtn');
+      uploadbtn.disabled = true;
+
+      loader_hide();
+    }
+    
 
     function getMesh() {
       // Your JavaScript for getting mesh goes here
@@ -381,11 +398,10 @@
       });
     }
 
-    function toRegister() {
-      // Your JavaScript for logout goes here
-      window.location.href = 'http://192.168.0.112:8080/Register';
+    function Logout() {
+      document.cookie = 'account=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; ';
+      window.location.href = 'login.html';
     }
-    
   </script>
 </body>
 
