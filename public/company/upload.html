@@ -389,7 +389,10 @@
           window.location.href = 'upload.html';
 
         }
-        console.log(response.data);
+        else
+        {
+          alert(response.message);
+        }
         loader_hide();
       })
       .catch(error => {
