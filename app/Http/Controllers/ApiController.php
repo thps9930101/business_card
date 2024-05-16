@@ -710,6 +710,13 @@ class ApiController extends Controller
         }
 
         $user = User::where('account', $request->user_account)->first();
+        if (!$user) {
+            return [
+                'success' => false,
+                'message' => "查無此帳號，請確認帳號是否輸入正確",
+            ];
+        }
+
         $id = uniqid();
         $s3_model_dir = env('APP_ENV') . "/".$user->id."/"."model"."/".$id."/"; // 修改这里的设定
 
