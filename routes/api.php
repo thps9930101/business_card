@@ -31,6 +31,7 @@ Route::post('/testBC',[ApiController::class, 'testBC']);
 
 // api func
 Route::post('/getBC',[ApiController::class, 'getBC']);
+Route::post('/getBC_info',[ApiController::class, 'getBC_info']);
 Route::post('/addModels',[ApiController::class, 'addModels']);
 
 //company

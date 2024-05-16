@@ -801,6 +801,46 @@ class ApiController extends Controller
          ];
     }
 
+    public function getBC_info(Request $request) {
+        $BC_id = $request->input('id');
+        $card = null;
+        if (!$BC_id) {
+            $BC_id = $request->input('public_id');
+            $card = cards::where('public_id', $BC_id)->first();
+        }
+        else
+            $card = cards::where('id',$BC_id)->first();
+
+        if (!$card) {
+            return [
+                'success' => false,
+                'message' => "查無此名片資料"
+            ];
+        }
+
+        if (!$card->is_actived)
+        {
+            return [
+                'success' => false,
+                'message' => "該名片並未開放"
+            ];
+        }
+
+        $model = models::where('id',$card->model_id)->first();
+        $result = [
+            'success' => true,
+            'message' => [
+                "release_name"=> $card->release_name,
+                "is_actived" => $card->is_actived,
+                "model" => [
+                    "cover_half" => $model->cover_half_url ?? ''
+                ],
+            ]
+        ];
+
+        return $result;
+    }
+
     public function getBC(Request $request){
 
         $BC_id = $request->input('id');
