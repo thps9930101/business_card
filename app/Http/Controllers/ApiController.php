@@ -845,7 +845,8 @@ class ApiController extends Controller
                 ],
             ]
         ];
-
+        if ($result['message']['model']['cover_half'] == '')
+            $result['message']['model']['cover_half'] = Storage::disk('s3')->temporaryUrl($getBC_Result['message']["model"]["cover_half"], now()->addHour());
         return $result;
     }
 
