@@ -191,114 +191,229 @@
 
       loader_hide();
     }
-    
+
+    document.getElementById('meshToUpload').addEventListener('change', function() {
+        const meshfile = this.files[0];
+        if (meshfile && meshfile.size > 30 * 1024 * 1024) { // 30MB
+            alert('模型大小最大限制為: 30MB');
+            this.value = ''; 
+            return;
+        }
+        
+        const uploadbtn = document.getElementById('uploadBtn');
+        const meshLabel = document.getElementById('meshLabel');
+
+        const fileInput = document.getElementById('meshToUpload');
+        const fileInput2 = document.getElementById('textureToUpload');
+        const fileInput3 = document.getElementById('coverToUpload');
+        const fileInput4 = document.getElementById('coverhalfToUpload');
+
+        const selectedFile = this.files[0];
+        const fileName = selectedFile.name;
+        var fileType = fileName.split('.').pop().toLowerCase();
+
+        if (fileType === 'obj') {
+          console.log(fileName);
+        } else {
+          fileInput.value = ''; 
+          alert('請選擇 OBJ 文件！');
+          return;
+        }
+
+        fileInput.disabled = true;
+        meshLabel.style.backgroundColor = '#718096';
+        meshLabel.innerText = fileName;
+
+        if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
+        {
+          uploadbtn.disabled = false;
+          uploadbtn.style.backgroundColor = '#4f46e5';
+        }
+    });
+
+    document.getElementById('textureToUpload').addEventListener('change', function() {
+        const texturefile = this.files[0];
+        if (texturefile && texturefile.size > 30 * 1024 * 1024) { 
+            alert('貼圖大小最大限制為: 30MB');
+            this.value = ''; 
+            return;
+        }
+
+        const fileInput = document.getElementById('textureToUpload');
+        const fileInput2 = document.getElementById('meshToUpload');
+        const fileInput3 = document.getElementById('coverToUpload');
+        const fileInput4 = document.getElementById('coverhalfToUpload');
+
+        const meshLabel = document.getElementById('textureLabel');
+        const selectedFile = this.files[0];
+        const fileName = selectedFile.name;
+        const fileType = selectedFile.type.toLowerCase();
+
+        if (!['image/jpeg', 'image/png', 'image/gif'].includes(fileType)) {
+          alert('請選擇 JPEG、PNG 或 GIF 格式的團片文件！');
+          fileInput.value = '';
+          return;
+        }
+
+        fileInput.disabled = true;
+        meshLabel.style.backgroundColor = '#718096';
+        meshLabel.innerText = fileName;
+
+        if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
+        {
+          uploadbtn.disabled = false;
+          uploadbtn.style.backgroundColor = '#4f46e5';
+        }
+    });
+
+    document.getElementById('coverToUpload').addEventListener('change', function() {
+        const coverfile = this.files[0];
+        if (coverfile && coverfile.size > 10 * 1024 * 1024) {
+            alert('全身圖大小最大限制為: 10MB');
+            this.value = ''; 
+            return;
+        }
+        const fileInput = document.getElementById('coverToUpload');
+        const fileInput2 = document.getElementById('textureToUpload');
+        const fileInput3 = document.getElementById('meshToUpload');
+        const fileInput4 = document.getElementById('coverhalfToUpload');
+
+        const uploadbtn = document.getElementById('uploadBtn');
+
+        const meshLabel = document.getElementById('coverLabel');
+
+        const selectedFile = this.files[0];
+        const fileName = selectedFile.name;
+        const fileType = selectedFile.type.toLowerCase();
+
+        if (!['image/jpeg', 'image/png', 'image/gif'].includes(fileType)) {
+          alert('請選擇 JPEG、PNG 或 GIF 格式的團片文件！');
+          fileInput.value = '';
+          return;
+        }
+
+        fileInput.disabled = true;
+        meshLabel.style.backgroundColor = '#718096';
+        meshLabel.innerText = fileName;
+
+        if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
+        {
+          uploadbtn.disabled = false;
+          uploadbtn.style.backgroundColor = '#4f46e5';
+        }
+    });
+
+    document.getElementById('coverhalfToUpload').addEventListener('change', function() {
+        const coverhalffile = this.files[0];
+        if (coverhalffile && coverhalffile.size > 10 * 1024 * 1024) { // 30MB
+            alert('半身圖大小最大限制為: 10MB');
+            this.value = ''; 
+            return;
+        }
+        const fileInput = document.getElementById('coverhalfToUpload');
+        const fileInput2 = document.getElementById('textureToUpload');
+        const fileInput3 = document.getElementById('meshToUpload');
+        const fileInput4 = document.getElementById('coverToUpload');
+
+        const uploadbtn = document.getElementById('uploadBtn');
+
+        const coverhalfLabel = document.getElementById('coverhalfLabel');
+
+        const selectedFile = this.files[0];
+        const fileName = selectedFile.name;
+        const fileType = selectedFile.type.toLowerCase();
+
+        if (!['image/jpeg', 'image/png', 'image/gif'].includes(fileType)) {
+          alert('請選擇 JPEG、PNG 或 GIF 格式的團片文件！');
+          fileInput.value = '';
+          return;
+        }
+        
+        fileInput.disabled = true;
+        coverhalfLabel.style.backgroundColor = '#718096';
+        coverhalfLabel.innerText = fileName;
+
+        if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
+        {
+          uploadbtn.disabled = false;
+          uploadbtn.style.backgroundColor = '#4f46e5';
+        }
+    });
+
 
     function getMesh() {
-      // Your JavaScript for getting mesh goes here
-      const fileInput = document.getElementById('meshToUpload');
-      const fileInput2 = document.getElementById('textureToUpload');
-      const fileInput3 = document.getElementById('coverToUpload');
-      const fileInput4 = document.getElementById('coverhalfToUpload');
-
-      const uploadbtn = document.getElementById('uploadBtn');
-
-      const meshLabel = document.getElementById('meshLabel');
-
-      fileInput.addEventListener('change', function() {
-          const selectedFile = this.files[0];
-          const fileName = selectedFile.name;
-          var fileType = fileName.split('.').pop().toLowerCase();
-
-          if (fileType === 'obj') {
-            console.log(fileName);
-          } else {
-            fileInput.value = ''; 
-            alert('請選擇 OBJ 文件！');
-            return;
-          }
-
-          fileInput.disabled = true;
-          meshLabel.style.backgroundColor = '#718096';
-          meshLabel.innerText = fileName;
-
-          if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
-          {
-            uploadbtn.disabled = false;
-            uploadbtn.style.backgroundColor = '#4f46e5';
-          }
-      });
     }
 
     function getTexture() {
       // Your JavaScript for getting texture goes here
-       const fileInput = document.getElementById('textureToUpload');
-      const fileInput2 = document.getElementById('meshToUpload');
-      const fileInput3 = document.getElementById('coverToUpload');
-      const fileInput4 = document.getElementById('coverhalfToUpload');
+      //  const fileInput = document.getElementById('textureToUpload');
+      // const fileInput2 = document.getElementById('meshToUpload');
+      // const fileInput3 = document.getElementById('coverToUpload');
+      // const fileInput4 = document.getElementById('coverhalfToUpload');
 
-      const uploadbtn = document.getElementById('uploadBtn');
+      // const uploadbtn = document.getElementById('uploadBtn');
 
-      const meshLabel = document.getElementById('textureLabel');
+      // const meshLabel = document.getElementById('textureLabel');
 
-      fileInput.addEventListener('change', function() {
-          const selectedFile = this.files[0];
-          const fileName = selectedFile.name;
-          const fileType = selectedFile.type.toLowerCase();
+      // fileInput.addEventListener('change', function() {
+      //     const selectedFile = this.files[0];
+      //     const fileName = selectedFile.name;
+      //     const fileType = selectedFile.type.toLowerCase();
 
 
-          // 检查文件类型是否符合要求
-          if (!['image/jpeg', 'image/png', 'image/gif'].includes(fileType)) {
-            alert('請選擇 JPEG、PNG 或 GIF 格式的團片文件！');
-            // 清空文件选择框中的文件
-            fileInput.value = '';
-            return;
-          }
-          fileInput.disabled = true;
-          meshLabel.style.backgroundColor = '#718096';
-          meshLabel.innerText = fileName;
+      //     // 检查文件类型是否符合要求
+      //     if (!['image/jpeg', 'image/png', 'image/gif'].includes(fileType)) {
+      //       alert('請選擇 JPEG、PNG 或 GIF 格式的團片文件！');
+      //       // 清空文件选择框中的文件
+      //       fileInput.value = '';
+      //       return;
+      //     }
+      //     fileInput.disabled = true;
+      //     meshLabel.style.backgroundColor = '#718096';
+      //     meshLabel.innerText = fileName;
 
-          if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
-          {
-            uploadbtn.disabled = false;
-            uploadbtn.style.backgroundColor = '#4f46e5';
-          }
-      });
+      //     if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
+      //     {
+      //       uploadbtn.disabled = false;
+      //       uploadbtn.style.backgroundColor = '#4f46e5';
+      //     }
+      // });
     }
 
     function getCover() {
       // Your JavaScript for getting cover goes here
-      const fileInput = document.getElementById('coverToUpload');
-      const fileInput2 = document.getElementById('textureToUpload');
-      const fileInput3 = document.getElementById('meshToUpload');
-      const fileInput4 = document.getElementById('coverhalfToUpload');
+      // const fileInput = document.getElementById('coverToUpload');
+      // const fileInput2 = document.getElementById('textureToUpload');
+      // const fileInput3 = document.getElementById('meshToUpload');
+      // const fileInput4 = document.getElementById('coverhalfToUpload');
 
-      const uploadbtn = document.getElementById('uploadBtn');
+      // const uploadbtn = document.getElementById('uploadBtn');
 
-      const meshLabel = document.getElementById('coverLabel');
+      // const meshLabel = document.getElementById('coverLabel');
 
-      fileInput.addEventListener('change', function() {
-          const selectedFile = this.files[0];
-          const fileName = selectedFile.name;
-          const fileType = selectedFile.type.toLowerCase();
+      // fileInput.addEventListener('change', function() {
+      //     const selectedFile = this.files[0];
+      //     const fileName = selectedFile.name;
+      //     const fileType = selectedFile.type.toLowerCase();
 
 
-          // 检查文件类型是否符合要求
-          if (!['image/jpeg', 'image/png', 'image/gif'].includes(fileType)) {
-            alert('請選擇 JPEG、PNG 或 GIF 格式的團片文件！');
-            // 清空文件选择框中的文件
-            fileInput.value = '';
-            return;
-          }
-          fileInput.disabled = true;
-          meshLabel.style.backgroundColor = '#718096';
-          meshLabel.innerText = fileName;
+      //     // 检查文件类型是否符合要求
+      //     if (!['image/jpeg', 'image/png', 'image/gif'].includes(fileType)) {
+      //       alert('請選擇 JPEG、PNG 或 GIF 格式的團片文件！');
+      //       // 清空文件选择框中的文件
+      //       fileInput.value = '';
+      //       return;
+      //     }
+      //     fileInput.disabled = true;
+      //     meshLabel.style.backgroundColor = '#718096';
+      //     meshLabel.innerText = fileName;
 
-          if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
-          {
-            uploadbtn.disabled = false;
-            uploadbtn.style.backgroundColor = '#4f46e5';
-          }
-      });
+      //     if(this.files.length>0 && fileInput2.files.length>0&& fileInput3.files.length>0&& fileInput4.files.length>0)
+      //     {
+      //       uploadbtn.disabled = false;
+      //       uploadbtn.style.backgroundColor = '#4f46e5';
+      //     }
+      // });
     }
 
     function getCoverHalf() {
