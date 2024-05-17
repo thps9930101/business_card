@@ -46,13 +46,13 @@
 	}
 	$server = true;
 	$GLOBALS["server"] = true;
-	
+
 	function import($path) {
-		if($GLOBALS["server"]) return '<script type="text/javascript" src="{{ asset(' . "'js/" . $path . "'" . ') }}"></script>';
-		return '<script src="' . $path . '"></script>';
+		if($GLOBALS["server"]) return '<script src="' . asset('js/' . $path) . '"></script>';
+		return '<script src="' .  $path . '"></script>';
 	}
 	function importCSS($path) {
-		if($GLOBALS["server"]) return '<link href="{{ asset(' . "'css/" . $path . "'" . ') }}" rel="stylesheet">';
+		if($GLOBALS["server"]) return '<link href="' .asset('css/' . $path) . '" rel="stylesheet">';
 		return '<link href="' . $path . '" rel="stylesheet">';
 	}
 ?>
