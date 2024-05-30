@@ -1660,7 +1660,7 @@
         // });
 
         // localStorage.setItem("company_token", res.message.token);
-        const res = await ('company_CheckLevel', {
+        const res = await post('company_CheckLevel', {
             token: localStorage.getItem("company_token")
         })
         if (res.success)
