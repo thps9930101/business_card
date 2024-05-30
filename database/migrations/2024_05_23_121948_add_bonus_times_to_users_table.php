@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('price_menu', function (Blueprint $table) {
-            $table->id();
-            $table->integer('times');
-            $table->integer('price');
-            $table->boolean('is_actived')->default(0);
+        Schema::table('users', function (Blueprint $table) {
+            $table->integer('bonus_times')->after('download_time')->default(0); 
+
+            //
         });
     }
 
@@ -24,6 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('price_menu');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('bonus_times');
+            //
+        });
     }
 };

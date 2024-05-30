@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('price_menu', function (Blueprint $table) {
-            $table->id();
-            $table->integer('times');
-            $table->integer('price');
-            $table->boolean('is_actived')->default(0);
+        Schema::table('companies', function (Blueprint $table) {
+            //
+            $table->renameColumn('leavel', 'level');
+
         });
     }
 
@@ -24,6 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('price_menu');
+        Schema::table('companies', function (Blueprint $table) {
+            //
+            $table->renameColumn('level', 'leavel');
+
+        });
     }
 };

@@ -33,6 +33,20 @@ Route::post('/testBC',[ApiController::class, 'testBC']);
 Route::post('/getBC',[ApiController::class, 'getBC']);
 Route::post('/getBC_info',[ApiController::class, 'getBC_info']);
 Route::post('/addModels',[ApiController::class, 'addModels']);
+Route::post('/addPrice',[ApiController::class, 'addPrice']);
+Route::post('/getPrice',[ApiController::class, 'getPrice']);
+Route::post('/removePrice',[ApiController::class, 'removePrice']);
+Route::post('/editPrice',[ApiController::class, 'editPrice']);
+Route::post('/addCompanyUser',[ApiController::class, 'addCompanyUser']);
+Route::post('/getCompanyUser',[ApiController::class, 'getCompanyUser']);
+Route::post('/removeCompanyUser',[ApiController::class, 'removeCompanyUser']);
+Route::post('/companies_UpdatePassword',[ApiController::class, 'companies_UpdatePassword']);
+Route::post('/sendTimesMail',[ApiController::class, 'sendTimesMail']);
+Route::post('/userAddTimes',[ApiController::class, 'userAddTimes']);
+Route::post('/getUserData',[ApiController::class, 'getUserData']);
+Route::post('/company_CheckLevel',[ApiController::class, 'company_CheckLevel']);
+Route::post('/editMaterials',[ApiController::class, 'editMaterials']);
+Route::post('/editModels',[ApiController::class, 'editModels']);
 
 //company
 Route::post('/company_register',[ApiController::class, 'company_register']);
@@ -78,7 +92,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/getMaterial',[ApiController::class, 'getMaterial']);
     Route::post('/getAllBC',[ApiController::class, 'getAllBC']);
     Route::post('/clickCard',[ApiController::class, 'clickCard']);
-    
+    Route::post('/getUserInfo',[ApiController::class, 'getUserInfo']);
+    Route::post('/removeBC',[ApiController::class, 'removeBC']);
+
     Route::post('/addMaterials',[ApiController::class, 'addMaterials']);
 
 

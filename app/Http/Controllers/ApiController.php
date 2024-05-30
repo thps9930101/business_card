@@ -10,6 +10,7 @@ use App\Models\materials;
 use App\Models\payments;
 use App\Models\models;
 use App\Models\companies;
+use App\Models\companies_user;
 use App\Models\Media;
 use App\Models\Order;
 use App\Models\Store;
@@ -18,6 +19,7 @@ use App\Models\AlbumDetail;
 use App\Models\Project;
 use App\Models\Product;
 use App\Models\Payment;
+use App\Models\price_menu;
 use App\Models\Notification;
 use App\Models\Plan_solution;
 use App\Models\Plan_solution_order;
@@ -35,6 +37,8 @@ use Illuminate\Http\UploadedFile;
 use App\Events\CompleteTransformVideo;
 use App\Events\AIBoxRefresh;
 use App\Notifications\ConfirmUserCode;
+use App\Notifications\ClickTimesRemind;
+use App\Notifications\NoTimesRemind;
 use App\Notifications\SolutionExpiredNotify;
 use App\Notifications\ResetPasswordLink;
 use App\Http\Resources\MediaCollection;
@@ -129,6 +133,14 @@ class ApiController extends Controller
 
         $credentials = $request->only('account', 'password');
         $company = companies::where('account', $request->account)->first();     
+        $token = Str::random(60);
+
+        while (companies::where('token', $token)->exists()) {
+            $token = Str::random(60);
+        }
+
+        $company->token = $token;
+        $company->save();
 
         if ($company) {
             if($company->password != $request->password)
@@ -145,6 +157,8 @@ class ApiController extends Controller
                     'id' =>  $company->id,
                     'name' =>  $company->name,
                     'account' =>  $company->account,
+                    'level' => $company->level,
+                    'token' =>  $company->token,
                 ]
             ];
         } else {
@@ -155,6 +169,7 @@ class ApiController extends Controller
             ];
         }
     }
+    
 
     public function testBC(Request $request) {
         $getAllBC_Result = [
@@ -328,16 +343,23 @@ class ApiController extends Controller
         if($validator->fails()){
             return [
                 'success' => false,
-                'message' => __('register.failed'),
-                'errors'=> $validator->errors()->toArray()
+                'message' => [
+                    "isExist" => false,
+                    "error" => __('register.failed')
+                ],
             ];
+            
         }
 
         if (User::where('account', $request->account)->exists())
         {
             return [
                 'success' => false,
-                'message' => "account is already exists",
+                'message' => [
+                    "isExist" => true,
+                    "id" => User::where('account', $request->account)->first()->id,
+                    "error" => "帳號已存在，無法註冊"
+                ],
             ];
         }
     
@@ -349,7 +371,7 @@ class ApiController extends Controller
             'download_time' => 9999
         ]);
 
-        if($user ){
+        if($user){
             $code = Str::random(60);
             $user->confirm_code = $code;
             $user->confirm_code_expired_at = now()->addDays(7);
@@ -369,6 +391,38 @@ class ApiController extends Controller
                 'confirm_url'=>  route('registerMember', ['code'=>$user->confirm_code])]
         ];
 
+    }
+
+    public function company_register(Request $request){
+        $validator = Validator::make($request->all(),[
+            'name' => 'required',
+            'account' => 'required',
+            'password' => 'required|confirmed',
+        ]);
+
+        $res = companies::where('account', $request->account)->get();
+
+        if ($res->count() > 0) {
+            return [
+                'success' => false,
+                'message' => "this account already exist !"
+            ];
+        }
+
+        $company = new companies();
+
+        $company->account = $request->account;
+        $company->name = $request->name;
+        $company->password = $request->password;
+
+        $company->save();
+        return [
+            'success' => true,
+            'message' => [
+                'account' =>  $company->account,
+                'name' =>  $company->name,
+            ]
+        ];
     }
 
     /**
@@ -459,13 +513,570 @@ class ApiController extends Controller
 
     }
 
+    public function companies_UpdatePassword(Request $request) {
+
+        $validator = Validator::make($request->all(), [
+            'token' => 'required',
+            'Password' =>'required',
+            'newPassword' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
+        $resetPasswordToken = $request->token;
+        $password = $request->Passowrd;
+        $companies = companies::where('token', $resetPasswordToken)->first();
+
+        if ($companies) {
+            if($companies->passowrd != $password)
+            {
+                return [
+                    'success' => false,
+                    'message' => "passowrd Error"
+                ];
+            }
+
+            //$companies->password = Hash::make($request->newPassword);
+            $companies->password = $request->newPassword;
+            $companies->save();
+
+            return [
+                'success' => true,
+                'message' => "ChangeSuccess"
+            ];   
+
+        }
+        else {
+            return [
+                'success' => false,
+                'message' => "UserNotFound"
+            ];
+        }
+
+        
+    }
+
     /**
      *  api
      */
+    public function getUserData(Request $request){
+        
+        $validator = Validator::make($request->all(),[
+            'email' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $user = User::where('email',$request->email);
+
+        if($user->exists())
+        {
+            $user = $user->first();
+            return [
+                'success' => true,
+                'message' => [       
+                    'name' => $user->name,       
+                    'email' => $user->email,
+                    'download_time' => $user->download_time,
+                    'bonus_times' => $user->bonus_times                      
+                ]
+            ];
+        }else{
+            return [
+                'success' => false,
+                'message' => "找不到此帳號"
+            ];
+        }
+    }
+
+    public function company_CheckLevel(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token',$request->token);
+        
+        if(!$company->exists())
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
+        $company = $company->first();
+
+        if($company->level == 1)
+        {
+            return [
+                'success' => true,
+                'message' => true
+            ];
+        }else{
+            return [
+                'success' => true,
+                'message' => false
+            ];  
+        }
+    }
+
+    public function sendTimesMail(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'id' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+        
+        $user = User::where('id',$request->id)->first();
+
+        if ($user->confirm_code_expired_at < now()) {
+            $code = Str::random(60);
+            $user->confirm_code = $code;
+            $user->confirm_code_expired_at = now()->addDays(7);
+            $user->save();
+        }
+
+        $user->notify(new ClickTimesRemind($user->confirm_code));
+
+        return [
+            'success' => true,
+            'message' => __('register.resent')
+        ];
+    }
+
+    //TODO 上傳token 檢查level
+    public function addPrice(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'priceName' => 'required',
+            'times' => 'required',
+            'price' => 'required',
+            'bonus_times' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token',$request->token)->first();
+        if($company)
+        {
+            if($company->level == 0)
+            {
+                $price = new price_menu();
+                $price->name = $request->priceName;
+                $price->times = $request->times;
+                $price->price = $request->price;
+                $price->bonus_times = $request->bonus_times;
+                $price->save();
+
+                return [
+                    'success' => true,
+                    'message' => "新建成功"
+                ];
+            }else
+            {
+                return [
+                    'success' => false,
+                    'message' => "權限不足，無法進行此操作"
+                ]; 
+            }
+        }else{
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
+    }
+
+    public function getPrice(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token',$request->token)->first();
+        if($company)
+        {
+            $prices = price_menu::all();
+
+            return [
+                'success' => true,
+                'message' =>  $prices
+            ];  
+            
+        }else{
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+    }
+
+    public function removePrice(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'id' => 'required',
+        ]);
+
+        $company = companies::where('token',$request->token)->first();
+        if($company)
+        {
+            if($company->level == 0)
+            {
+                $prices = price_menu::find($request->id);
+                $prices_count = $prices->count();
+                
+                if($prices_count == 1)
+                {
+                    return [
+                        'success' => false,
+                        'message' => "方案數量不能少於一個"
+                    ];  
+                }
+
+                $prices = $prices->delete();
+
+                if ($prices) {
+                    return [
+                        'success' => true,
+                        'message' => "刪除成功"
+                    ]; 
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => "檔案已被刪除"
+                    ]; 
+                }
+                
+            }else
+            {
+                return [
+                    'success' => false,
+                    'message' => "權限不足，無法進行此操作"
+                ]; 
+            }
+        }else{
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+    }
+
+    public function editPrice(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'id' => 'required',
+            'priceName' => 'required',
+            'times' => 'required',
+            'price' => 'required',
+            'bonus_times' => 'required'
+        ]);
+
+        $company = companies::where('token',$request->token)->first();
+        if($company)
+        {
+            if($company->level == 0)
+            {
+                $price = price_menu::where('id', $request->id)->first();
+
+                $price->price = $request->price;
+                $price->name = $request->priceName;
+                $price->times = $request->times;
+                $price->bonus_times = $request->bonus_times;
+                $price->save();
+
+                if ($price) {
+                    return [
+                        'success' => true,
+                        'message' => "修改成功"
+                    ]; 
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => "Record not found."
+                    ]; 
+                } 
+
+            }else
+            {
+                return [
+                    'success' => false,
+                    'message' => "權限不足，無法進行此操作"
+                ]; 
+            }
+        }else{
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
+    }
+
+    public function userAddTimes(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'user_id' => 'required',
+            'plan_id' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+        
+        $company = companies::where('token',$request->token);
+        
+        if(!$company->exists())
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
+        $user = User::where('id', $request->user_id)->first();
+        $plan = price_menu::where('id',$request->plan_id)->first();
+
+        if(!$user)
+        {
+            return [
+                'success' => false,
+                'message' => "找不到此顧客"
+            ]; 
+        }
+
+        if(!$plan)
+        {
+            return [
+                'success' => false,
+                'message' => "找不到此付費方案"
+            ]; 
+        }
+
+        $user->download_time = $user->download_time + $plan->times;
+        $user->bonus_times = $user->bonus_times + $plan->bonus_times;
+        $user->save();
+
+        return [
+            'success' => true,
+            'message' => "加值成功"
+        ];      
+    }
+
+    public function getCompanyUser(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $getCompanyUser_Result =[
+            'success' => true,
+            'hasRemainingTimes'=>[],
+            'hasntRemainingTimes'=>[]
+        ];
+
+        $company = companies::where('token',$request->token)->first();
+        
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+        
+        if($company->level == 0)
+        {
+            $company_users = companies_user::orderBy('user_id', 'desc')->get();
+        }else
+        {
+            $company_users = companies_user::where('company_id', $company->id)
+                                ->orderBy('user_id', 'desc')
+                                ->get();
+        }
+
+        foreach ($company_users as $company_user) {
+            
+            $user = User::where('id',$company_user->user_id)->first();
+            if (!$user->remember_token)
+            {
+                $token = $user->createToken($user->account)->plainTextToken;
+                $user->remember_token = $token;
+                $user->save();
+            }
+            $card = cards::where('user_id',$user->id);
+            $card_amount = $card->count();
+
+            $company_name = "";
+            $company_token = "";
+
+            $card = $card->first();
+            if ($card) {
+                $company_name = companies::where('id', $card->company_id)->select("name")->first()->name;
+                $company_token = companies::where('id', $card->company_id)->select("token")->first()->token;
+            }
+
+            $user_data = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'company' => $company_name,
+                'company_token' => $company_token,
+                'card_amount' => $card_amount,
+                'remainingTimes' => $user->download_time + $user->bonus_times,
+                'token' => $user->remember_token
+            ];
+
+            if($user->download_time == 0 && $user->bonus_times == 0)
+            {
+                array_push($getCompanyUser_Result['hasntRemainingTimes'], $user_data);
+            }else
+            {
+                array_push($getCompanyUser_Result['hasRemainingTimes'], $user_data);
+            }
+        }
+        
+        return[
+            'success' => true,
+            'message' => $getCompanyUser_Result
+        ];
+    }
+
+    public function addCompanyUser(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'user_id' => 'required'
+
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+        
+        $company = companies::where('token',$request->token)->first();
+        $user = User::where('id',$request->user_id)->first();
+
+        $companies_user = companies_user::where('company_id',$company->id)->where('user_id',$user->id);
+        if($companies_user->exists())
+        {
+            return [
+                'success' => false,
+                'message' => "帳號已存在，無法新建"
+            ];
+        }
+        $companies_user = $companies_user->get();
+
+        $company_user = new companies_user();
+        $company_user->user_id = $user->id;
+        $company_user->company_id = $company->id;
+        $company_user->save();
+        return [
+            'success' => true,
+            'message' => "success"
+        ];
+    }
+
+    public function removeCompanyUser(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'user_id' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+        
+        $company = companies::where('token',$request->token)->first();
+        $user = User::where('id',$request->user_id)->first();
+        
+        $companies_user = companies_user::where('company_id',$company->id)->where('user_id',$user->id)->first();
+        if(!$companies_user)
+        {
+            return [
+                'success' => false,
+                'message' => "找不到此會員"
+            ];
+        }
+
+        $companies_user->delete();
+        return [
+            'success' => true,
+            'message' => "刪除成功"
+        ];
+    }
+
+    public function getUserInfo(Request $request){
+        $user = Auth::user();
+        return[
+            'success' =>true,
+            'message'=>auth::user()
+        ];
+    }
+
     public function getAllBC(Request $request){
         $user = Auth::user();
-        $BC_cards = cards::where('user_id', $user->id)->get();
-
+        $BC_cards = cards::where('user_id', $user->id);
+        
         $getAllBC_Result = [
             'bearerToken_requery' => true,
             'input_param' => [
@@ -481,6 +1092,23 @@ class ApiController extends Controller
             ],
         ];
 
+        if ($request->token) {
+            // 先檢查是否為公司
+            $company = companies::where('token',$request->token)->first();
+            if(!$company)
+            {
+                return [
+                    'success' => false,
+                    'message' => "請重新登入"
+                ]; 
+            }
+
+            // 檢查是否為總公司
+            if($company->level != 0)
+                $BC_cards = $BC_cards->where('company_id', $company->id);       
+        }   
+        $BC_cards = $BC_cards->get();   
+        
         foreach ($BC_cards as $BC_card) {
             $newData  = $BC_card->email;
             $name = $BC_card->name;
@@ -490,12 +1118,13 @@ class ApiController extends Controller
                 "public_id"   => $BC_card->public_id,
                 "name" => $BC_card->edit_name,
                 "releaseName" => $BC_card->release_name,
-                "update_at" => $BC_card->update_at,
-                "create_at" => $BC_card->create_at,
+                "updated_at" => $BC_card->updated_at,
+                "created_at" => $BC_card->created_at,
                 "download_times" => $BC_card->download_time
             ];
             array_push($getAllBC_Result['success']['message'], $newData);
         }
+
         return [
             $getAllBC_Result['success']
         ];
@@ -505,12 +1134,34 @@ class ApiController extends Controller
     public function addBC(Request $request){
         $user = Auth::user();
 
+        $validator = Validator::make($request->all(),[
+            'token' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token',$request->token)->first();
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
         $card = new cards();
 
         $card->user_id = $user->id;
         $card->public_id = $user->id.Str::random(20);
         $card->is_actived = true;
-    
+        $card->company_id = $company->id;
+
         $card->save();
 
         $addBC_Result = [
@@ -521,7 +1172,7 @@ class ApiController extends Controller
             "success" => [
                 'success' => true,
                 'message' => [
-                    "id" => $card->id,
+                    'id' => $card->id,
                     'public_id' => $card->public_id
                 ]
             ],
@@ -541,11 +1192,48 @@ class ApiController extends Controller
         $user = Auth::user();
         // TODO 檢查該BC是否為該 user 的 card
 
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'id' => 'required',
+            'card' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
         $BC_id = $request->id;
         $card_info = $request->card;
         $user = Auth::user();
 
+        $company = companies::where('token',$request->token)->first();
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
         $card = cards::where('id', $BC_id)->first();
+
+        if($card)
+        {
+            if($company->level != 0)
+            {
+                if($card->company_id != $company->id)
+                {
+                    return [
+                        'success' => false,
+                        'message' => "無法編輯此卡片"
+                    ];
+                }
+            }
+        }
 
         // return[
         //     'success' => true,
@@ -613,10 +1301,13 @@ class ApiController extends Controller
         ];
     }
 
-    public function addMaterials(Request $request){
+    public function removeBC(Request $request){
+        $user = Auth::user();
+        // TODO 檢查該BC是否為該 user 的 card
+
         $validator = Validator::make($request->all(),[
-            // 'user_account' => 'required',
-            'card_url' => 'required',
+            'token' => 'required',
+            'id' => 'required'
         ]);
 
         if($validator->fails()){
@@ -625,7 +1316,126 @@ class ApiController extends Controller
                 'message' => __('register.failed'),
                 'errors'=> $validator->errors()->toArray()
             ];
-        }        
+        }
+
+        $company = companies::where('token',$request->token)->first();
+        
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
+        $card = cards::where('id',$request->id)->first();
+              
+        if($card)
+        {
+            if($company->level != 0)
+            {
+                if($card->company_id != $company->id)
+                {
+                    return [
+                        'success' => false,
+                        'message' => "無法編輯此卡片"
+                    ];
+                }
+            }
+        }else{
+            return[
+                'success' => false,
+                'message' => "找不到此卡片"
+            ];
+        }
+
+        try{
+            $model = models::where('id', $card->model_id)->first();
+            if ($model)
+            {
+                if ($model->mesh_url) {
+                    if (Storage::disk('s3')->exists($model->mesh_url))
+                        Storage::disk('s3')->delete($model->mesh_url);
+                }
+
+                if ($model->texture_url) {
+                    if (Storage::disk('s3')->exists($model->texture_url))
+                        Storage::disk('s3')->delete($model->texture_url);
+                }
+
+                if ($model->cover_url) {
+                    if (Storage::disk('s3')->exists($model->cover_url))
+                        Storage::disk('s3')->delete($model->cover_url);
+                }
+
+                if ($model->cover_half_url) {
+                    if (Storage::disk('s3')->exists($model->cover_half_url))
+                        Storage::disk('s3')->delete($model->cover_half_url);
+                }
+                
+                $model->delete();
+            }
+            
+            // card_front_id
+            $card_front = materials::where('id', $card->card_front_id)->first();
+            if ($card_front)
+            {
+                if ($card_front->card_url) {
+                    if (Storage::disk('s3')->exists($card_front->card_url))
+                        Storage::disk('s3')->delete($card_front->card_url);
+                }  
+                $card_front->delete();
+            }
+
+            // card_back_id
+            $card_back = materials::where('id', $card->card_back_id)->first();
+            if ($card_back)
+            {
+                if ($card_back->card_url) {
+                    if (Storage::disk('s3')->exists($card_back->card_url))
+                        Storage::disk('s3')->delete($card_back->card_url);
+                }  
+                $card_back->delete();
+            }
+
+            $id = $card->id;
+            $card->delete();
+            
+            return[
+                'success' => true,
+                'message' => $id
+            ];
+        }
+        catch(Exception $e){
+            return[
+                'success' => false,
+                'message' => $e
+            ];
+        }
+    }
+
+    public function addMaterials(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'card_url' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+  
+        $company = companies::where('token',$request->token)->first();
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
 
         $user = Auth::user();
         if (!$user) {
@@ -653,6 +1463,7 @@ class ApiController extends Controller
             $material = new materials();
             $material->user_id = $user->id;
             $material->card_url = $s3_url;
+            $material->company_id = $company->id;
             $material->save();
 
             return [
@@ -694,6 +1505,7 @@ class ApiController extends Controller
 
     public function addModels(Request $request){
         $validator = Validator::make($request->all(),[
+            'token' => 'required',
             'user_account' => 'required',
             'texture_url' => 'required',
             'mesh_url' => 'required',
@@ -706,6 +1518,15 @@ class ApiController extends Controller
                 'success' => false,
                 'message' => __('register.failed'),
                 'errors'=> $validator->errors()->toArray()
+            ];
+        }
+  
+        $company = companies::where('token',$request->token)->first();
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
             ];
         }
 
@@ -750,6 +1571,7 @@ class ApiController extends Controller
         $model->mesh_url = $s3_mesh_dir.'/'.$s3_mesh_fileName;
         $model->cover_url = $s3_cover_dir.'/'.$s3_cover_fileName;
         $model->cover_half_url = $s3_coverHalf_dir.'/'.$s3_coverHalf_fileName;
+        $model->company_id = $company->id;
 
         $model->save();
 
@@ -760,8 +1582,182 @@ class ApiController extends Controller
                 'mesh_url' => $model->mesh_url,
                 'texture_url' => $model->texture_url,
                 'cover_url' => $model->cover_url,
+                'id' => $model->id
             ],
         ];
+    }
+
+    public function editMaterials(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'card_url' => 'required',
+            'id' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token',$request->token)->first();
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+        
+        $material = materials::where('id',$request->id)->first();
+
+        if(!$material)
+        {
+            return[
+                'success' => false,
+                'message' => "not found"
+            ];
+        }
+
+        // $user = User::where('account', $request->user_account)->first();
+
+        // 取得卡片圖並儲存到 S3
+
+        $fullPath = $material->card_url;
+
+        // 使用 PHP 的 pathinfo 函数分割路径和文件名
+        $pathInfo = pathinfo($fullPath);
+
+        $s3_dir = $pathInfo['dirname']; // 获取路径
+        $s3_fileName = $pathInfo['basename']; // 获取文件名
+
+        $uploadedFile = $request->file('card_url');
+
+        if ($uploadedFile->isValid()) {
+            $uploadedFile->storeAs($s3_dir, $s3_fileName, 's3'); 
+            // $file = new \Illuminate\Http\UploadedFile($tmpFilePath, $s3_fileName, 'image/png', null, true);
+            // $file->storeAs($s3_dir, $s3_fileName, 's3'); // 修改这里的存储方式
+            
+            return [
+                'success' => true,
+                'message' => [
+                    'id' => $material->id
+                ],
+            ];
+        }
+        else {
+            return [
+                'success' => false,
+                'message' => [
+                ],
+            ];
+        }
+
+    }
+
+    public function editModels(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'id' => 'required',
+            'texture_url' => 'required',
+            'mesh_url' => 'required',
+            'cover_url' => 'required',
+            'cover_half_url' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token',$request->token)->first();
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
+        $model = models::where('id',$request->id)->first();
+        
+        if(!$model)
+        {
+            return[
+                'success' => false,
+                'message' => "not found"
+            ];
+        }
+
+        // 取得卡片圖並儲存到 S3
+
+        $fullPath_mesh = $model->mesh_url;
+        $pathInfo = pathinfo($fullPath_mesh);
+        $s3_mesh_dir = $pathInfo['dirname']; 
+        $s3_mesh_fileName = $pathInfo['basename']; 
+        $meshFile = $request->file('mesh_url');
+
+        $fullPath_texture = $model->texture_url;
+        $pathInfo = pathinfo($fullPath_texture);
+        $s3_texture_dir = $pathInfo['dirname']; 
+        $s3_texture_fileName = $pathInfo['basename']; 
+        $textureFile = $request->file('texture_url');
+
+        $fullPath_cover = $model->cover_url;
+        $pathInfo = pathinfo($fullPath_cover);
+        $s3_cover_dir = $pathInfo['dirname']; 
+        $s3_cover_fileName = $pathInfo['basename']; 
+        $coverFile = $request->file('cover_url');
+
+        $fullPath_cover_half = $model->cover_half_url;
+        $pathInfo = pathinfo($fullPath_cover_half);
+        $s3_coverHalf_dir = $pathInfo['dirname']; 
+        $s3_coverHalf_fileName = $pathInfo['basename']; 
+        $coverHalfFile = $request->file('cover_half_url');
+
+        if(!($textureFile->isValid() && $meshFile->isValid() && $coverFile->isValid() && $coverHalfFile->isValid())) {
+            $error = "";
+            if (!$textureFile->isValid())
+                $error = $error."貼圖 ";
+            
+            if (!$meshFile->isValid())
+                $error = $error."模型 ";
+
+            if (!$coverFile->isValid())
+                $error = $error."全身圖 ";
+
+            if (!$coverHalfFile->isValid())
+                $error = $error."半身圖 ";
+
+            return [
+                'success' => false,
+                'message' => "找不到".$error
+            ];
+        }
+
+        $textureFile->storeAs($s3_texture_dir, $s3_texture_fileName, 's3'); 
+        $meshFile->storeAs($s3_mesh_dir, $s3_mesh_fileName, 's3'); 
+        $coverFile->storeAs($s3_cover_dir, $s3_cover_fileName, 's3'); 
+        $coverHalfFile->storeAs($s3_coverHalf_dir, $s3_coverHalf_fileName, 's3'); 
+            // $file = new \Illuminate\Http\UploadedFile($tmpFilePath, $s3_fileName, 'image/png', null, true);
+            // $file->storeAs($s3_dir, $s3_fileName, 's3'); // 修改这里的存储方式
+
+        return [
+            'success' => true,
+            'message' => [
+                'user_id' => $model->user_id,
+                'mesh_url' => $model->mesh_url,
+                'texture_url' => $model->texture_url,
+                'cover_url' => $model->cover_url,
+                'id' => $model->id
+            ],
+        ];
+        
     }
 
     public function getMaterial(Request $request){
@@ -879,7 +1875,7 @@ class ApiController extends Controller
                     // 傳 token 但是不是自己的 token 拒絕存取
                     return [
                         'success' => false,
-                        'message' => "無法取得登入資訊請，重新登入"
+                        'message' => "無法取得登入資訊，請重新登入"
                     ];
                 }
                 $isRoot = true;
@@ -888,7 +1884,7 @@ class ApiController extends Controller
             {
                 return [
                     'success' => false,
-                    'message' => "無法取得登入資訊請，重新登入"
+                    'message' => "無法取得登入資訊，請重新登入"
                 ];
             }
         }
@@ -910,19 +1906,38 @@ class ApiController extends Controller
                 ];
             }
 
-            if($user->download_time <= 0)
+            if($user->download_time <= 0 && $user->bonus_times <= 0)
             {
                 return [
                     'success' => false,
-                    'message' => "該名片並未開放"
+                    'message' => "該名片以達到使用上限，你也想要擁有3D名片嗎? 請洽 : <a href=''>法鬥文創</a>"
                 ];
             }
 
-            $user->download_time -= 1;
+            if($user->download_time >0)
+            {
+                $user->download_time -= 1;
+            }else
+            {
+                $user->donus_times -= 1;
+            }
+
+            $times = $user->download_time + $user->bonus_times;
+
+            if($times == 10 || $times == 50)
+            {
+                $user->notify(new ClickTimesRemind($user->confirm_code));
+            }
+            else if($times == 0)
+            {
+                $user->notify(new NoTimesRemind($user->confirm_code));
+            }
+
             $user->save();
 
             $card->download_time += 1;
             $card->save();
+
         }
 
         $model = models::where('id',$card->model_id)->first();
@@ -1197,38 +2212,6 @@ class ApiController extends Controller
         ];
     }
 
-    public function company_register(Request $request){
-        $validator = Validator::make($request->all(),[
-            'name' => 'required',
-            'account' => 'required',
-            'password' => 'required|confirmed',
-        ]);
-
-        $res = companies::where('account', $request->account)->get();
-
-        if ($res->count() > 0) {
-            return [
-                'success' => false,
-                'message' => "this account already exist !"
-            ];
-        }
-
-        $company = new companies();
-
-        $company->account = $request->account;
-        $company->name = $request->name;
-        $company->password = $request->password;
-
-        $company->save();
-        return [
-            'success' => true,
-            'message' => [
-                'account' =>  $company->account,
-                'name' =>  $company->name,
-            ]
-        ];
-    }
-
     public function clickCard(Request $request){
         $user = Auth::user();
 
@@ -1239,15 +2222,22 @@ class ApiController extends Controller
                 'message' => "No Login"
             ];
         }
-        if($user->download_time <= 0)
+        if($user->download_time <= 0 && $user->bonus_times <=0)
         {
             return[
                 'success' => false,
                 'message' => "No download time"
             ];
         }
-        
-        $user->download_time -=1;
+       
+        if($user->download_time <= 0)
+        {
+            $user->download_time -=1;
+        }else
+        {
+            $user->bonus_times -=1;
+        }
+
         $user->save();
 
         return[   
