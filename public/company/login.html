@@ -170,7 +170,6 @@
 
           // 设置名为 "username" 的 cookie，值为 "John Doe"，有效期为 30 分钟
           document.cookie = `account=${account.value}; expires=${expirationDateString}; path=/;`;
-          alert(response.data.message.token)
           localStorage.setItem("company_token", response.data.message.token);
           window.location.href = 'homePage.html';
         } 

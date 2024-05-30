@@ -38,7 +38,7 @@
     <div class="flex items-center flex-shrink-0 w-full h-[10%] px-3 bg-white bg-opacity-75">
         <h1 class="sm:text-2xl text-sm font-bold" onclick="hideMenu()">
             <div class="flex items-center">
-                <div class="hover:bg-gray-200 p-2 rounded-lg cursor-pointer" onclick="window.location.href='pongPage.html'">首頁</div>
+                <div class="hover:bg-gray-200 p-2 rounded-lg cursor-pointer" onclick="window.location.href='homePage.html'">首頁</div>
                 <!-- <div class="p-2">></div> -->
                 <!-- <div class="hover:bg-gray-200 p-2 rounded-lg">首頁</div> -->
             </div>
@@ -1465,8 +1465,8 @@
         alert(res.message);
     }
 
-    function checkLevel(companyInfo) {
-        if (companyInfo.level != 0)
+    function checkLevel(level) {
+        if (!level)
         {
             $("#planBtnContainer").html("");
         }
@@ -1654,15 +1654,24 @@
     }
 
     window.onload = async function() {
-        const res = await post("company_login", {
-            account: 'test2',
-            password: 'test'
-        });
+        // const res = await post("company_login", {
+        //     account: 'test2',
+        //     password: 'test'
+        // });
 
-        localStorage.setItem("company_token", res.message.token);
-        checkLevel(res.message)
+        // localStorage.setItem("company_token", res.message.token);
+        const res = await ('company_CheckLevel', {
+            token: localStorage.setItem("company_token")
+        })
+        if (res.success)
+            checkLevel(res.message);
+        else {
+            alert("無法取得公司資訊");
+            location.href = "login.html";
+            return;
+        }
 
-        console.log(res.message.token)
+        // console.log(res.message.token)
         localStorage.setItem("user_token", '');
         setToken('');
 
