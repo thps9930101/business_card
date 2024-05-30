@@ -12,11 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('cards', function (Blueprint $table) {
-            //
-            $table->unsignedBigInteger('company_id')->after('id')->nullable()->default(null); // 调整 'after' 参数以插入到正确的位置
-
-            // 添加外键约束
-            $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
+            $table->dropColumn('company_id');
         });
     }
 
@@ -26,11 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('cards', function (Blueprint $table) {
-            // 删除外键约束
-            $table->dropForeign(['company_id']);
-
-            // 删除列
-            $table->dropColumn('company_id');
+            $table->unsignedBigInteger('company_id')->after('id')->nullable()->default(null); // 调整 'after' 参数以插入到正确的位置
         });
     }
 };
