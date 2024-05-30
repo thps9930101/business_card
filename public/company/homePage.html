@@ -1661,7 +1661,7 @@
 
         // localStorage.setItem("company_token", res.message.token);
         const res = await ('company_CheckLevel', {
-            token: localStorage.setItem("company_token")
+            token: localStorage.getItem("company_token")
         })
         if (res.success)
             checkLevel(res.message);
