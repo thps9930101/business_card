@@ -1269,6 +1269,9 @@ class ApiController extends Controller
         // $card->X = $card_info['X'] ?? $card->X;
         // $card->web = $card_info['web'] ?? $card->web;
         // $card->is_actived = $card_info['is_actived'] ?? $card->is_actived;
+        $user->name = array_key_exists('name', $card_info) ? $card_info['name'] : $card->name;
+        $user->email = array_key_exists('email', $card_info) ? $card_info['email'] : $card->email;
+        $user->phone = array_key_exists('phone', $card_info) ? $card_info['phone'] : $card->phone;
 
         $card->name = array_key_exists('name', $card_info) ? $card_info['name'] : $card->name;
         $card->email = array_key_exists('email', $card_info) ? $card_info['email'] : $card->email;
@@ -1292,6 +1295,7 @@ class ApiController extends Controller
         // foreach ($card_info as $key => $info) {
         //     $card->$key = $info;
         // }
+        $user->save();
         $card->save();
         $card = cards::find($BC_id);
 
