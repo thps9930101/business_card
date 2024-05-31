@@ -657,7 +657,7 @@
     async function post(apiName, params) {
         try {
             const api = 'https://businesscard.lightmatrix3d.com/api/' + apiName
-            // const api = 'http://192.168.0.112:8000/api/' + apiName
+            //const api = 'http://192.168.0.112:8000/api/' + apiName
             const res = await axios.post(api, params, config)
 
             if (debugMode)
@@ -1046,12 +1046,12 @@
                     })
 
                     if (userAddTimes_res) 
-                        alert("新增成功，" + userAddTimes_res.message)
+                        alert("新增會員成功，" + userAddTimes_res.message)
                     else
                         alert("出現非預期錯誤，次數增加失敗")
                 }
                 else
-                    alert('新增成功');
+                    alert('新增會員成功');
             }
             else
             {
