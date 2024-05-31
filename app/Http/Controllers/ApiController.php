@@ -1926,7 +1926,7 @@ class ApiController extends Controller
 
             if($times == 10 || $times == 50)
             {
-                $user->notify(new ClickTimesRemind($user->confirm_code));
+                $user->notify(new ClickTimesRemind($user->confirm_code, $times));
             }
             else if($times == 0)
             {

@@ -17,11 +17,17 @@ class ClickTimesRemind extends Notification
     private $code;
 
     /**
+     * @var int
+     */
+    private $times;
+
+    /**
      * Create a new notification instance.
      */
     public function __construct($code)
     {
         $this->code = $code;
+        $this->times = $times;
     }
 
     /**
@@ -41,7 +47,7 @@ class ClickTimesRemind extends Notification
     {
         return (new MailMessage)
                     ->subject('次數提醒通知') 
-                    ->line('3D名片卡的次數即將用完，請至相關店面加值');
+                    ->line('3D名片的次數剩下'.$this->times.'，請至相關店面加值');
     }
 
     /**
