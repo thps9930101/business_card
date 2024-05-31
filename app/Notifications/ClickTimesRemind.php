@@ -47,7 +47,7 @@ class ClickTimesRemind extends Notification
     {
         return (new MailMessage)
                     ->subject('次數提醒通知') 
-                    ->line('3D名片的次數剩下'.$this->times.'，請至相關店面加值');
+                    ->line('3D名片的次數剩下'.$this->times.'次，請至相關店面加值');
     }
 
     /**
