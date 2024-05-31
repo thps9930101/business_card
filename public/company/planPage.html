@@ -106,7 +106,7 @@
                                                 <input id="times" name="times" type="number" autocomplete="times" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入點擊次數">
                                             </div>
                                         </div>
-                                        <div>
+                                        <div class="hidden">
                                             <label for="bonus" class="block text-sm font-medium leading-6 text-gray-900">超量次數</label>
                                             <div class="mt-2">
                                                 <input id="bonus" name="bonus" type="number" autocomplete="bonus" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入超量次數">
@@ -169,7 +169,7 @@
                                                 <input id="editTimes" name="editTimes" type="number" autocomplete="editTimes" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入點擊次數">
                                             </div>
                                         </div>
-                                        <div>
+                                        <div class="hidden">
                                             <label for="editBonus" class="block text-sm font-medium leading-6 text-gray-900">超量次數</label>
                                             <div class="mt-2">
                                                 <input id="editBonus" name="editBonus" type="number" autocomplete="editBonus" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入超量次數">
@@ -233,7 +233,7 @@ function menuClick(id) {
 
 async function post(apiName, params) {
     const api = 'https://businesscard.lightmatrix3d.com/api/' + apiName
-    // const api = 'http://192.168.0.112:8000/api/' + apiName
+    //const api = 'http://192.168.0.112:8000/api/' + apiName
     const res = await axios.post(api, params)
 
     if (debugMode) {
@@ -358,7 +358,6 @@ async function getUser() {
         // userDiv.append(createDiscribe("方案ID: " + userData.id));
         userDiv.append(createDiscribe("方案名稱: " + userData.name));
         userDiv.append(createDiscribe("點擊次數: " + userData.times));
-        userDiv.append(createDiscribe("超量次數: " + userData.bonus_times));
         userDiv.append(createDiscribe("價格: " + userData.price));
         userDiv.append(createMenuBtn());
 
@@ -422,7 +421,8 @@ async function addUser() {
         'priceName': priceName.value,
         'times': times.value,
         'price': price.value,
-        'bonus_times': bonus_times.value
+        //'bonus_times': bonus_times.value
+        'bonus_times': 0
     };
     try {
         const res = await post("addPrice", params);
@@ -466,7 +466,8 @@ async function editPrice() {
         'priceName': priceName.value,
         'times': times.value,
         'price': price.value,
-        'bonus_times': bonus_times.value
+        //'bonus_times': bonus_times.value
+        'bonus_times': 0
     };
     console.log(params);
     const res = await post("editPrice", params);

@@ -110,7 +110,7 @@ async function getUserUsage(urlParams) {
         userDiv.append($('<h1>', { class: "text-3xl font-bold mb-2" }).html("觀看額度"));
         userDiv.append(createDiscribe("會員信箱: " + userData.email));
         userDiv.append(createDiscribe("剩餘次數: " + userData.download_time));
-        userDiv.append(createDiscribe("超量次數: " + userData.bonus_times));
+        //userDiv.append(createDiscribe("超量次數: " + userData.bonus_times));
         userDiv.append(reflashBtn);
 
         var currentTime = new Date().toLocaleString(); 
