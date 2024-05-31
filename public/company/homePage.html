@@ -1684,6 +1684,13 @@
         // });
 
         // localStorage.setItem("company_token", res.message.token);
+        if(localStorage.getItem("company_token"))
+        {
+            alert("請重新登入");
+            location.href = "login.html";
+            return;
+        }
+
         const res = await post('company_CheckLevel', {
             token: localStorage.getItem("company_token")
         })
@@ -1698,7 +1705,7 @@
         // console.log(res.message.token)
         localStorage.setItem("user_token", '');
         setToken('');
-        
+
         displayCookies();
         getUser();
 
