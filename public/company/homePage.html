@@ -1684,7 +1684,7 @@
         // });
 
         // localStorage.setItem("company_token", res.message.token);
-        if(localStorage.getItem("company_token"))
+        if(!localStorage.getItem("company_token"))
         {
             alert("請重新登入");
             location.href = "login.html";
