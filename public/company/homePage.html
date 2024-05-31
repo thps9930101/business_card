@@ -494,6 +494,7 @@
     <div id="menu" class="absolute bg-gray-100
     w-[200px] end-10 rounded-lg p-1 flex flex-col hidden" style="top: 8%">
         <div class="m-1 p-1 hover:bg-gray-200" onclick="menuClick('updatePassword')">變更密碼</div>
+        <div class="m-1 p-1 hover:bg-gray-200" onclick="logout()">登出</div>
     </div>
 
     <div id="loader" class="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50">
@@ -1653,6 +1654,27 @@
         $('#edit_instagram').val(card.instagram);
         $('#edit_web').val(card.web);
         $('#editCard').modal('show');
+    }
+
+    function displayCookies() {
+            const cookies = document.cookie.split(';');
+            let cookieList = '';
+
+            cookies.forEach(cookie => {
+                cookieList += cookie.trim() + '\n';
+
+            });
+            console.log(cookies);
+    }
+
+    function deleteCookie(name) {
+        document.cookie = name + '=; Max-Age=0; path=/; domain=' + location.host;
+    }
+
+    function logout() {
+        deleteCookie("company_token");
+        alert("登出成功")
+        location.href = "login.html";
     }
 
     window.onload = async function() {
