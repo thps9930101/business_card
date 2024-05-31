@@ -24,7 +24,7 @@ class ClickTimesRemind extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct($code)
+    public function __construct($code,$times)
     {
         $this->code = $code;
         $this->times = $times;
