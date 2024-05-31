@@ -1910,7 +1910,8 @@ class ApiController extends Controller
             {
                 return [
                     'success' => false,
-                    'message' => "該名片以達到使用上限，你也想要擁有3D名片嗎? 請洽 : <a href=''>法鬥文創</a>"
+                    // 'message' => "該名片以達到使用上限，你也想要擁有3D名片嗎? 請洽 : <a href=''>法鬥文創</a>"
+                    'message' => "該名片以達到使用上限，你也想要擁有3D名片嗎? 請洽 :法鬥文創"
                 ];
             }
 
