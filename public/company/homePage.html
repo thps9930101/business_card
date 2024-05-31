@@ -1656,19 +1656,8 @@
         $('#editCard').modal('show');
     }
 
-    function displayCookies() {
-            const cookies = document.cookie.split(';');
-            let cookieList = '';
-
-            cookies.forEach(cookie => {
-                cookieList += cookie.trim() + '\n';
-
-            });
-            console.log(cookies);
-    }
-
     function deleteCookie(name) {
-        document.cookie = name + '=; Max-Age=0; path=/; domain=' + location.host;
+        localStorage.removeItem(name);
     }
 
     function logout() {
@@ -1705,10 +1694,7 @@
         // console.log(res.message.token)
         localStorage.setItem("user_token", '');
         setToken('');
-
-        displayCookies();
         getUser();
-
         loader_hide();
 
 
