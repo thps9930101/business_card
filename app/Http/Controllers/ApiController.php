@@ -1601,7 +1601,7 @@ class ApiController extends Controller
         if($validator->fails()){
             return [
                 'success' => false,
-                'message' => __('register.failed'),
+                'message' => __('editMaterials.failed'),
                 'errors'=> $validator->errors()->toArray()
             ];
         }
@@ -1621,7 +1621,7 @@ class ApiController extends Controller
         {
             return[
                 'success' => false,
-                'message' => "not found"
+                'message' => "找不到卡片"
             ];
         }
 
@@ -1674,7 +1674,7 @@ class ApiController extends Controller
         if($validator->fails()){
             return [
                 'success' => false,
-                'message' => __('register.failed'),
+                'message' => __('editModels.failed'),
                 'errors'=> $validator->errors()->toArray()
             ];
         }
@@ -1694,7 +1694,7 @@ class ApiController extends Controller
         {
             return[
                 'success' => false,
-                'message' => "not found"
+                'message' => "找不到編輯的模型"
             ];
         }
 

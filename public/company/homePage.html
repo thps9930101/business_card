@@ -1491,6 +1491,7 @@
         var edit_pic_result = "";
         var edit_model_result = "";
         var edit_info_result = "";
+        var edit_alert_msg = "";
 
         const token = localStorage.getItem("company_token");
         const edit_pic_back = $('#edit_pic_back').val();
@@ -1536,23 +1537,52 @@
 
             var res = await post('editMaterials', getFileForm(current_bc_id, 'edit_pic_back', token));
             if (!res)
+            {
                 edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更失敗")
+                edit_alert_msg = "正面圖編輯失敗：無法與伺服器連線\n";
+            }
             if (res.success)
+            {
                 edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更成功")
+                edit_alert_msg = "正面圖編輯成功\n";
+            }
             else
+            {
                 edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更失敗")
+                edit_alert_msg = "正面圖編輯失敗：" + res.message + "\n";
+            }
         }
         if (edit_pic_front) {
             if (!checkFileType('edit_pic_front', ["jpg", "png"], 10, "名片反面圖"))
                 return;
 
             var res = await post('editMaterials', getFileForm(current_fc_id, 'edit_pic_front', token));
+            // if (!res)
+            // {
+            //     edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更失敗")
+                
+            // }
+            // if (res.success)
+            //     edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更成功")
+            // else
+            //     edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更失敗")
+            
             if (!res)
+            {
                 edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更失敗")
+                edit_alert_msg = "反面圖編輯失敗：無法與伺服器連線\n";
+            }
             if (res.success)
+            {
                 edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更成功")
+                edit_alert_msg = "反面圖編輯成功\n";
+            }
             else
+            {
                 edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更失敗")
+                edit_alert_msg = "反面圖編輯失敗："+res.message+"\n";
+            }
+        
         }
 
         if (edit_model_mesh != "" || edit_model_texture != "" || edit_model_half != "") {
@@ -1571,12 +1601,28 @@
                 return;
 
             var res = await post('editModels', getModelForm(current_model_id, token));
+            // if (!res)
+            //     edit_model_result = edit_model_result + createResultDiv("名片模型: ", "變更失敗")
+            // if (res.success)
+            //     edit_model_result = edit_model_result + createResultDiv("名片模型: ", "變更成功")
+            // else
+            //     edit_model_result = edit_model_result + createResultDiv("名片模型: ", "變更失敗")
+
             if (!res)
+            {
                 edit_model_result = edit_model_result + createResultDiv("名片模型: ", "變更失敗")
+                edit_alert_msg = "名片模型編輯失敗：無法與伺服器連線\n";
+            }
             if (res.success)
+            {
                 edit_model_result = edit_model_result + createResultDiv("名片模型: ", "變更成功")
+                edit_alert_msg = "名片模型編輯成功\n";
+            }
             else
+            {
                 edit_model_result = edit_model_result + createResultDiv("名片模型: ", "變更失敗")
+                edit_alert_msg = "名片模型編輯失敗："+res.message+"\n";
+            }
         }
 
         const card_params = {
@@ -1606,13 +1652,28 @@
             card: card_params,
             token: token
         });
-        if (!res)
-            edit_info_result = edit_info_result + createResultDiv("名片資訊: ", "變更失敗")
-        if (res.success)
-            edit_info_result = edit_info_result + createResultDiv("名片資訊: ", "變更成功")
-        else
-            edit_info_result = edit_info_result + createResultDiv("名片資訊: ", "變更失敗")
+        // if (!res)
+        //     edit_info_result = edit_info_result + createResultDiv("名片資訊: ", "變更失敗")
+        // if (res.success)
+        //     edit_info_result = edit_info_result + createResultDiv("名片資訊: ", "變更成功")
+        // else
+        //     edit_info_result = edit_info_result + createResultDiv("名片資訊: ", "變更失敗")
 
+        if (!res)
+        {
+            edit_info_result = edit_info_result + createResultDiv("名片資訊: ", "變更失敗")
+            edit_alert_msg = "名片資訊編輯失敗：無法與伺服器連線\n";
+        }
+        if (res.success)
+        {
+            edit_info_result = edit_info_result + createResultDiv("名片資訊: ", "變更成功")
+            edit_alert_msg = "名片資訊編輯成功\n";
+        }
+        else
+        {
+            edit_info_result = edit_info_result + createResultDiv("名片資訊: ", "變更失敗")
+            edit_alert_msg = "名片資訊編輯失敗："+res.message+"\n";
+        }
 
         $('#edit_pic_back').val("");
         $('#edit_pic_front').val("");
