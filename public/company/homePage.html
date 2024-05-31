@@ -834,8 +834,12 @@
                         Swal.fire(msg).then(async (result) => {
                             if (result.isConfirmed) {
                                 loader_show();
+
                                 checkLocalStorage();
                                 console.log(userData)
+
+                                setToken(userData.token);
+
                                 const removeCompanyUser = await post("removeCompanyUser", {
                                     user_id: userData.id,
                                     token: userData.company_token
