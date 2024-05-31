@@ -71,7 +71,7 @@
                 <span class="block text-sm font-semibold">剩餘次數 > 0</span>
                 <span class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30" id="remain-greater-0-count">0</span>
                 <button class="flex items-center justify-center w-[100px] h-[30px] font-bold ml-auto  bg-yellow-200 rounded hover:bg-yellow-500" onclick="showAddCardModal(true)">      
-                    <p>新建卡片</p>
+                    <p>新建名片</p>
                 </button>
             </div>
              <div class="flex flex-col pb-2 overflow-auto" id="remain-greater-0">
@@ -683,6 +683,7 @@
 
     async function getPlanList() {
         loader_show();
+        checkLocalStorage();
         var planList = await post("getPrice", {
             token: localStorage.getItem("company_token")
         });
@@ -724,6 +725,7 @@
 
 
     async function getUserData() {
+        checkLocalStorage();
         var userData = await post("getCompanyUser", {
             'token': localStorage.getItem("company_token")
         });
@@ -832,6 +834,7 @@
                         Swal.fire(msg).then(async (result) => {
                             if (result.isConfirmed) {
                                 loader_show();
+                                checkLocalStorage();
                                 console.log(userData)
                                 const removeCompanyUser = await post("removeCompanyUser", {
                                     user_id: userData.id,
@@ -1014,6 +1017,7 @@
 
 
     async function showAddCardModal(selectPlan = null) {
+        checkLocalStorage();
         // TODO: 取得方案 > 
         planList = await getPlanList();
 
@@ -1033,6 +1037,7 @@
     async function addUser() {
 
         async function connectUserAndCompany(userID, plan = null) {
+            checkLocalStorage();
             var res = await post("addCompanyUser", {
                 'user_id': userID,
                 'token': localStorage.getItem("company_token")
@@ -1139,6 +1144,7 @@
     }
 
     async function addCard(account) {
+        checkLocalStorage();
         const token = localStorage.getItem("company_token")
         console.log(token);
         loader_show();
@@ -1380,7 +1386,7 @@
             $('#addPlanBtn').off('click').click(async () => {
                 console.log("userID", userID);
                 console.log("plan", selectPlan);
-
+                checkLocalStorage();
                 // TODO: 增加顧客次數
                 const res = await post("userAddTimes", {
                     token: localStorage.getItem("company_token"),            
@@ -1444,7 +1450,7 @@
             new_password_confirm_alert.removeClass("hidden");
             return;
         }
-
+        checkLocalStorage();
         const res = await post("companies_UpdatePassword", {
             token: localStorage.getItem("company_token"),
             Password: old_password,
@@ -1477,7 +1483,7 @@
 
     async function editCard() {
         loader_show();
-
+        checkLocalStorage();
         var edit_pic_result = "";
         var edit_model_result = "";
         var edit_info_result = "";
@@ -1625,7 +1631,7 @@
     }
 
     async function showEditCardModal(card_id) {
-
+        checkLocalStorage();
         var card = await post("getBC", {
             id: card_id,
             token: localStorage.getItem("user_token")
@@ -1657,13 +1663,23 @@
     }
 
     function deleteCookie(name) {
-        localStorage.removeItem(name);
+        localStorage.setItem(name, "");
     }
 
     function logout() {
         deleteCookie("company_token");
         alert("登出成功")
         location.href = "login.html";
+    }
+
+    function checkLocalStorage()
+    {
+        if(!localStorage.getItem("company_token"))
+        {
+            alert("請重新登入");
+            location.href = "login.html";
+            return;
+        }
     }
 
     window.onload = async function() {
@@ -1673,12 +1689,8 @@
         // });
 
         // localStorage.setItem("company_token", res.message.token);
-        if(!localStorage.getItem("company_token"))
-        {
-            alert("請重新登入");
-            location.href = "login.html";
-            return;
-        }
+        
+        checkLocalStorage();
 
         const res = await post('company_CheckLevel', {
             token: localStorage.getItem("company_token")
