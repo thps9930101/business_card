@@ -1126,13 +1126,13 @@
             // {
             //     console.log(userparam);
             // }
-            await connectUserAndCompany(userID)
+            await connectUserAndCompany(userID, plan)
         }
         else  {
             if (res.message.isExist) {
                 // 已存在
                 const userID = res.message.id;
-                await connectUserAndCompany(userID)         
+                await connectUserAndCompany(userID, plan)         
             }
             else {
                 alert(res.message.error);
