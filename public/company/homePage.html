@@ -941,8 +941,8 @@
                 userDiv.append(createDiscribe("建立公司: " + userData.company));
                 userDiv.append(createDiscribe("名片名稱: " + release_name));
                 userDiv.append(createDiscribe("瀏覽次數: " + cardInfo.download_times));
-                userDiv.append(createUrlCopy("名片連結 : ", previewUrl, "qrInput"));
-                userDiv.append(createUrlCopy("瀏覽次數連結 : ", timesUrl, "browseInput"));
+                userDiv.append(createUrlCopy("名片連結 : ", previewUrl, "qrInput"+userData.id));
+                userDiv.append(createUrlCopy("瀏覽次數連結 : ", timesUrl, "browseInput"+userData.id));
                 userDiv.append(createDiscribe("創建時間: " + formatDate(cardInfo.created_at)));
                 userDiv.append(createDiscribe("上次更新: " + formatDate(cardInfo.updated_at)));
 
@@ -1107,14 +1107,14 @@
             // if (res.message.token)
             const userID = res.message.id;
             setToken(res.message.token);
-            res = await post("addCompanyUser", {
-                user_id: userID,
-                token: localStorage.getItem("company_token")
-            });
-            userparam = getUserData();
-            {
-                console.log(userparam);
-            }
+            // res = await post("addCompanyUser", {
+            //     user_id: userID,
+            //     token: localStorage.getItem("company_token")
+            // });
+            // userparam = getUserData();
+            // {
+            //     console.log(userparam);
+            // }
             await connectUserAndCompany(userID)
         }
         else  {
