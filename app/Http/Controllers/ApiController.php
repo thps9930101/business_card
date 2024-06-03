@@ -132,7 +132,17 @@ class ApiController extends Controller
         }
 
         $credentials = $request->only('account', 'password');
-        $company = companies::where('account', $request->account)->first();     
+        $company = companies::where('account', $request->account)->first();
+        
+        if($company)
+        {
+            return [
+                'success' => false,
+                'message' => __('auth.failed'),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
         $token = Str::random(60);
 
         while (companies::where('token', $token)->exists()) {
