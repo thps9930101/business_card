@@ -68,7 +68,7 @@
         <div class="flex-grow"></div>
         <div class="flex flex-col flex-shrink-0 sm:w-[48%] w-[90%] h-auto sm:h-full">
             <div class="flex items-center flex-shrink-0 h-10 px-2">
-                <span class="block text-sm font-semibold">剩餘次數 > 0</span>
+                <span class="block text-sm font-semibold">有剩餘下載次數的名片數量：</span>
                 <span class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30" id="remain-greater-0-count">0</span>
                 <button class="flex items-center justify-center w-[100px] h-[30px] font-bold ml-auto  bg-yellow-200 rounded hover:bg-yellow-500" onclick="showAddCardModal(true)">      
                     <p>新建名片</p>
@@ -81,7 +81,7 @@
         <div class="flex-grow"></div>
         <div class="flex flex-col flex-shrink-0 sm:w-[48%] w-[90%] h-auto sm:h-full">
             <div class="flex items-center flex-shrink-0 h-10 px-2">
-                <span class="block text-sm font-semibold">剩餘次數 = 0</span>
+                <span class="block text-sm font-semibold">無下載次數的名片數量：</span>
                 <span class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30" id="remain-equal-0-count">0</span>
                 
             </div>
@@ -1027,7 +1027,7 @@
         // TODO: 取得方案 > 
         planList = await getPlanList();
         const price = localStorage.getItem("price");
-        
+
         if (selectPlan)
         {
             $('#planList').html("");
