@@ -573,6 +573,8 @@
                 const selectedValue = $(this).val();
                 const selectedPlan = planList.find(plan => plan.id.toString() === selectedValue);
                 
+                localStorage.setItem('price',selectedValue);
+
                 combobox_disc.html("");
                 combobox_disc.append(createDiscribe(selectedPlan));
                 onchange(selectedPlan);
@@ -1035,6 +1037,14 @@
                 'class': "mt-2"
             }).append(createCombobox(planList)));
         }
+
+        if(price)
+        {
+            const plan = document.getElementById('plan');
+            plan.value = price;
+            $('#plan').trigger('change');
+        }
+
         $('#addCard').modal('show');
     }
 
@@ -1770,6 +1780,8 @@
 
         // console.log(res.message.token)
         localStorage.setItem("user_token", '');
+        localStorage.setItem("price", '');
+
         setToken('');
         getUser();
         loader_hide();
