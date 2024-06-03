@@ -327,6 +327,12 @@ async function getUser() {
                 Swal.fire(msg).then(async (result) => {
                     if (result.isConfirmed) {
                         loader_show();
+                        if (!token) {
+                            alert('無法取得公司資訊，請重新登入')
+                            location.href = 'login.html';
+                            return;
+                        }
+
                         const remove = await post("removePrice", {
                             'token': token,
                             'id': userData.id
@@ -365,6 +371,12 @@ async function getUser() {
     }
     loader_show();
     var userData;
+    if (!token) {
+        alert('無法取得公司資訊，請重新登入')
+        location.href = 'login.html';
+        return;
+    }
+
     try {
         userData = await post("getPrice", {
           token: token
@@ -424,6 +436,12 @@ async function addUser() {
         //'bonus_times': bonus_times.value
         'bonus_times': 0
     };
+    if (!token) {
+        alert('無法取得公司資訊，請重新登入')
+        location.href = 'login.html';
+        return;
+    }
+
     try {
         const res = await post("addPrice", params);
         if (res.success && res.message.token) {
@@ -458,7 +476,11 @@ async function editPrice() {
     const times = document.getElementById('editTimes');
     const price = document.getElementById('EditPrice');
     const bonus_times = document.getElementById('editBonus');
-
+    if (!token) {
+        alert('無法取得公司資訊，請重新登入')
+        location.href = 'login.html';
+        return;
+    }
 
     const params = {
         'token': token,
@@ -489,8 +511,8 @@ window.onload = async function() {
     token = localStorage.getItem("company_token")
 
     if (!token) {
-        alert('無法取得公司資訊')
-        location.href = 'homePage.html';
+        alert('無法取得公司資訊，請重新登入')
+        location.href = 'login.html';
     }
 
     // ---
