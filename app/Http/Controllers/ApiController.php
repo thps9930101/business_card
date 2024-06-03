@@ -134,6 +134,7 @@ class ApiController extends Controller
         $credentials = $request->only('account', 'password');
         $company = companies::where('account', $request->account)->first();
         
+        
         if($company)
         {
             return [
