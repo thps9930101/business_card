@@ -1026,7 +1026,8 @@
         checkLocalStorage();
         // TODO: 取得方案 > 
         planList = await getPlanList();
-
+        const price = localStorage.getItem("price");
+        
         if (selectPlan)
         {
             $('#planList').html("");
