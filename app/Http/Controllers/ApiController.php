@@ -1930,14 +1930,16 @@ class ApiController extends Controller
                 ];
             }
 
-            if($user->download_time >0)
+            if(isRoot)
             {
-                $user->download_time -= 1;
-            }else
-            {
-                $user->donus_times -= 1;
+                if($user->download_time >0)
+                {
+                    $user->download_time -= 1;
+                }else
+                {
+                    $user->donus_times -= 1;
+                }
             }
-
             $times = $user->download_time + $user->bonus_times;
 
             if($times == 10 || $times == 50)
