@@ -1863,6 +1863,10 @@ class ApiController extends Controller
 
     public function getBC(Request $request){
 
+        return [
+            'success' => false,
+            'message' => $request
+        ];
         $BC_id = $request->input('id');
         $card = null;
         if (!$BC_id) {
@@ -1880,7 +1884,7 @@ class ApiController extends Controller
         }
         
         $isRoot = false;
-        if ($request->input('user_token'))
+        if ($request->input('token'))
         {
             $user = User::where('remember_token', $request->token)->first();
             if ($user)
