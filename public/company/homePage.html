@@ -1504,6 +1504,18 @@
         var edit_info_result = "";
         var edit_alert_msg = "";
 
+        const release_name = document.getElementById("edit_release_name");
+        const name = document.getElementById("edit_name");
+        const email = document.getElementById("edit_email");
+        const phone = document.getElementById("edit_phone");
+
+        if(release_name.value == "" || name.value == "" || email.value == "" || phone.value == "")
+        {
+            alert("請輸入必填資料!");
+            loader_hide();
+            return;
+        }
+
         const token = localStorage.getItem("company_token");
         const edit_pic_back = $('#edit_pic_back').val();
         const edit_pic_front = $('#edit_pic_front').val();
