@@ -482,6 +482,13 @@ async function editPrice() {
         return;
     }
 
+    if(priceName.value =="" || times.value == "" || price.value == "")
+    {
+        alert("請輸入完整資料!");
+        loader_hide();
+        return;
+    }
+
     const params = {
         'token': token,
         'id': id.value,
