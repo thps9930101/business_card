@@ -368,6 +368,7 @@ class ApiController extends Controller
                 'message' => [
                     "isExist" => true,
                     "id" => User::where('account', $request->account)->first()->id,
+                    "token" => User::where('account', $request->account)->first()->token,
                     "error" => "帳號已存在，無法註冊"
                 ],
             ];
