@@ -1863,10 +1863,6 @@ class ApiController extends Controller
 
     public function getBC(Request $request){
 
-        return [
-            'success' => false,
-            'message' => $request
-        ];
         $BC_id = $request->input('id');
         $card = null;
         if (!$BC_id) {
