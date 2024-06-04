@@ -1880,7 +1880,7 @@ class ApiController extends Controller
         }
         
         $isRoot = false;
-        if ($request->input('token'))
+        if ($request->input('user_token'))
         {
             $user = User::where('remember_token', $request->token)->first();
             if ($user)
