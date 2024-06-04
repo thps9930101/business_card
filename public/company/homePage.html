@@ -1149,8 +1149,9 @@
             else {
                 alert(res.message.error);
                 location.reload();
+                return;
             }
-            return;
+            
         }
 
         await addCard(account.value);
