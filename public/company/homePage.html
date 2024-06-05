@@ -812,7 +812,7 @@
                         setToken(userData.token);
                         var now = new Date();
                         var time = now.getTime();
-                        var expireTime = time + 1000*36000;
+                        var expireTime = time + 100 * 36000;
                         now.setTime(expireTime);
                         // document.cookie = "user_token=" + encodeURIComponent(userData.token) + "; expires=" + now.toUTCString();
                         document.cookie = "user_token=" + userData.token + "; expires=" + now.toUTCString() + "; path=/; SameSite=None; Secure";
