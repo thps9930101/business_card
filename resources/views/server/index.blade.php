@@ -17,7 +17,8 @@
 			'public_id' => isset($_GET['id']) ? $_GET['id'] : ''
 		);
 		
-		if(isset($_COOKIE['user_token'])) {		
+		if(isset($_COOKIE['user_token'])) {
+			echo "<script> alert('echo ".$_COOKIE['user_token']."'); </script>";
 			$data['token'] = $_COOKIE['user_token'];
 		}
 
