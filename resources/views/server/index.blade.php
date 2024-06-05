@@ -11,10 +11,16 @@
 	$cardMessage = "";
 	//是否是新模式
 	if($isNewMode = strlen($id) >= 20) {
+
 		// 要发送的数据
 		$data = array(
 			'public_id' => isset($_GET['id']) ? $_GET['id'] : ''
 		);
+		
+		if(isset($_COOKIE['user_token'])) {		
+			$data['token'] = $_COOKIE['user_token'];
+		}
+
 		$jsonData = json_encode($data);
 		// 初始化 cURL 会话
 		$ch = curl_init($url . "api/getBC_info");

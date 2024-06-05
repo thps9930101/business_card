@@ -810,6 +810,11 @@
                     { 
                         localStorage.setItem("user_token", userData.token);
                         setToken(userData.token);
+                        var now = new Date();
+                        var time = now.getTime();
+                        var expireTime = time + 1000*36000;
+                        now.setTime(expireTime);
+                        document.cookie = "user_token=" + userData.token + "; expires=" + now.toUTCString();
                         window.open("https://businesscard.lightmatrix3d.com/?id=" + cardInfo.public_id, '_blank'); 
                     }
                 }).html("預覽" + "<i class='fa-solid fa-eye ml-1'></i>"));
