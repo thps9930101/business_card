@@ -17,10 +17,12 @@
 			'public_id' => isset($_GET['id']) ? $_GET['id'] : ''
 		);
 		
+		echo "<script> alert('hihi'); </script>";
 		if(isset($_COOKIE['user_token'])) {
-			echo "<script> alert('echo ".$_COOKIE['user_token']."'); </script>";
+			echo "<script> alert('".$_COOKIE['user_token']."'); </script>";
 			$data['token'] = $_COOKIE['user_token'];
 		}
+		echo "<script> alert('bca'); </script>";
 
 		$jsonData = json_encode($data);
 		// 初始化 cURL 会话
