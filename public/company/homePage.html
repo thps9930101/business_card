@@ -815,7 +815,7 @@
                         var expireTime = time + 1000*36000;
                         now.setTime(expireTime);
                         // document.cookie = "user_token=" + encodeURIComponent(userData.token) + "; expires=" + now.toUTCString();
-                        document.cookie = "user_token=" + userData.token + "; expires=" + now.toUTCDecString() + "; path=/; SameSite=None; Secure";
+                        document.cookie = "user_token=" + userData.token + "; expires=" + now.toUTCString() + "; path=/; SameSite=None; Secure";
 
                         window.open("https://businesscard.lightmatrix3d.com/?id=" + cardInfo.public_id, '_blank'); 
                     }
