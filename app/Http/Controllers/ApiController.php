@@ -1242,6 +1242,7 @@ class ApiController extends Controller
                 'email' => $user->email,
                 'company' => $company_name,
                 'company_token' => $company_token,
+                'company_id' => $card->company_id,
                 'card_amount' => $card_amount,
                 'remainingTimes' => $user->download_time + $user->bonus_times,
                 'token' => $user->remember_token
