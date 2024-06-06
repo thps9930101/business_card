@@ -681,8 +681,265 @@ class ApiController extends Controller
             'message' => __('register.resent')
         ];
     }
+    /**
+     * version
+     */
+    public function getVersion(Request $request){
+        $validator = Validator::make($request->all(), 
+        [
+            'bc_id' => 'required'
+        ]);
 
-    //TODO 上傳token 檢查level
+        if ($validator->fails()) {
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors' => $validator->errors()->toArray()
+            ];
+        }
+
+        $card = cards::where('id',$request->bc_id)->first();
+        //TODO 檢查是否存在
+
+        $version_Result = [
+            "success" => [
+                'success' => true,
+                'message' => [
+                    'version' => $model->version
+                ]
+            ]
+        ];
+        $social_array = [
+            'fax' => $card->fax,
+            'address' => $card->address,
+            'telegram' => $card->telegram,
+            'whatsapp' => $card->whatsapp,
+            'instagram' => $card->instagram,
+            'facebook' => $card->facebook,
+            'X' => $card->X,
+            'web' => $card->web,
+            'line' =>$card->line,
+            'name' => $card->name,
+            'email' => $card->email,
+            'phone' => $card->phone
+        ];
+        
+        foreach($social_array as $name => $social)
+        {
+            if($social != null)
+                $version_Result['success']['message'][$name] = $social;
+        }
+        return [
+            $version_Result['success']
+        ];
+    }
+
+    public function rollback_times(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'user_id' => 'required',
+            'plan_id' => 'required'
+        ]);
+    
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        if (!Auth::user()) {
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where("token",$request->token)->first();
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "error"
+            ];
+        }
+
+        $user = User::where('id',$request->user_id)->first();
+        if(!$user)
+        {
+            return [
+                'success' => false,
+                'message' => "error"
+            ];
+        }
+
+        $company_user = companies_user::where('company_id',$company->id)->where('user_id',$user->id);
+        if(!$company_user)
+        {
+            return [
+                'success' => false,
+                'message' => "error"
+            ];
+        }
+        
+        $company_user->delete();
+
+        $plan = price_menu::where('id',$request->plan_id)->first();
+        if(!$plan)
+        {
+            return [
+                'success' => false,
+                'message' => "error"
+            ];
+        }
+
+        $user->download_time = $user->download_time - $plan->times;
+        $user->save();
+        return [
+            'success' => true,
+            'message' => ""
+        ];
+    }
+
+    public function rollback_material(Request $request){
+        $validator = Validator::make($request->all(),[
+            'id' => 'required'
+        ]);
+    
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+        
+        if (!Auth::user()) {
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        try{
+            $material = materials::where('id',$request->id)->first();
+            if ($material)
+            {
+                if ($material->card_url) {
+                    if (Storage::disk('s3')->exists($material->card_url))
+                        Storage::disk('s3')->delete($material->card_url);
+                }  
+                $material->delete();
+            }
+            
+            return[
+                'success' => true,
+                'message' => ""
+            ];
+        }
+        catch(Exception $e){
+            return[
+                'success' => false,
+                'message' => $e
+            ];
+        }
+    }
+
+    public function rollback_model(Request $request){
+        $validator = Validator::make($request->all(),[
+            'id' => 'required'
+        ]);
+    
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+        
+        if (!Auth::user()) {
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        try{
+            $model = models::where('id',$request->id)->first();
+            if ($model)
+            {
+                if ($model->mesh_url) {
+                    if (Storage::disk('s3')->exists($model->mesh_url))
+                        Storage::disk('s3')->delete($model->mesh_url);
+                }
+
+                if ($model->texture_url) {
+                    if (Storage::disk('s3')->exists($model->texture_url))
+                        Storage::disk('s3')->delete($model->texture_url);
+                }
+
+                if ($model->cover_url) {
+                    if (Storage::disk('s3')->exists($model->cover_url))
+                        Storage::disk('s3')->delete($model->cover_url);
+                }
+
+                if ($model->cover_half_url) {
+                    if (Storage::disk('s3')->exists($model->cover_half_url))
+                        Storage::disk('s3')->delete($model->cover_half_url);
+                }
+                
+                $model->delete();
+            }
+            
+            return[
+                'success' => true,
+                'message' => ""
+            ];
+        }
+        catch(Exception $e){
+            return[
+                'success' => false,
+                'message' => $e
+            ];
+        }
+    }
+
+    public function rollback_card(Request  $request){
+        $validator = Validator::make($request->all(),[
+            'id' => 'required'
+        ]);
+
+        if (!Auth::user()) {
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        if ($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+        
+        $card = cards::where('id',$request->id)->first();
+        if($card)
+            $card->delete();
+
+        return [
+            'success' => true,
+            'message' =>""
+        ];
+    }
+
     public function addPrice(Request $request){
         $validator = Validator::make($request->all(),[
             'token' => 'required',
@@ -1471,7 +1728,16 @@ class ApiController extends Controller
         $uploadedFile = $request->file('card_url');
 
         if ($uploadedFile->isValid()) {
-            $uploadedFile->storeAs($s3_dir, $s3_fileName, 's3'); 
+            $upload_res = $uploadedFile->storeAs($s3_dir, $s3_fileName, 's3'); 
+            if (!$upload_res) 
+            {
+                return [
+                    'success' => false,
+                    'message' => [
+                    ],
+                ];
+            }
+            
             // $file = new \Illuminate\Http\UploadedFile($tmpFilePath, $s3_fileName, 'image/png', null, true);
             // $file->storeAs($s3_dir, $s3_fileName, 's3'); // 修改这里的存储方式
             
@@ -1571,14 +1837,33 @@ class ApiController extends Controller
         $s3_cover_fileName = $id . '.' . $coverFile->getClientOriginalExtension();
         $s3_coverHalf_fileName = $id . '.' . $coverHalfFile->getClientOriginalExtension();
 
-        if ($textureFile->isValid()) 
-            $textureFile->storeAs($s3_texture_dir, $s3_texture_fileName, 's3'); 
-        if ($meshFile->isValid()) 
-            $meshFile->storeAs($s3_mesh_dir, $s3_mesh_fileName, 's3'); 
-        if ($coverFile->isValid()) 
-            $coverFile->storeAs($s3_cover_dir, $s3_cover_fileName, 's3'); 
-        if ($coverHalfFile->isValid()) 
-            $coverHalfFile->storeAs($s3_coverHalf_dir, $s3_coverHalf_fileName, 's3'); 
+        if (!($textureFile->isValid() && $meshFile->isValid() && $coverFile->isValid() && $coverHalfFile->isValid()))
+        {
+            return [
+                'success' => false,
+                'message' => "檔案上傳失敗，請確認您上傳的檔案是否可用",
+            ];
+        }
+
+        $isAllUploaded = true;
+        
+        if (!$textureFile->storeAs($s3_texture_dir, $s3_texture_fileName, 's3'))
+            $isAllUploaded = false;
+        if (!$meshFile->storeAs($s3_mesh_dir, $s3_mesh_fileName, 's3'))
+            $isAllUploaded = false;
+        if (!$coverFile->storeAs($s3_cover_dir, $s3_cover_fileName, 's3'))
+            $isAllUploaded = false;
+        if (!$coverHalfFile->storeAs($s3_coverHalf_dir, $s3_coverHalf_fileName, 's3'))
+            $isAllUploaded = false; 
+
+        if (!$isAllUploaded)
+        {
+            // 刪掉該 $s3_model_dir 資料夾
+            return [
+                'success' => false,
+                'message' => "檔案上傳失敗，請確認您上傳的檔案是否可用",
+            ];
+        }
 
         $model = new models();
         $model->user_id = $user->id;
@@ -1604,6 +1889,7 @@ class ApiController extends Controller
 
     public function editMaterials(Request $request){
         $validator = Validator::make($request->all(),[
+            'BC_id' => 'required',
             'token' => 'required',
             'card_url' => 'required',
             'id' => 'required'
@@ -1634,6 +1920,13 @@ class ApiController extends Controller
                 'success' => false,
                 'message' => "找不到卡片"
             ];
+        }
+
+        $card = cards::where('id',$request->BC_id)->first();
+        if($card)
+        {
+            $card->version = $card->version + 1;
+            $card->save();
         }
 
         // $user = User::where('account', $request->user_account)->first();
@@ -1674,6 +1967,7 @@ class ApiController extends Controller
 
     public function editModels(Request $request){
         $validator = Validator::make($request->all(),[
+            'BC_id' => 'required',
             'token' => 'required',
             'id' => 'required',
             'texture_url' => 'required',
@@ -1707,6 +2001,13 @@ class ApiController extends Controller
                 'success' => false,
                 'message' => "找不到編輯的模型"
             ];
+        }
+
+        $card = cards::where('id',$request->BC_id)->first();
+        if($card)
+        {
+            $card->version = $card->version + 1;
+            $card->save();
         }
 
         // 取得卡片圖並儲存到 S3
@@ -1848,7 +2149,9 @@ class ApiController extends Controller
         $model = models::where('id',$card->model_id)->first();
         $result = [
             'success' => true,
-            'message' => [
+            'message' => 
+            [
+                "version" => $card->version,
                 "release_name"=> $card->release_name,
                 "is_actived" => $card->is_actived,
                 "model" => [
@@ -1856,6 +2159,28 @@ class ApiController extends Controller
                 ],
             ]
         ];
+
+        $new_data = [
+            'fax' => $card->fax,
+            'address' => $card->address,
+            'telegram' => $card->telegram,
+            'whatsapp' => $card->whatsapp,
+            'instagram' => $card->instagram,
+            'facebook' => $card->facebook,
+            'X' => $card->X,
+            'web' => $card->web,
+            'line' => $card->line,
+            'name' => $card->name,
+            'email' => $card->email,
+            'phone' => $card->phone
+        ];
+        
+        foreach ($new_data as $name => $value) {
+            if ($value !== null) {
+                $result['message'][$name] = $value;
+            }
+        }
+
         if ($result['message']['model']['cover_half'] != '')
             $result['message']['model']['cover_half'] = Storage::disk('s3')->temporaryUrl($result['message']["model"]["cover_half"], now()->addHour());
         return $result;

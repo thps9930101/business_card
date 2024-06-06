@@ -47,6 +47,7 @@ Route::post('/getUserData',[ApiController::class, 'getUserData']);
 Route::post('/company_CheckLevel',[ApiController::class, 'company_CheckLevel']);
 Route::post('/editMaterials',[ApiController::class, 'editMaterials']);
 Route::post('/editModels',[ApiController::class, 'editModels']);
+Route::post('/getModelVersion',[ApiController::class, 'getModelVersion']);
 
 //company
 Route::post('/company_register',[ApiController::class, 'company_register']);
@@ -94,7 +95,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/clickCard',[ApiController::class, 'clickCard']);
     Route::post('/getUserInfo',[ApiController::class, 'getUserInfo']);
     Route::post('/removeBC',[ApiController::class, 'removeBC']);
-
+    Route::post('/rollback_card',[ApiController::class, 'rollback_card']);
+    Route::post('/rollback_times',[ApiController::class, 'rollback_times']);
+    Route::post('/rollback_material',[ApiController::class, 'rollback_material']);
+    Route::post('/rollback_model',[ApiController::class, 'rollback_model']);
     Route::post('/addMaterials',[ApiController::class, 'addMaterials']);
 
 

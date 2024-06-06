@@ -810,12 +810,12 @@
                     { 
                         localStorage.setItem("user_token", userData.token);
                         setToken(userData.token);
-                        var now = new Date();
-                        var time = now.getTime();
-                        var expireTime = time + 100 * 36000;
-                        now.setTime(expireTime);
+                        // var now = new Date();
+                        // var time = now.getTime();
+                        // var expireTime = time + 100 * 36000;
+                        // now.setTime(expireTime);
                         // document.cookie = "user_token=" + encodeURIComponent(userData.token) + "; expires=" + now.toUTCString();
-                        document.cookie = "user_token=" + userData.token + "; expires=" + now.toUTCString() + "; path=/; SameSite=None; Secure";
+                        // document.cookie = "user_token=" + userData.token + "; expires=" + now.toUTCString() + "; path=/; SameSite=None; Secure";
 
                         window.open("https://businesscard.lightmatrix3d.com/?id=" + cardInfo.public_id, '_blank'); 
                     }
@@ -1071,6 +1071,11 @@
                 'token': localStorage.getItem("company_token")
             });
 
+            if (!res) {
+                alert("發生未預期的錯誤，註冊失敗");
+                location.reload();
+            }
+
             if (res.success) {
                 if (plan) {
                     const userAddTimes_res = await post("userAddTimes", {
@@ -1079,19 +1084,23 @@
                         plan_id: plan.value
                     })
 
-                    if (userAddTimes_res) 
+                    if (userAddTimes_res) {
                         alert("新增會員成功，" + userAddTimes_res.message)
+                        return true;
+                    }
                     else
                         alert("出現非預期錯誤，次數增加失敗")
                 }
-                else
+                else {
                     alert('新增會員成功');
+                    return true;
+                }
             }
             else
-            {
                 alert("建立失敗: " + res.message);
-                location.reload();
-            }
+            
+            location.reload();
+            return false;
         }
 
 
@@ -1137,10 +1146,11 @@
             return;
         }
 
+        var userID;
         if(res.success)
         {
             // if (res.message.token)
-            const userID = res.message.id;
+            userID = res.message.id;
             setToken(res.message.token);
             // res = await post("addCompanyUser", {
             //     user_id: userID,
@@ -1150,24 +1160,27 @@
             // {
             //     console.log(userparam);
             // }
-            await connectUserAndCompany(userID, plan)
+            if (!await connectUserAndCompany(userID, plan))
+                return;
         }
         else  {
             if (res.message.isExist) {
                 // 已存在
-                const userID = res.message.id;
-                setToken(res.message.token);        
-                await connectUserAndCompany(userID, plan)         
+                userID = res.message.id;
+                //console.log("token"+res.message.token);
+                setToken(res.message.token);
+                
+                if (!await connectUserAndCompany(userID, plan))
+                    return;
             }
             else {
                 alert(res.message.error);
                 location.reload();
                 return;
             }
-            
         }
 
-        await addCard(account.value);
+        await addCard(account.value, userID);
 
         loader_hide();
         // $('#addUser').hide();
@@ -1184,6 +1197,13 @@
             token: token
         });
         if (!card) {
+            // TODO 取消公司與uer的關聯 and 退回次數(API)
+            res = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
             alert("名片建立失敗")
             loader_hide();
             return;
@@ -1193,12 +1213,17 @@
             card = card.message
         else
         {
-            // 刪除名片
+            // TODO 取消公司與uer的關聯 and 退回次數(API)
+            res = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
+            alert(card.message);
             loader_hide();
             return ;
         }
-        // card.id; 
-        // card.public_id;
 
         // ---
 
@@ -1211,26 +1236,88 @@
         }
 
         var card_front_pic = await post('addMaterials', getFileForm('pic_front', token));
+        if (!card_front_pic)
+        {
+            // TODO 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+            res_rollback_card = await post("rollback_card", {
+                id: card.id
+            });
+
+            res_rollback_times = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
+            alert("發生未預期錯誤，名片正面圖(底部)上傳失敗");
+            return;
+        }
+
         if (card_front_pic.success)
             card_front_pic = card_front_pic.message
         else
         {
-            // 刪除素材
+            // TODO 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+            res_rollback_card = await post("rollback_card", {
+                id: card.id
+            });
+
+            res_rollback_times = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
+            alert(card_front_pic.message);
             loader_hide();
             return;
         }
 
         var card_back_pic = await post('addMaterials', getFileForm('pic_back', token));
+        if (!card_back_pic)
+        {
+            // TODO 刪除"名片正面圖(底部)" S3 > 刪除"名片正面圖(底部)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+            res_rollback_front = await post("rollback_material", {
+                id: card_front_pic.id
+            });
+
+            res_rollback_card = await post("rollback_card", {
+                id: card.id
+            });
+
+            res_rollback_times = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
+            alert("發生未預期錯誤，名片反面圖(後面)上傳失敗");
+            return;
+        }
+
         if (card_back_pic.success)
             card_back_pic = card_back_pic.message
         else
         {
-            // 刪除素材
+            // TODO 刪除"名片正面圖(底部)" S3 > 刪除"名片正面圖(底部)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+            res_rollback_front = await post("rollback_material", {
+                id: card_front_pic.id
+            });
+
+            res_rollback_card = await post("rollback_card", {
+                id: card.id
+            });
+
+            res_rollback_times = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
+            alert(card_back_pic.message);
             loader_hide();
             return;
         }
-        // card_front_pic.id
-        // card_back_pic.id
 
         // ---
 
@@ -1246,12 +1333,55 @@
             return formData;
         } 
         var model = await post('addModels', getModelForm(account, token));
+        if (!model)
+        {
+            // TODO 刪除"名片正面圖(底部) & 名片反面圖(後面)" S3 > 刪除"名片正面圖(底部) & 名片反面圖(後面)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+            res_rollback_front = await post("rollback_material", {
+                id: card_front_pic.id
+            });
+
+            res_rollback_back = await post("rollback_material", {
+                id: card_back_pic.id
+            });
+
+            res_rollback_card = await post("rollback_card", {
+                id: card.id
+            });
+
+            res_rollback_times = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
+            alert("發生未預期錯誤，模型上傳失敗");
+            return;
+        }
+
         if (model.success)
             model = model.message
         else
         {
-            console.log("addModels error")
-            // 刪除Model
+            // TODO 刪除"名片正面圖(底部) & 名片反面圖(後面)" S3 > 刪除"名片正面圖(底部) & 名片反面圖(後面)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+            res_rollback_front = await post("rollback_material", {
+                id: card_front_pic.id
+            });
+
+            res_rollback_back = await post("rollback_material", {
+                id: card_back_pic.id
+            });
+
+            res_rollback_card = await post("rollback_card", {
+                id: card.id
+            });
+
+            res_rollback_times = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
+            alert(model.message);
             loader_hide();
             return;
         }
@@ -1284,16 +1414,64 @@
             token: token
         })
 
+        if (!res)
+        {
+            // TODO 刪除model s3 < 刪除model sql < 刪除"名片正面圖(底部) & 名片反面圖(後面)" S3 > 刪除"名片正面圖(底部) & 名片反面圖(後面)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+            res_rollback_model = await post("rollback_model", {
+                id: model.id
+            });
+            res_rollback_front = await post("rollback_material", {
+                id: card_front_pic.id
+            });
+
+            res_rollback_back = await post("rollback_material", {
+                id: card_back_pic.id
+            });
+
+            res_rollback_card = await post("rollback_card", {
+                id: card.id
+            });
+
+            res_rollback_times = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
+            alert("發生未預期錯誤，模型上傳失敗");
+            return;
+        }
+
         if (res.success)
         {
             alert("新增卡片成功");
             location.reload();
         }
         else
-        {
-            alert("新增失敗");
+        {            
+            // TODO 刪除model s3 < 刪除model sql < 刪除"名片正面圖(底部) & 名片反面圖(後面)" S3 > 刪除"名片正面圖(底部) & 名片反面圖(後面)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+            res_rollback_model = await post("rollback_model", {
+                id: model.id
+            });
+            res_rollback_front = await post("rollback_material", {
+                id: card_front_pic.id
+            });
 
-            // 刪除名片
+            res_rollback_back = await post("rollback_material", {
+                id: card_back_pic.id
+            });
+
+            res_rollback_card = await post("rollback_card", {
+                id: card.id
+            });
+
+            res_rollback_times = await post("rollback_times", {
+                user_id: userID,
+                token: localStorage.getItem("company_token"),
+                plan_id:plan.value
+            });
+
+            alert("新增失敗");
             location.reload();
         }
 
@@ -1539,16 +1717,18 @@
         const edit_model_texture = $('#edit_model_texture').val();
         const edit_model_half = $('#edit_model_half').val();
 
-        function getFileForm(card_id, id, token) {
+        function getFileForm(card_id, id, token, bc_id) {
             const formData = new FormData();
+            formData.append('BC_id',bc_id);
             formData.append('token', token);
             formData.append('card_url', $('#' + id)[0].files[0]);
             formData.append('id', card_id);
             return formData;
         }
 
-        function getModelForm(model_id, token) {
+        function getModelForm(model_id, token, bc_id) {
             const formData = new FormData();
+            formData.append('BC_id',bc_id);
             formData.append('token', token);
             formData.append('id', model_id);
             formData.append('mesh_url', $('#edit_model_mesh')[0].files[0]);
@@ -1573,7 +1753,7 @@
             if (!checkFileType('edit_pic_back', ["jpg", "png"], 10, "名片正面圖"))
                 return;
 
-            var res = await post('editMaterials', getFileForm(current_bc_id, 'edit_pic_back', token));
+            var res = await post('editMaterials', getFileForm(current_bc_id, 'edit_pic_back', token, current_card_id));
             if (!res)
             {
                 edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更失敗")
@@ -1594,7 +1774,7 @@
             if (!checkFileType('edit_pic_front', ["jpg", "png"], 10, "名片反面圖"))
                 return;
 
-            var res = await post('editMaterials', getFileForm(current_fc_id, 'edit_pic_front', token));
+            var res = await post('editMaterials', getFileForm(current_fc_id, 'edit_pic_front', token, current_card_id));
             // if (!res)
             // {
             //     edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更失敗")
@@ -1638,7 +1818,7 @@
             if (!checkFileType('edit_model_half', ["jpg", "png"], 10, "半身圖"))
                 return;
 
-            var res = await post('editModels', getModelForm(current_model_id, token));
+            var res = await post('editModels', getModelForm(current_model_id, token,current_card_id));
             // if (!res)
             //     edit_model_result = edit_model_result + createResultDiv("名片模型: ", "變更失敗")
             // if (res.success)
