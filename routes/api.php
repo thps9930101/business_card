@@ -48,6 +48,7 @@ Route::post('/company_CheckLevel',[ApiController::class, 'company_CheckLevel']);
 Route::post('/editMaterials',[ApiController::class, 'editMaterials']);
 Route::post('/editModels',[ApiController::class, 'editModels']);
 Route::post('/getModelVersion',[ApiController::class, 'getModelVersion']);
+Route::post('/getAllTimes',[ApiController::class, 'getAllTimes']);
 
 //company
 Route::post('/company_register',[ApiController::class, 'company_register']);

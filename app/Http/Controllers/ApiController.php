@@ -2145,7 +2145,7 @@ class ApiController extends Controller
                 'message' => "該名片並未開放"
             ];
         }
-
+        $user = User::where('id',$card->user_id)->first();
         $model = models::where('id',$card->model_id)->first();
         $result = [
             'success' => true,
@@ -2153,6 +2153,8 @@ class ApiController extends Controller
             [
                 "version" => $card->version,
                 "release_name"=> $card->release_name,
+                "download_times" => $card->download_time,
+                "remaining_times" => $user->download_time,
                 "is_actived" => $card->is_actived,
                 "model" => [
                     "cover_half" => $model->cover_half_url ?? ''
@@ -2184,6 +2186,58 @@ class ApiController extends Controller
         if ($result['message']['model']['cover_half'] != '')
             $result['message']['model']['cover_half'] = Storage::disk('s3')->temporaryUrl($result['message']["model"]["cover_half"], now()->addHour());
         return $result;
+    }
+
+    public function getAllTimes(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token',$request->token)->first();
+
+        if($company)
+        {
+            $times_Result = [     
+                'success' => true,
+                'message' => []       
+            ];
+            if($company->level == 0)
+            {
+                $company_users = companies_user::all();      
+            }else
+            {
+                $company_users = companies_user::where('company_id',$company->id)->get();
+            }
+
+            foreach ($company_users as $company_user) {
+                $card = cards::where('company_id',$company_user->company_id)->where('user_id',$company_user->user_id)->first();
+                $user = User::where('id',$company_user->user_id)->first();
+                
+                $res = [
+                    'company_id' => $card->company_id,
+                    'user_id' => $card->user_id,
+                    'download_times' => $card->download_time,
+                    'remaining times' => $user->download_time,
+                ];
+                array_push($times_Result['message'], $res);
+            }
+
+            return $times_Result;
+        }else
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
     }
 
     public function getBC(Request $request){
