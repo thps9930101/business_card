@@ -2226,7 +2226,7 @@ class ApiController extends Controller
                     'company_id' => $card->company_id,
                     'user_id' => $card->user_id,
                     'download_times' => $card->download_time,
-                    'remaining times' => $user->download_time,
+                    'remaining_times' => $user->download_time,
                 ];
                 array_push($times_Result['message'], $res);
             }
