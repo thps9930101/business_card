@@ -1384,6 +1384,7 @@ class ApiController extends Controller
             
             $newData = [
                 "id"   => $BC_card->id,
+                "company_id" => $BC_card->company_id,
                 "public_id"   => $BC_card->public_id,
                 "name" => $BC_card->edit_name,
                 "releaseName" => $BC_card->release_name,
@@ -1557,6 +1558,7 @@ class ApiController extends Controller
         $card->facebook = array_key_exists('facebook', $card_info) ? $card_info['facebook'] : $card->facebook;
         $card->instagram = array_key_exists('instagram', $card_info) ? $card_info['instagram'] : $card->instagram;
         $card->X = array_key_exists('X', $card_info) ? $card_info['X'] : $card->X;
+        $card->line = array_key_exists('line', $card_info) ? $card_info['line'] : $card->line;
         $card->web = array_key_exists('web', $card_info) ? $card_info['web'] : $card->web;
         $card->is_actived = array_key_exists('is_actived', $card_info) ? $card_info['is_actived'] : $card->is_actived;
 
@@ -2359,7 +2361,8 @@ class ApiController extends Controller
                     "card_front" => $card_front->card_url ?? '',
                     "card_back" => $card_back->card_url ?? '',
                     "is_actived" => $card->is_actived,
-
+                    "download_times" => $card-> download_time,
+                    'remainingTimes' => $user->download_time,
                     // "address"=> $card->address,
                     // "fax"=> $card->fax,
                     // "telegram" =>$card->telegram,
