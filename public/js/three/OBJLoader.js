@@ -386,11 +386,18 @@
 			loader.setWithCredentials( this.withCredentials );
 			loader.load( url, function ( text ) {
 
+				var blob = null;
+				var object = null;
+
 				try {
 
-					onLoad( scope.parse( text ) );
+					blob = new Blob([text], { type: 'text/plain' });
+					object = scope.parse( text );
 
 				} catch ( e ) {
+
+					blob = null;
+					object = null;
 
 					if ( onError ) {
 
@@ -405,6 +412,8 @@
 					scope.manager.itemError( url );
 
 				}
+
+				if(object) onLoad(object, blob);
 
 			}, onProgress, onError );
 

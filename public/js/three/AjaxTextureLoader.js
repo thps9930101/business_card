@@ -37,7 +37,7 @@ THREE.AjaxTextureLoader = function() {
                 cache.add(url, image);
                 URL.revokeObjectURL(objUrl);
                 document.body.removeChild(image);
-                loadImageAsTexture();
+                loadImageAsTexture(blob);
             };
 
             image.src = objUrl;
@@ -45,8 +45,10 @@ THREE.AjaxTextureLoader = function() {
             document.body.appendChild(image);
         }
 
-        function loadImageAsTexture() {
-            textureLoader.load(url, onLoad, ()=> {}, onError);
+        function loadImageAsTexture(blob) {
+			var me = textureLoader.load(url, /*onLoad*/ function() {
+				onLoad(me, blob);
+			}, ()=> {}, onError);
         }
     }
 

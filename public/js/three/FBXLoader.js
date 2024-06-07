@@ -39,11 +39,18 @@
 			loader.setWithCredentials( scope.withCredentials );
 			loader.load( url, function ( buffer ) {
 
+				var blob = null;
+				var object = null;
+
 				try {
 
-					onLoad( scope.parse( buffer, path ) );
+					blob = new Blob([buffer], { type: 'application/octet-stream' });
+					object = scope.parse( buffer, path );
 
 				} catch ( e ) {
+
+					blob = null;
+					object = null;
 
 					if ( onError ) {
 
@@ -58,6 +65,8 @@
 					scope.manager.itemError( url );
 
 				}
+
+				if(object) onLoad(object, blob);
 
 			}, onProgress, onError );
 
