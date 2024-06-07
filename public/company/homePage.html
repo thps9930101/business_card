@@ -816,6 +816,12 @@
         var planList = await post("getPrice", {
             token: localStorage.getItem("company_token")
         });
+        if(!planList.success)
+        {
+            alert("請重新登入");
+            location.href = "login.html";
+            return;
+        }
         planList = planList.message
         // planList = [
         //     {
@@ -2213,6 +2219,13 @@
         const res = await post('company_CheckLevel', {
             token: localStorage.getItem("company_token")
         })
+        if(!res)
+        {
+            alert("無法取得公司資訊");
+            location.href = "login.html";
+            return;
+        }
+        
         if (res.success)
             checkLevel(res.message);
         else {

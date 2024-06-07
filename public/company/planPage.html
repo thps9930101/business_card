@@ -383,6 +383,15 @@ async function getUser() {
         });
     } catch {
         alert("無法連接伺服器");
+        location.href = 'login.html';
+        loader_hide();
+        return;
+    }
+
+    if(!userData.success)
+    {
+        alert("無法連接伺服器");
+        location.href = 'login.html';
         loader_hide();
         return;
     }
