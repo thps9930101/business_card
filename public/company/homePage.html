@@ -74,6 +74,8 @@
                     <p>新建名片</p>
                 </button>
             </div>
+            <div class="search-container flex mt-2" id="search">
+            </div>
              <div class="flex flex-col pb-2 overflow-auto" id="remain-greater-0">
 
             </div>
@@ -279,6 +281,10 @@
                                 <input id="release_name" type="text" class="form-control" placeholder="請輸入名片發布名稱">
                             </div>
                             <div class="form-group">
+                                <label for="line">line</label>
+                                <input id="line" type="text" class="form-control" placeholder="請輸入line id">
+                            </div>
+                            <div class="form-group">
                                 <label for="facebook">facebook</label>
                                 <input id="facebook" type="text" class="form-control" placeholder="請輸入facebook連結">
                             </div>
@@ -290,10 +296,10 @@
                                 <label for="web">自訂連結</label>
                                 <input id="web" type="text" class="form-control" placeholder="請輸入自訂連結">
                             </div>
-                            <div class="form-group flex justify-between items-center p-1">
+                            <!-- <div class="form-group flex justify-between items-center p-1">
                                 <label for="is_actived">是否公開名片</label>
                                 <input id="is_actived" type="checkbox" checked readonly>
-                            </div>
+                            </div> -->
        <!--                      <div class="form-group">
                                 <label for="address">地址</label>
                                 <input id="address" type="text" class="form-control" placeholder="請輸入地址">
@@ -419,6 +425,10 @@
                                 <input id="edit_phone" type="text" class="form-control" placeholder="請輸入電話">
                             </div>
                             <div class="form-group">
+                                <label for="edit_line">line</label>
+                                <input id="edit_line" type="text" class="form-control" placeholder="請輸入line id">
+                            </div>
+                            <div class="form-group">
                                 <label for="edit_facebook">facebook</label>
                                 <input id="edit_facebook" type="text" class="form-control" placeholder="請輸入facebook連結">
                             </div>
@@ -448,36 +458,36 @@
                                 <div>名片正反面圖片</div>
                                 <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearCardPic()">清空</div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mt-2">
                                 <label for="edit_pic_front">正面圖片(後面)
                                     <span class="text-red-500">*<span>
                                     <span id="edit_pic_front_alert" class="text-red-500 hidden"><span>
                                 </label>
                                 <input id="edit_pic_front" type="file" class="form-control p-0" placeholder="請選擇名片正面圖片" accept="image/jpeg,image/png">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mt-2">
                                 <label for="edit_pic_back">反面圖片(底部)
                                     <span class="text-red-500">*<span>
                                     <span id="edit_pic_back_alert" class="text-red-500 hidden"><span>
                                 </label>
                                 <input id="edit_pic_back" type="file" class="form-control p-0" placeholder="請選擇名片反面圖片" accept="image/jpeg,image/png">
                             </div>
-                            <div class="w-full text-center text-sm">※若無選擇圖片，則沿用先前的圖片</div>
+                            <div class="w-full text-center text-sm mt-4">※若無選擇圖片，則沿用先前的圖片</div>
                         </div>
-                        <div class="flex-grow m-1"></div>
+                        <div class="flex-grow mt-2"></div>
                         <div class="w-full border border-blue-500 rounded-lg p-2 pt-3 pb-3">
                             <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
                                 <div>模型檔案</div>
                                 <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearModel()">清空</div>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mt-2">
                                 <label for="edit_model_mesh">模型檔(*.obj)
                                     <span class="text-red-500">*<span>
                                     <span id="edit_model_mesh_alert" class="text-red-500 hidden"><span>
                                 </label>
                                 <input id="edit_model_mesh" type="file" class="form-control p-0" accept=".obj">
                             </div>
-                            <div class="form-group">
+                            <div class="form-group mt-2">
                                 <label for="edit_model_texture">模型貼圖
                                     <span class="text-red-500">*<span>
                                     <span id="edit_model_texture_alert" class="text-red-500 hidden"><span>
@@ -489,14 +499,14 @@
                                 <label for="model_texture">全身圖</label>
                                 <input id="model_texture" type="file" class="form-control">
                             </div> -->
-                            <div class="form-group">
+                            <div class="form-group mt-2">
                                 <label for="edit_model_half">半身圖
                                     <span class="text-red-500">*<span>
                                     <span id="edit_model_half_alert" class="text-red-500 hidden"><span>
                                 </label>
                                 <input id="edit_model_half" type="file" class="form-control p-0" accept="image/jpeg,image/png">
                             </div>
-                            <div class="w-full text-center text-sm">※若無選擇模型，則沿用先前的模型</div>
+                            <div class="w-full text-center text-sm mt-4">※若無選擇模型，則沿用先前的模型</div>
                         </div>
                     </div>
                 </div>
@@ -611,6 +621,106 @@
         combobox_container.append(combobox);
         combobox_container.append(combobox_disc);
         return combobox_container;
+    }
+
+    function isTextInSentence(sentence, text) {
+        // 使用 includes 方法判断 text 是否在 sentence 中
+        return sentence.includes(text);
+    }
+
+    function isTextInSentence2(sentence, text) {
+        // 创建一个不区分大小写的正则表达式
+        const regex = new RegExp(text, 'i');
+        return regex.test(sentence);
+    }
+
+    function createSearchCombobox(CompanyList, elementList , onchange = (selectedCompany) => {}) {
+        const combobox_container = $('<div>', {
+            class: 'w-full'
+        })
+        var searchList = [];
+        const searchDiv = document.getElementById("search");
+        const combobox = $('<select>', {
+            name: 'companySearch',
+            id: 'companySearch',
+            class:'text-m h-10 mr-2 p-2 rounded w-[40%]',
+            //class: 'w-full inset-y-0 right-0 pl-2 pr-7 bg-transparent border-none rounded-md text-gray-500 focus:ring-blue-500 focus:border-blue-500 text-sm',
+            change: function() {
+                searchList = [];
+                const searchStr = document.getElementById("searchInput")
+                if (searchStr)
+                    searchStr.value = "";
+
+                // console.log("combobox", combobox[0].value);
+
+                if(combobox[0].value == -1)
+                {
+                    for(var i = 0; i < elementList.length; i++)
+                    {
+                        elementList[i].ele[0].classList.remove('hidden');
+                        searchList.push(elementList[i]);
+                    }
+                }
+                else
+                { 
+                    elementList.forEach((eleItem) => {
+                        eleItem.ele[0].classList.add('hidden');
+                    })
+
+                    for(var i = 0; i < elementList.length; i++)
+                    {
+                        if(combobox[0].value == elementList[i].company_id)
+                        {
+                            elementList[i].ele[0].classList.remove('hidden');
+                            searchList.push(elementList[i]);
+                        }
+
+                    }
+                }
+            }
+        })
+
+        const newInput = $('<input>', {
+            type: 'text',
+            id: 'searchInput',
+            name: 'newInput',
+            placeholder: '輸入會員名稱...',
+            class:'text-m h-10 p-2 rounded flex-grow',
+             keyup: function(event) {
+                const searchStr = document.getElementById("searchInput");
+
+                for(var i = 0; i < searchList.length ; i++)
+                {
+                    var tmpStr = searchList[i].ele.find(".userName").text().split(":")[1];
+                    searchList[i].ele[0].classList.remove('hidden');
+
+                    if(!isTextInSentence(tmpStr, searchStr.value))
+                    {
+                        searchList[i].ele[0].classList.add('hidden');
+                    }
+                    console.log(tmpStr);
+                    //if(isTextInSentence())
+                }
+            }
+        });
+
+        combobox.append($('<option>', {
+                value: -1
+            }).html("所有公司"))
+        CompanyList.forEach((item) => {
+            combobox.append($('<option>', {
+                value: item.id
+            }).html(item.name))
+        });
+
+        if (CompanyList.length > 0) 
+            combobox.val(CompanyList[0].id).change();
+
+        combobox_container.append(combobox);
+        $(searchDiv).append(combobox);
+        $(searchDiv).append(newInput);
+
+        return searchDiv;
     }
 
     //清空input
@@ -763,11 +873,21 @@
             function createBtn() {
 
                 const btn = $('<button>', {
-                    'class': "absolute top-0 right-0 flex items-center justify-center hidden w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex",
+                    //hidden
+                    'class': "absolute top-0 right-0 flex items-center justify-center w-5 h-5 mt-3 mr-2 text-gray-500 rounded hover:bg-gray-200 hover:text-gray-700 group-hover:flex",
                     click: () => {
+                        const userDetail = btn.parent().find(".userDetail");
+                        if (userDetail.hasClass("hidden"))
+                            btn.html('<i class="fa-solid fa-minus"></i>')
+                        else
+                            btn.html('<i class="fa-solid fa-plus"></i>')
+
+                        userDetail.toggleClass("hidden")
+                        // btn.html("")
                     }
                 });
-                btn.html("<svg class='w-4 h-4 fill-current' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'><path d='M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z' /></svg>");
+                
+                btn.html('<i class="fa-solid fa-plus"></i>');
 
                 return btn;
             }
@@ -785,9 +905,12 @@
                 return mark;
             }
 
-            function createDiscribe(msg) {                    
+            function createDiscribe(msg, classname = "") {         
+                var discClass = "mt-2 text-sm font-medium";
+                if (classname != "")          
+                    discClass = discClass + " " + classname;
                 const disc = $('<h4>', {
-                    'class': "mt-2 text-sm font-medium"
+                    'class': discClass
                 });
 
                 disc.html(msg);
@@ -949,8 +1072,54 @@
                 return urlContainer;
             }
 
+            function userInfo(userData, cardInfo, classname = "") {         
+                var discClass = "text-sm font-medium w-full";
+                if (classname != "")          
+                    discClass = discClass + " " + classname;
+                
+                const userInfoContainer = $('<div>', { class: discClass });
+                const userNameDiv = createDiscribe("會員名稱:" + userData.name)
+                const userDetailDiv = $('<div>', { 
+                    class: 'w-full hidden userDetail', 
+                });
+                userDetailDiv.append($("<hr>", {class: "mt-2"}));
+                userDetailDiv.append(createDiscribe("會員Email: " + userData.email));
+                // userDetailDiv.append(createDiscribe("名片數量: " + userData.card_amount));
+
+                if (!cardInfo)
+                    userDetailDiv.append(createDiscribe("<h1 class='text-red-500'>沒有</h1>"));
+                else {
+                    const release_name = (cardInfo.releaseName ? cardInfo.releaseName : "<span class ='text-gray-300' >未命名</span>");
+
+                    let timesUrl = "https://businesscard.lightmatrix3d.com/company/browseTimes.html?email=" + userData.email;
+                    let previewUrl = "https://businesscard.lightmatrix3d.com/?id=" + cardInfo.public_id;
+
+                    userDetailDiv.append(createDiscribe(""));
+                    userDetailDiv.append(createDiscribe(""));
+                    // userDiv.append(createDiscribe("名片ID: " + cardInfo.public_id));
+                    userDetailDiv.append(createDiscribe("名片名稱: " + release_name));
+                    // userDetailDiv.append(createDiscribe("瀏覽次數: " + cardInfo.download_times));
+                    userDetailDiv.append(createUrlCopy("名片連結 : ", previewUrl, "qrInput"+userData.id));
+                    userDetailDiv.append(createUrlCopy("瀏覽次數連結 : ", timesUrl, "browseInput"+userData.id));
+                    userDetailDiv.append(createDiscribe("創建時間: " + formatDate(cardInfo.created_at)));
+                    userDetailDiv.append(createDiscribe("上次更新: " + formatDate(cardInfo.updated_at)));
+
+                }
+
+                // userInfoContainer.click(() => {
+                //     const userDetail = userNameDiv.parent().find(".userDetail");
+                //     userDetail.toggleClass("hidden")
+                //     console.log()
+                // });
+                userInfoContainer.append(userNameDiv)
+                userInfoContainer.append(createDiscribe("瀏覽次數: " + cardInfo.download_times, "browsetimesDiv"));
+                userInfoContainer.append(createDiscribe("剩餘次數: " + userData.remainingTimes, "timesDiv"));
+                userInfoContainer.append(userDetailDiv)
+                return userInfoContainer;
+            }
+
             const userDiv = $('<div>', {
-                'class': "relative flex flex-col items-start p-4 mt-3 bg-white rounded-lg cursor-pointer bg-opacity-90 group hover:bg-opacity-100",
+                'class': "relative flex flex-col items-start p-4 mt-3 bg-white rounded-lg bg-opacity-90 group hover:bg-opacity-100",
                 click: function() {
                 }
             });
@@ -960,34 +1129,15 @@
             if (userData.hasOwnProperty('state'))
                 userDiv.append(createMark());
 
-            userDiv.append(createDiscribe(""));
+            // userDiv.append(createDiscribe(""));
             // userDiv.append(createDiscribe("會員ID: " + userData.id));
-            userDiv.append(createDiscribe("會員名稱:" + userData.name));
-            userDiv.append(createDiscribe("會員Email: " + userData.email));
-            userDiv.append(createDiscribe("名片數量: " + userData.card_amount));
-            userDiv.append(createDiscribe("剩餘次數: " + userData.remainingTimes));
-
-            if (!cardInfo)
-                userDiv.append(createDiscribe("<h1 class='text-red-500'>沒有</h1>"));
-            else {
-
-                const release_name = (cardInfo.releaseName ? cardInfo.releaseName : "<span class ='text-gray-300' >未命名</span>");
-
-                let timesUrl = "https://businesscard.lightmatrix3d.com/company/browseTimes.html?email=" + userData.email;
-                let previewUrl = "https://businesscard.lightmatrix3d.com/?id=" + cardInfo.public_id;
-
-                userDiv.append(createDiscribe(""));
-                userDiv.append(createDiscribe(""));
-                // userDiv.append(createDiscribe("名片ID: " + cardInfo.public_id));
-                userDiv.append(createDiscribe("建立公司: " + userData.company));
-                userDiv.append(createDiscribe("名片名稱: " + release_name));
-                userDiv.append(createDiscribe("瀏覽次數: " + cardInfo.download_times));
-                userDiv.append(createUrlCopy("名片連結 : ", previewUrl, "qrInput"+userData.id));
-                userDiv.append(createUrlCopy("瀏覽次數連結 : ", timesUrl, "browseInput"+userData.id));
-                userDiv.append(createDiscribe("創建時間: " + formatDate(cardInfo.created_at)));
-                userDiv.append(createDiscribe("上次更新: " + formatDate(cardInfo.updated_at)));
-
-            }
+            userDiv.append(createDiscribe("建立公司: " + userData.company));
+            userDiv.append(userInfo(userData, cardInfo));
+            // userDiv.append(createDiscribe("剩餘次數: " + userData.remainingTimes, "timesDiv"));
+            // userDiv.append(createDiscribe("會員名稱:" + userData.name));
+            // userDiv.append(createDiscribe("會員Email: " + userData.email));
+            // userDiv.append(createDiscribe("名片數量: " + userData.card_amount));
+            // userDiv.append(createDiscribe("剩餘次數: " + userData.remainingTimes));
 
             userDiv.append(createMenuBtn(userData));
 
@@ -1001,12 +1151,25 @@
             loader_hide();
             return;
         }
+
+        var elementList = [];
+        var companyList = [];
         userData.hasRemainingTimes.forEach(async (item) => {
             // 取得該使用者的所有名片(限制一人只有一張，不能再多新增: 總公司跟分公司每間都只能各建一張)
             // 建立一個會員就有一張名片
             // 那如果要去A店掃又去B店掃怎麼讓他只有一張名片(檢查自己公司與該會員是否有名片)
             // getAllBC多一個選填參數 company_token 多一個 where 條件查名片的建立公司
              
+            // 检查 companyList 中是否已存在具有相同 id 的公司
+            var exists = companyList.some(function(company) {
+                return company.id === item.company_id;
+            });
+
+            // 如果不存在，才添加到 companyList
+            if (!exists) {
+                companyList.push({ id: item.company_id, name: item.company });
+                console.log('Company added:', item);
+            }
 
             setToken(item.token);
 
@@ -1022,11 +1185,27 @@
                     cardInfo = null;
             }
 
-            $('#remain-greater-0').append(createUserDiv(item, cardInfo));
+            const userDiv = createUserDiv(item, cardInfo);
+            elementList.push({
+                user_id: item.id,
+                company_id: item.company_id,
+                ele: userDiv
+            });
+            
+            $('#remain-greater-0').append(userDiv);
         })
 
         userData.hasntRemainingTimes.forEach( async(item) => {
             setToken(item.token);
+            var exists = companyList.some(function(company) {
+                return company.id === item.company_id;
+            });
+
+            // 如果不存在，才添加到 companyList
+            if (!exists) {
+                companyList.push({ id: item.company_id, name: item.company });
+                console.log('Company added:', item);
+            }
 
             var cardInfo = await post('getAllBC', {});
             if (!cardInfo)
@@ -1041,11 +1220,39 @@
             }
             $('#remain-equal-0').append(createUserDiv(item, cardInfo));
         })
-
+        $('#search').append(createSearchCombobox(companyList,elementList));
         $('#remain-greater-0-count').html(userData.hasRemainingTimes.length);
         $('#remain-equal-0-count').html(userData.hasntRemainingTimes.length);
         
         setToken(localStorage.getItem("company_token"));
+
+        setInterval(async () => {
+            var timesList = await post('getAllTimes', {
+                token: localStorage.getItem("company_token")
+            })
+
+            var tempElementList = [];
+            if (timesList)
+            {
+                if (timesList.success)
+                {
+                    timesList = timesList.message;
+                    timesList.forEach((timesItem) => {
+                        elementList.forEach((eleItem) => {
+                            // console.log(timesItem, eleItem)
+                            if (timesItem.company_id == eleItem.company_id && timesItem.user_id == eleItem.user_id)
+                            {
+                                findEle = eleItem;
+                                findEle.ele.find('.timesDiv').html("剩餘次數: " + timesItem.remaining_times);
+                                findEle.ele.find('.browsetimesDiv').html("瀏覽次數: " + timesItem.download_times);
+                                //.querySelector(".timesDiv")
+                            }
+                        })
+                    })
+                }
+            }
+            
+        }, 10000)
 
         loader_hide();
         // $('#addUser').hide();
@@ -1055,6 +1262,8 @@
 
     async function showAddCardModal(selectPlan = null) {
         checkLocalStorage();
+
+
         // TODO: 取得方案 > 
         planList = await getPlanList();
         const price = localStorage.getItem("price");
@@ -1420,6 +1629,7 @@
             card_back_id: card_back_pic.id,
             telegram: undefined,
             whatsapp: undefined,
+            line: $('#line').val(),
             facebook: $('#facebook').val(),
             instagram: $('#instagram').val(),
             X: undefined,
@@ -1773,28 +1983,28 @@
         }
 
         if (edit_pic_back) {
-            if (!checkFileType('edit_pic_back', ["jpg", "png"], 10, "名片正面圖"))
+            if (!checkFileType('edit_pic_back', ["jpg", "png"], 10, "名片反面圖"))
                 return;
 
             var res = await post('editMaterials', getFileForm(current_bc_id, 'edit_pic_back', token, current_card_id));
             if (!res)
             {
-                edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更失敗")
-                edit_alert_msg = "正面圖編輯失敗：無法與伺服器連線\n";
+                edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更失敗")
+                edit_alert_msg = "反面圖編輯失敗：無法與伺服器連線\n";
             }
             if (res.success)
             {
-                edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更成功")
-                edit_alert_msg = "正面圖編輯成功\n";
+                edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更成功")
+                edit_alert_msg = "反面圖編輯成功\n";
             }
             else
             {
-                edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更失敗")
-                edit_alert_msg = "正面圖編輯失敗：" + res.message + "\n";
+                edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更失敗")
+                edit_alert_msg = "反面圖編輯失敗：" + res.message + "\n";
             }
         }
         if (edit_pic_front) {
-            if (!checkFileType('edit_pic_front', ["jpg", "png"], 10, "名片反面圖"))
+            if (!checkFileType('edit_pic_front', ["jpg", "png"], 10, "名片正面圖"))
                 return;
 
             var res = await post('editMaterials', getFileForm(current_fc_id, 'edit_pic_front', token, current_card_id));
@@ -1810,18 +2020,18 @@
             
             if (!res)
             {
-                edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更失敗")
-                edit_alert_msg = "反面圖編輯失敗：無法與伺服器連線\n";
+                edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更失敗")
+                edit_alert_msg = "正面圖編輯失敗：無法與伺服器連線\n";
             }
             if (res.success)
             {
-                edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更成功")
-                edit_alert_msg = "反面圖編輯成功\n";
+                edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更成功")
+                edit_alert_msg = "正面圖編輯成功\n";
             }
             else
             {
-                edit_pic_result = edit_pic_result + createResultDiv("名片反面圖: ", "變更失敗")
-                edit_alert_msg = "反面圖編輯失敗："+res.message+"\n";
+                edit_pic_result = edit_pic_result + createResultDiv("名片正面圖: ", "變更失敗")
+                edit_alert_msg = "正面圖編輯失敗："+res.message+"\n";
             }
         
         }
@@ -1875,10 +2085,11 @@
             edit_name: undefined,
             release_name: $('#edit_release_name').val(),
             model_id: current_model_id,
-            card_front_id: current_bc_id,
-            card_back_id: current_fc_id,
+            card_front_id: current_fc_id,
+            card_back_id: current_bc_id,
             telegram: undefined,
             whatsapp: undefined,
+            line: $('#edit_line').val(),
             facebook: $('#edit_facebook').val(),
             instagram: $('#edit_instagram').val(),
             X: undefined,
@@ -1962,6 +2173,7 @@
         $('#edit_name').val(card.name);
         $('#edit_email').val(card.email);
         $('#edit_phone').val(card.phone);
+        $('#edit_line').val(card.line);
         $('#edit_facebook').val(card.facebook);
         $('#edit_instagram').val(card.instagram);
         $('#edit_web').val(card.web);
