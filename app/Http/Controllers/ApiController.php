@@ -1328,7 +1328,122 @@ class ApiController extends Controller
             'message' => $getCompanyUser_Result
         ];
     }
+    public function getCompanyUserAllBC(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required'
+        ]);
 
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $getCompanyUser_Result =[
+            'success' => true,
+            'hasRemainingTimes'=>[],
+            'hasntRemainingTimes'=>[]
+        ];
+
+        $company = companies::where('token',$request->token)->first();
+        
+        if(!$company)
+        {
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
+        if ($company->level == 0) {
+            $company_users = companies_user::orderBy('created_at', 'desc')->get();
+        } else {
+            $company_users = companies_user::where('company_id', $company->id)
+                                           ->orderBy('created_at', 'desc')
+                                           ->get();
+        }
+        // if($company->level == 0)
+        // {
+        //     $company_users = companies_user::orderBy('user_id', 'desc')->get();
+        // }else
+        // {
+        //     $company_users = companies_user::where('company_id', $company->id)
+        //                         ->orderBy('user_id', 'desc')
+        //                         ->get();
+        // }
+
+        foreach ($company_users as $company_user) {
+            
+            $user = User::where('id',$company_user->user_id)->first();
+            if (!$user->remember_token)
+            {
+                $token = $user->createToken($user->account)->plainTextToken;
+                $user->remember_token = $token;
+                $user->save();
+            }
+            $card = cards::where('user_id',$user->id);
+            $card_amount = $card->count();
+
+            $company_name = "";
+            $company_token = "";
+
+            $card = $card->first();
+            if ($card) {
+                $company_name = companies::where('id', $card->company_id)->select("name")->first()->name;
+                $company_token = companies::where('id', $card->company_id)->select("token")->first()->token;
+            }
+
+            $cards = cards::where('user_id', $user->id);
+            $cards = $cards->get();  
+            
+            $getAllBC_Result = [];
+            
+            foreach ($cards as $card) {
+                $newData  = $card->email;
+                $name = $card->name;
+                
+                $newData = [
+                    "id"   => $card->id,
+                    "company_id" => $card->company_id,
+                    "public_id"   => $card->public_id,
+                    "name" => $card->edit_name,
+                    "releaseName" => $card->release_name,
+                    "updated_at" => $card->updated_at,
+                    "created_at" => $card->created_at,
+                    "download_times" => $card->download_time
+                ];
+                array_push($getAllBC_Result, $newData);
+            }
+
+            $user_data = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'company' => $company_name,
+                'company_token' => $company_token,
+                'company_id' => $card->company_id,
+                'card_amount' => $card_amount,
+                'remainingTimes' => $user->download_time + $user->bonus_times,
+                'token' => $user->remember_token,
+                'all_bc' => $getAllBC_Result
+            ];
+
+            if($user->download_time == 0 && $user->bonus_times == 0)
+            {
+                array_push($getCompanyUser_Result['hasntRemainingTimes'], $user_data);
+            }else
+            {
+                array_push($getCompanyUser_Result['hasRemainingTimes'], $user_data);
+            }
+        }
+        
+        return[
+            'success' => true,
+            'message' => $getCompanyUser_Result
+        ];
+    }
     public function addCompanyUser(Request $request){
         $validator = Validator::make($request->all(),[
             'token' => 'required',

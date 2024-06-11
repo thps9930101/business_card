@@ -50,6 +50,7 @@ Route::post('/editModels',[ApiController::class, 'editModels']);
 Route::post('/getModelVersion',[ApiController::class, 'getModelVersion']);
 Route::post('/getAllTimes',[ApiController::class, 'getAllTimes']);
 Route::post('/editTimes',[ApiController::class, 'editTimes']);
+Route::post('/getCompanyUserAllBC',[ApiController::class, 'getCompanyUserAllBC']);
 
 //company
 Route::post('/company_register',[ApiController::class, 'company_register']);
