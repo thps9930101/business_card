@@ -625,10 +625,11 @@ class ApiController extends Controller
             ];
         }
 
-        $company = companies::where('token',$request->token);
+        $company = companies::where('token', $request->token);
         
         if(!$company->exists())
         {
+            abort(601);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1258,7 +1259,7 @@ class ApiController extends Controller
         
         if(!$company)
         {
-            abort(401);
+            abort(601);
             return [
                 'success' => false,
                 'message' => "請重新登入"
