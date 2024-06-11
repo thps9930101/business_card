@@ -232,21 +232,41 @@ function menuClick(id) {
 }
 
 async function post(apiName, params) {
-    const api = 'https://businesscard.lightmatrix3d.com/api/' + apiName
-    //const api = 'http://192.168.0.112:8000/api/' + apiName
-    const res = await axios.post(api, params)
+    try {
+        const api = 'https://businesscard.lightmatrix3d.com/api/' + apiName
+        //const api = 'http://192.168.0.112:8000/api/' + apiName
+        const res = await axios.post(api, params)
 
-    if (debugMode) {
-        console.log(api, {
-            params: params,
-            response: res
-        })
+        if (debugMode) {
+            console.log(api, {
+                params: params,
+                response: res
+            })
+        }
+
+        if (res.data[0])
+            return JSON.parse(JSON.stringify(res.data[0]));
+        else
+            return JSON.parse(JSON.stringify(res.data));
     }
+    catch (error) {
+        console.log(error)
+        if (error.response) {
+            if (error.response.status === 415) {
+                alert("無法取得公司資訊，請重新登入");
+                location.href = "login.html";
+            } else {
+                console.log("An error occurred:", error.message);
+            }
+        } else if (error.request) {
+            console.log("No response received.");
+        } else {
+            console.log('Error', error.message);
+        }
 
-    if (res.data[0])
-        return JSON.parse(JSON.stringify(res.data[0]));
-    else
-        return JSON.parse(JSON.stringify(res.data));
+        loader_hide();
+        return null;
+    }
 }
 
 async function getUser() {

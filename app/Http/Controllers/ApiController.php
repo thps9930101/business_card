@@ -532,6 +532,9 @@ class ApiController extends Controller
             'newPassword' => 'required',
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if ($validator->fails()) {
             return [
                 'success' => false,
@@ -564,6 +567,7 @@ class ApiController extends Controller
 
         }
         else {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "UserNotFound"
@@ -616,6 +620,9 @@ class ApiController extends Controller
         $validator = Validator::make($request->all(),[
             'token' => 'required'
         ]);
+
+        if (!$request->token)
+            abort(415);
 
         if($validator->fails()){
             return [
@@ -742,6 +749,9 @@ class ApiController extends Controller
             'times' => 'required'
         ]);
     
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -753,6 +763,7 @@ class ApiController extends Controller
         $company = companies::where('token',$request->token)->first();
         
         if(!$company){
+            abort(415);
             return[
                 'success' => false,
                 'message' => "無法取得公司資訊，請重新登入"
@@ -801,6 +812,9 @@ class ApiController extends Controller
             'plan_id' => 'required'
         ]);
     
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -820,6 +834,7 @@ class ApiController extends Controller
         $company = companies::where("token",$request->token)->first();
         if(!$company)
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "error"
@@ -1009,6 +1024,9 @@ class ApiController extends Controller
             'bonus_times' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1041,6 +1059,7 @@ class ApiController extends Controller
                 ]; 
             }
         }else{
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1054,6 +1073,9 @@ class ApiController extends Controller
             'token' => 'required',
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1062,17 +1084,18 @@ class ApiController extends Controller
             ];
         }
 
-        $company = companies::where('token',$request->token)->first();
+        $company = companies::where('token', $request->token)->first();
         if($company)
         {
             $prices = price_menu::all();
 
             return [
                 'success' => true,
-                'message' =>  $prices
+                'message' => $prices
             ];  
             
         }else{
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1085,6 +1108,9 @@ class ApiController extends Controller
             'token' => 'required',
             'id' => 'required',
         ]);
+
+        if (!$request->token)
+            abort(415);
 
         $company = companies::where('token',$request->token)->first();
         if($company)
@@ -1124,6 +1150,7 @@ class ApiController extends Controller
                 ]; 
             }
         }else{
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1140,6 +1167,9 @@ class ApiController extends Controller
             'price' => 'required',
             'bonus_times' => 'required'
         ]);
+
+        if (!$request->token)
+            abort(415);
 
         $company = companies::where('token',$request->token)->first();
         if($company)
@@ -1174,6 +1204,7 @@ class ApiController extends Controller
                 ]; 
             }
         }else{
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1189,6 +1220,9 @@ class ApiController extends Controller
             'plan_id' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1201,6 +1235,7 @@ class ApiController extends Controller
         
         if(!$company->exists())
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1240,6 +1275,9 @@ class ApiController extends Controller
         $validator = Validator::make($request->all(),[
             'token' => 'required'
         ]);
+
+        if (!$request->token)
+            abort(415);
 
         if($validator->fails()){
             return [
@@ -1335,6 +1373,9 @@ class ApiController extends Controller
             'token' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1353,6 +1394,7 @@ class ApiController extends Controller
         
         if(!$company)
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1453,6 +1495,9 @@ class ApiController extends Controller
 
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1462,6 +1507,15 @@ class ApiController extends Controller
         }
         
         $company = companies::where('token',$request->token)->first();
+        if(!$company)
+        {
+            abort(415);
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
         $user = User::where('id',$request->user_id)->first();
 
         $companies_user = companies_user::where('company_id',$company->id)->where('user_id',$user->id);
@@ -1490,6 +1544,9 @@ class ApiController extends Controller
             'user_id' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1498,10 +1555,19 @@ class ApiController extends Controller
             ];
         }
         
-        $company = companies::where('token',$request->token)->first();
+        $company = companies::where('token', $request->token)->first();
+        if(!$company)
+        {
+            abort(415);
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
         $user = User::where('id',$request->user_id)->first();
         
-        $companies_user = companies_user::where('company_id',$company->id)->where('user_id',$user->id)->first();
+        $companies_user = companies_user::where('company_id', $company->id)->where('user_id', $user->id)->first();
         if(!$companies_user)
         {
             return [
@@ -1591,6 +1657,9 @@ class ApiController extends Controller
             'token' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1602,6 +1671,7 @@ class ApiController extends Controller
         $company = companies::where('token',$request->token)->first();
         if(!$company)
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1651,6 +1721,9 @@ class ApiController extends Controller
             'card' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1666,6 +1739,7 @@ class ApiController extends Controller
         $company = companies::where('token',$request->token)->first();
         if(!$company)
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1768,6 +1842,9 @@ class ApiController extends Controller
             'id' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+        
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1780,6 +1857,7 @@ class ApiController extends Controller
         
         if(!$company)
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1878,6 +1956,9 @@ class ApiController extends Controller
             'card_url' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1889,6 +1970,7 @@ class ApiController extends Controller
         $company = companies::where('token',$request->token)->first();
         if(!$company)
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1980,6 +2062,9 @@ class ApiController extends Controller
             'cover_half_url' => 'required',
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -1991,6 +2076,7 @@ class ApiController extends Controller
         $company = companies::where('token',$request->token)->first();
         if(!$company)
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -2081,6 +2167,9 @@ class ApiController extends Controller
             'id' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -2092,6 +2181,7 @@ class ApiController extends Controller
         $company = companies::where('token',$request->token)->first();
         if(!$company)
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -2162,6 +2252,9 @@ class ApiController extends Controller
             'cover_half_url' => 'required',
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -2173,6 +2266,7 @@ class ApiController extends Controller
         $company = companies::where('token',$request->token)->first();
         if(!$company)
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -2379,6 +2473,9 @@ class ApiController extends Controller
             'token' => 'required'
         ]);
 
+        if (!$request->token)
+            abort(415);
+
         if($validator->fails()){
             return [
                 'success' => false,
@@ -2419,6 +2516,7 @@ class ApiController extends Controller
             return $times_Result;
         }else
         {
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -3064,6 +3162,9 @@ class ApiController extends Controller
             'newPassword' => 'required',
         ]);
 
+        if (!$request->token)
+            abort(415);
+        
         if ($validator->fails()) {
             return [
                 'success' => false,

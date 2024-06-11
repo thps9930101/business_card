@@ -828,7 +828,21 @@
             else
                 return JSON.parse(JSON.stringify(res.data));
         }
-        catch {
+        catch (error) {
+            console.log(error)
+            if (error.response) {
+                if (error.response.status === 415) {
+                    alert("無法取得公司資訊，請重新登入");
+                    location.href = "login.html";
+                } else {
+                    console.log("An error occurred:", error.message);
+                }
+            } else if (error.request) {
+                console.log("No response received.");
+            } else {
+                console.log('Error', error.message);
+            }
+
             loader_hide();
             return null;
         }
@@ -886,9 +900,12 @@
 
     async function getUserData() {
         checkLocalStorage();
-        var userData = await post("getCompanyUser", {
+        var userData = await post("getCompanyUserAllBC", {
             'token': localStorage.getItem("company_token")
         });
+        // var userData = await post("getCompanyUser", {
+        //     'token': localStorage.getItem("company_token")
+        // });
 
         if (!userData) return null;
         if (!userData.success) return null;
@@ -1099,7 +1116,7 @@
                             if (result.isConfirmed) {
                                 loader_show();
 
-                                checkLocalStorage();
+                                checkLocalStorage(); // api ok
                                 console.log(userData)
 
                                 setToken(userData.token);
@@ -1263,18 +1280,12 @@
 
         var elementList = [];
         var companyList = [];
+
         userData.hasRemainingTimes.forEach(async (item) => {
-            // 取得該使用者的所有名片(限制一人只有一張，不能再多新增: 總公司跟分公司每間都只能各建一張)
-            // 建立一個會員就有一張名片
-            // 那如果要去A店掃又去B店掃怎麼讓他只有一張名片(檢查自己公司與該會員是否有名片)
-            // getAllBC多一個選填參數 company_token 多一個 where 條件查名片的建立公司
-             
-            // 检查 companyList 中是否已存在具有相同 id 的公司
             var exists = companyList.some(function(company) {
                 return company.id === item.company_id;
             });
 
-            // 如果不存在，才添加到 companyList
             if (!exists) {
                 companyList.push({ id: item.company_id, name: item.company });
                 console.log('Company added:', item);
@@ -1282,17 +1293,23 @@
 
             setToken(item.token);
 
-            var cardInfo = await post('getAllBC', {});
-            if (!cardInfo)
-                cardInfo = null;
-            if (!cardInfo.success)
-                cardInfo = null;
-            else {
-                if (cardInfo.message.length > 0)
-                    cardInfo = cardInfo.message[0];
-                else
-                    cardInfo = null;
+            var cardInfo = null;
+            if (item.all_bc) {
+                if (item.all_bc[0])
+                    cardInfo = item.all_bc[0]
             }
+
+            // var cardInfo = await post('getAllBC', {});
+            // if (!cardInfo)
+            //     cardInfo = null;
+            // if (!cardInfo.success)
+            //     cardInfo = null;
+            // else {
+            //     if (cardInfo.message.length > 0)
+            //         cardInfo = cardInfo.message[0];
+            //     else
+            //         cardInfo = null;
+            // }
 
             const userDiv = createUserDiv(item, cardInfo);
             elementList.push({
@@ -1304,7 +1321,7 @@
             $('#remain-greater-0').append(userDiv);
         })
 
-        userData.hasntRemainingTimes.forEach( async(item) => {
+        userData.hasntRemainingTimes.forEach(async(item) => {
             setToken(item.token);
             var exists = companyList.some(function(company) {
                 return company.id === item.company_id;
@@ -1316,20 +1333,34 @@
                 console.log('Company added:', item);
             }
 
-            var cardInfo = await post('getAllBC', {});
-            if (!cardInfo)
-                cardInfo = null;
-            if (!cardInfo.success)
-                cardInfo = null;
-            else {
-                if (cardInfo.message.length > 0)
-                    cardInfo = cardInfo.message[0];
-                else
-                    cardInfo = null;
+            var cardInfo = null;
+            if (item.all_bc) {
+                if (item.all_bc[0])
+                    cardInfo = item.all_bc[0]
             }
-            $('#remain-equal-0').append(createUserDiv(item, cardInfo));
+
+            // var cardInfo = await post('getAllBC', {});
+            // if (!cardInfo)
+            //     cardInfo = null;
+            // if (!cardInfo.success)
+            //     cardInfo = null;
+            // else {
+            //     if (cardInfo.message.length > 0)
+            //         cardInfo = cardInfo.message[0];
+            //     else
+            //         cardInfo = null;
+            // }
+            
+            const userDiv = createUserDiv(item, cardInfo);
+            elementList.push({
+                user_id: item.id,
+                company_id: item.company_id,
+                ele: userDiv
+            });
+            
+            $('#remain-equal-0').append(userDiv);
         })
-        $('#search').append(createSearchCombobox(companyList,elementList));
+        $('#search').append(createSearchCombobox(companyList, elementList));
         $('#remain-greater-0-count').html(userData.hasRemainingTimes.length);
         $('#remain-equal-0-count').html(userData.hasntRemainingTimes.length);
         
@@ -1370,8 +1401,7 @@
 
 
     async function showAddCardModal(selectPlan = null) {
-        checkLocalStorage();
-
+        checkLocalStorage(); // api ok
 
         // TODO: 取得方案 > 
         planList = await getPlanList();
@@ -1401,7 +1431,7 @@
     async function addUser() {
 
         async function connectUserAndCompany(userID, plan = null) {
-            checkLocalStorage();
+            checkLocalStorage(); // api ok
             var res = await post("addCompanyUser", {
                 'user_id': userID,
                 'token': localStorage.getItem("company_token")
@@ -1523,7 +1553,7 @@
     }
 
     async function addCard(account) {
-        checkLocalStorage();
+        checkLocalStorage(); // api ok
         const token = localStorage.getItem("company_token")
         console.log(token);
         loader_show();
@@ -1931,7 +1961,7 @@
             $('#addPlanBtn').off('click').click(async () => {
                 console.log("userID", userID);
                 console.log("plan", selectPlan);
-                checkLocalStorage();
+                checkLocalStorage(); // api ok
                 // TODO: 增加顧客次數
                 const res = await post("userAddTimes", {
                     token: localStorage.getItem("company_token"),            
@@ -2000,7 +2030,7 @@
             new_password_confirm_alert.removeClass("hidden");
             return;
         }
-        checkLocalStorage();
+        checkLocalStorage(); // api ok
         const res = await post("companies_UpdatePassword", {
             token: localStorage.getItem("company_token"),
             Password: old_password,
@@ -2301,12 +2331,12 @@
 
     function checkLocalStorage()
     {
-        if(!localStorage.getItem("company_token"))
-        {
-            alert("請重新登入");
-            location.href = "login.html";
-            return;
-        }
+        // if(!localStorage.getItem("company_token"))
+        // {
+        //     alert("無法取得公司資訊，請重新登入");
+        //     location.href = "login.html";
+        //     return;
+        // }
     }
 
     window.onload = async function() {
@@ -2316,7 +2346,6 @@
         // });
 
         // localStorage.setItem("company_token", res.message.token);
-        
         checkLocalStorage();
 
         const res = await post('company_CheckLevel', {
@@ -2344,10 +2373,6 @@
         setToken('');
         getUser();
         loader_hide();
-
-
-
-
     };
 </script>
 
