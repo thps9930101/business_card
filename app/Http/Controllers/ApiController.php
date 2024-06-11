@@ -629,7 +629,7 @@ class ApiController extends Controller
         
         if(!$company->exists())
         {
-            abort(601);
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
@@ -1259,7 +1259,7 @@ class ApiController extends Controller
         
         if(!$company)
         {
-            abort(601);
+            abort(415);
             return [
                 'success' => false,
                 'message' => "請重新登入"
