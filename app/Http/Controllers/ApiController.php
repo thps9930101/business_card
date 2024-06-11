@@ -1258,6 +1258,7 @@ class ApiController extends Controller
         
         if(!$company)
         {
+            abort(401);
             return [
                 'success' => false,
                 'message' => "請重新登入"
