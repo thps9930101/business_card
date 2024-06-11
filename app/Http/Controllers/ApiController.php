@@ -734,6 +734,65 @@ class ApiController extends Controller
         ];
     }
 
+    public function editTimes(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'user_id' => 'required',
+            'times' => 'required'
+        ]);
+    
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token',$request->token)->first();
+        
+        if(!$company){
+            return[
+                'success' => false,
+                'message' => "無法取得公司資訊，請重新登入"
+            ];
+        }
+
+        if($company->level != 0)
+        {
+            return[
+                'success' => false,
+                'message' => "權限不足，請通知總公司"
+            ];
+        }
+
+        $user = User::where('id',$request->user_id)->first();
+
+        if(!$user)
+        {
+            return[
+                'success' => false,
+                'message' => "找不到此用戶，請重新刷新頁面"
+            ];
+        }
+
+        try
+        {
+            $user->download_time = $request->times;
+            $user->save();
+        }
+        catch(Exception $e){
+            return[
+                'success' => false,
+                'message' => "資料庫發生錯誤"
+            ];
+        }
+        return[
+            'success' => true,
+            'message' => "編輯次數成功"
+        ];
+    }
+
     public function rollback_times(Request $request){
         $validator = Validator::make($request->all(),[
             'token' => 'required',
