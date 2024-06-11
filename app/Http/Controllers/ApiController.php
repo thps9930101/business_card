@@ -1263,16 +1263,23 @@ class ApiController extends Controller
                 'message' => "請重新登入"
             ];
         }
-        
-        if($company->level == 0)
-        {
-            $company_users = companies_user::orderBy('user_id', 'desc')->get();
-        }else
-        {
+
+        if ($company->level == 0) {
+            $company_users = companies_user::orderBy('created_at', 'desc')->get();
+        } else {
             $company_users = companies_user::where('company_id', $company->id)
-                                ->orderBy('user_id', 'desc')
-                                ->get();
+                                           ->orderBy('created_at', 'desc')
+                                           ->get();
         }
+        // if($company->level == 0)
+        // {
+        //     $company_users = companies_user::orderBy('user_id', 'desc')->get();
+        // }else
+        // {
+        //     $company_users = companies_user::where('company_id', $company->id)
+        //                         ->orderBy('user_id', 'desc')
+        //                         ->get();
+        // }
 
         foreach ($company_users as $company_user) {
             

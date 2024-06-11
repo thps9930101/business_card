@@ -138,6 +138,30 @@
       </div>
     </div>
 
+    <div class="modal fade" id="editTimes" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true"" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editTimes_Title">編輯剩餘次數</h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-gray-500 flex items-center">
+                    <span class="w-[40%]">目前剩餘次數: </span>
+                    <span id="editTimes_originalTimes"></span>
+                </div>
+                <div class="flex mt-2 items-center">
+                    <span class="w-[40%]">變更後的剩餘次數: </span>                      
+                    <input id="editTimes_input" name="editTimes_input" type="number" class="rounded-lg focus:ring-primary-600 focus:border-primary-600 block flex-grow p-2.5">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="editTimes_btn">保存編輯</button>
+            </div>
+            </div>
+        </div>
+    </div>
+  
     <div class="modal fade" id="addTimes" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -534,6 +558,7 @@
 <script>
     var debugMode = true;
     var isShowMenu = false;
+    var isAdmin = false;
     var loader = document.getElementById("loader");
 
     function loader_show() {
@@ -945,6 +970,84 @@
                     }
                 }).html("加值"));
 
+                if (isAdmin)
+                {
+                    menu.append($('<div>', {
+                        'class': btnClass + " bg-yellow-200 ml-2",
+                        click: () => {
+                            // localStorage.getItem("company_token")
+                            // userData.id'
+                            $("#editTimes_Title").html('編輯 <span class="text-red-500 font-bold">' + userData.name + '</span> 的剩餘次數');
+                            $("#editTimes_originalTimes").html(userData.remainingTimes);
+                            $("#editTimes_input").val(userData.remainingTimes);
+
+                            $('#editTimes').on('hide.bs.modal', function () {
+                                $('#editTimes_btn').off('click');
+                            })
+                            $('#editTimes_btn').off('click').click(async () => {
+                                if (isNaN($("#editTimes_input").val()))
+                                {
+                                    alert("請確認您輸入的次數是否正確");
+                                    return;
+                                }
+
+                                const loca = location;   
+                                var modify = ""
+                                var modify_num = Number($("#editTimes_input").val())
+                                console.log($("#editTimes_input").val(), modify_num)
+                                if (userData.remainingTimes > modify_num)
+                                    modify = "<spam class='ml-1 text-red-500'>(-" + (userData.remainingTimes - modify_num) + ")</span>";
+                                else if (userData.remainingTimes == modify_num)
+                                    modify = "<spam class='ml-1 text-gray-500'>(+0)</span>";
+                                else
+                                    modify = "<spam class='ml-1 text-green-500'>(+" + (modify_num - userData.remainingTimes) + ")</span>";
+                                
+                                var msg = {};
+                                msg.title = "變更剩餘次數確認";
+                                msg.html = "即將編輯<span class='text-red-500 font-bold'>" + userData.name + "</span> 的剩餘次數" + 
+                                            "<br>" + 
+                                            "<div class='w-full p-2'>" + userData.remainingTimes + " -> " + modify_num + modify + "</div>";
+                                msg.showCancelButton = true
+                                msg.confirmButtonText = '確認編輯';
+                                msg.cancelButtonText = '取消';
+                                msg.reverseButtons = true;
+                                Swal.fire(msg).then(async (result) => {
+                                    if (result.isConfirmed) {
+                                        loader_show();
+
+                                        if (userData.remainingTimes == modify_num)
+                                        {
+                                            alert("編輯成功")
+                                            loca.reload();
+                                            return;
+                                        }
+
+                                        var res = await post("editTimes", {
+                                            token: localStorage.getItem("company_token"),
+                                            user_id: userData.id,
+                                            times: modify_num,
+                                        })
+
+                                        if (!res) 
+                                            alert("發生未預期的錯誤，編輯失敗");
+                                        else {                                        
+                                            if (res.success) 
+                                                alert("編輯成功")
+                                            else
+                                                alert(res.message)
+                                        }
+                                        
+                                        loca.reload();
+                                    }
+                                });
+                            })
+
+                            $("#editTimes").modal('show');
+                            // editTimes_btn
+                        }
+                    }).html("編輯次數"));
+                }
+
                 menu.append($('<div>', {
                     'class': btnClass + " bg-yellow-200 ml-2 ",
                     click: () => { createQR(cardInfo.public_id) }
@@ -1105,8 +1208,8 @@
                     // userDiv.append(createDiscribe("名片ID: " + cardInfo.public_id));
                     userDetailDiv.append(createDiscribe("名片名稱: " + release_name));
                     // userDetailDiv.append(createDiscribe("瀏覽次數: " + cardInfo.download_times));
-                    userDetailDiv.append(createUrlCopy("名片連結 : ", previewUrl, "qrInput"+userData.id));
-                    userDetailDiv.append(createUrlCopy("瀏覽次數連結 : ", timesUrl, "browseInput"+userData.id));
+                    userDetailDiv.append(createUrlCopy("名片連結 : ", previewUrl, "qrInput" + userData.id));
+                    userDetailDiv.append(createUrlCopy("瀏覽次數連結 : ", timesUrl, "browseInput" + userData.id));
                     userDetailDiv.append(createDiscribe("創建時間: " + formatDate(cardInfo.created_at)));
                     userDetailDiv.append(createDiscribe("上次更新: " + formatDate(cardInfo.updated_at)));
 
@@ -1923,9 +2026,9 @@
 
     function checkLevel(level) {
         if (level)
-        {
             $("#planBtnContainer").html("");
-        }
+        else
+            isAdmin = true;
     }
 
     async function editCard() {
