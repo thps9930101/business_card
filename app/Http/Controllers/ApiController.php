@@ -637,7 +637,7 @@ class ApiController extends Controller
 
         $company = companies::where('token', $request->token)->first();
         
-        if($company)
+        if(!$company)
         {
             abort(415);
             return [
