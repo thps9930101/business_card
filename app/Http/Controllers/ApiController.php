@@ -2568,7 +2568,7 @@ class ApiController extends Controller
         return $result;
     }
 
-    public function getAllTimesByArrau(Request $request){
+    public function getAllTimesByArray(Request $request){
         $validator = Validator::make($request->all(),[
             'token' => 'required',
             'requestList' => 'required'
@@ -2607,7 +2607,7 @@ class ApiController extends Controller
                         'remaining_times' => $user->download_time,
                     ];
                 }
-                
+
                 array_push($times_Result['message'], $res);
             }
 
