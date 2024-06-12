@@ -51,6 +51,9 @@ Route::post('/getModelVersion',[ApiController::class, 'getModelVersion']);
 Route::post('/getAllTimes',[ApiController::class, 'getAllTimes']);
 Route::post('/editTimes',[ApiController::class, 'editTimes']);
 Route::post('/getCompanyUserAllBC',[ApiController::class, 'getCompanyUserAllBC']);
+Route::post('/testEnc',[ApiController::class, 'testEnc']);
+Route::post('/changeFrontBack',[ApiController::class, 'changeFrontBack']);
+
 
 //company
 Route::post('/company_register',[ApiController::class, 'company_register']);

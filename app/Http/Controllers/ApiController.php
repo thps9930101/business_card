@@ -52,6 +52,7 @@ use App\Jobs\ProductUnsubscribe;
 use App\Jobs\ResetPasswordTokenExpired;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Encryption\Encrypter;
 
 use Illuminate\Support\Facades\Validator;
 // use Illuminate\Validation\Rules\Password;
@@ -614,6 +615,101 @@ class ApiController extends Controller
                 'message' => "找不到此帳號"
             ];
         }
+    }
+
+    public function changeFrontBack(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'user_id' => 'required',
+            'card_id' => 'required'
+        ]);
+
+        if (!$request->token)
+            abort(415);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token', $request->token)->first();
+        
+        if($company)
+        {
+            abort(415);
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
+        $company_user = companies_user::where('company_id', $company->id)->where('user_id', $request->user_id)->first();
+
+        if(!$company_user)
+        {
+            return [
+                'success' => false,
+                'message' => "找不到此用戶"
+            ];
+        }
+
+        if($company->level != 0)
+        {
+            if($company_user->company_id != $company_id)
+            {
+                return [
+                    'success' => false,
+                    'message' => "無法編輯此用戶"
+                ];
+            }
+        }
+
+        $card = cards::where('id', $request->card_id)->first();
+
+        if(!$card)
+        {
+            return [
+                'success' => false,
+                'message' => "找不到此卡片"
+            ];
+        }
+
+        $front = $card->card_front_id;
+        $back = $card->card_back_id;
+
+        $card->card_front_id = $back;
+        $card->card_back_id = $front;
+        $card->save();
+
+        return [
+            'success' => true,
+            'message' => "編輯成功"
+        ];
+    }
+
+    public function testEnc(Request $request){
+        $file = $request->file('file');
+        
+        $contents = file_get_contents($file->getRealPath());
+        $keyLength = 16; // AES-256 需要 32 字節的金鑰
+        // 生成隨機的字串作為金鑰
+        $key  = "1234567898882222";  //加密秘钥 这个key的字符位数要求：4的倍数
+        $iv   = '8NONwyJtHesysWpM';  //向量（偏移向量）
+
+        // 使用 openssl_encrypt 進行加密
+        $encryptedContents = base64_encode(openssl_encrypt($contents, "AES-128-CBC", $key, OPENSSL_RAW_DATA, $iv));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'File encrypted successfully',
+            'encrypted_contents' => $encryptedContents, // 將加密後的內容添加到回應中
+            'encryption_key' => $key, // 將金鑰添加到回應中
+            'iv' => $iv // 將 IV 添加到回應中
+        ]);
+
     }
 
     public function company_CheckLevel(Request $request){
