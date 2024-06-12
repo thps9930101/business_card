@@ -683,6 +683,7 @@ class ApiController extends Controller
         $front = $card->card_front_id;
         $back = $card->card_back_id;
 
+        $card->version = $card->version + 1; 
         $card->card_front_id = $back;
         $card->card_back_id = $front;
         $card->save();
