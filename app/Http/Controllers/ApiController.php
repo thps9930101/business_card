@@ -646,26 +646,29 @@ class ApiController extends Controller
             ];
         }
 
-        $company_user = companies_user::where('company_id', $company->id)->where('user_id', $request->user_id)->first();
+        // $company_user = companies_user::where('company_id', $company->id)->where('user_id', $request->user_id)->first();
 
-        if(!$company_user)
-        {
-            return [
-                'success' => false,
-                'message' => "找不到此用戶"
-            ];
-        }
+        // if($company->level != 0)
+        // {
+        //     if(!$company_user)
+        //     {
+        //         return [
+        //             'success' => false,
+        //             'message' => "找不到此用戶"
+        //         ];
+        //     }
+        // }
 
-        if($company->level != 0)
-        {
-            if($company_user->company_id != $company_id)
-            {
-                return [
-                    'success' => false,
-                    'message' => "無法編輯此用戶"
-                ];
-            }
-        }
+        // if($company->level != 0)
+        // {
+        //     if($company_user->company_id != $company_id)
+        //     {
+        //         return [
+        //             'success' => false,
+        //             'message' => "無法編輯此用戶"
+        //         ];
+        //     }
+        // }
 
         $card = cards::where('id', $request->card_id)->first();
 
