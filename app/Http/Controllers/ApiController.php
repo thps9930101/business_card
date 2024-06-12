@@ -2568,6 +2568,61 @@ class ApiController extends Controller
         return $result;
     }
 
+    public function getAllTimesByArrau(Request $request){
+        $validator = Validator::make($request->all(),[
+            'token' => 'required',
+            'requestList' => 'required'
+        ]);
+
+        if (!$request->token)
+            abort(415);
+
+        if($validator->fails()){
+            return [
+                'success' => false,
+                'message' => __('register.failed'),
+                'errors'=> $validator->errors()->toArray()
+            ];
+        }
+
+        $company = companies::where('token', $request->token)->first();
+
+        if($company)
+        {
+            $times_Result = [     
+                'success' => true,
+                'message' => []       
+            ];
+
+            foreach ($request->requestList as $item) {
+                $card = cards::where('id', $item["card_id"])->first();
+                $user = User::where('id', $item["user_id"])->first();
+
+                $res = null;
+                if ($card && $user) {
+                    $res = [
+                        'company_id' => $card->company_id,
+                        'user_id' => $card->user_id,
+                        'download_times' => $card->download_time,
+                        'remaining_times' => $user->download_time,
+                    ];
+                }
+                
+                array_push($times_Result['message'], $res);
+            }
+
+            return $times_Result;
+        }
+        else
+        {
+            abort(415);
+            return [
+                'success' => false,
+                'message' => "請重新登入"
+            ];
+        }
+
+    }
     public function getAllTimes(Request $request){
         $validator = Validator::make($request->all(),[
             'token' => 'required'

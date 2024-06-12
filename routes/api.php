@@ -49,6 +49,7 @@ Route::post('/editMaterials',[ApiController::class, 'editMaterials']);
 Route::post('/editModels',[ApiController::class, 'editModels']);
 Route::post('/getModelVersion',[ApiController::class, 'getModelVersion']);
 Route::post('/getAllTimes',[ApiController::class, 'getAllTimes']);
+Route::post('/getAllTimesByArray',[ApiController::class, 'getAllTimesByArray']);
 Route::post('/editTimes',[ApiController::class, 'editTimes']);
 Route::post('/getCompanyUserAllBC',[ApiController::class, 'getCompanyUserAllBC']);
 Route::post('/testEnc',[ApiController::class, 'testEnc']);
