@@ -35,7 +35,7 @@
 <body>
 <!-- Component Start -->
 <div class="flex flex-col w-screen h-dvh overflow-auto text-gray-700 bg-gradient-to-tr from-blue-200 via-indigo-200 to-pink-200">
-    <div class="flex items-center flex-shrink-0 w-full h-[10%] px-3 bg-white bg-opacity-75">
+    <div class="flex items-center flex-shrink-0 w-full h-[8%] px-3 bg-white bg-opacity-75">
         <h1 class="sm:text-2xl text-sm font-bold" onclick="hideMenu()">
             <div class="flex items-center">
                 <div class="hover:bg-gray-200 p-2 rounded-lg cursor-pointer" onclick="window.location.href='homePage.html'">首頁</div>
@@ -54,512 +54,512 @@
             <i class="fa-solid fa-user fa-2x"></i>
         </button>
     </div>
-<!--     <div class="px-10 mt-6 flex">
-        <h1 class="text-2xl font-bold">Team Project Board</h1>      
-
-        <buton class="flex items-center justify-center w-8 h-8 ml-auto overflow-hidden rounded-full cursor-pointer">
-            <img src="https://assets.codepen.io/5041378/internal/avatars/users/default.png?fit=crop&format=auto&height=512&version=1600304177&width=512" alt="">
-        </buton>
-    </div> -->
-    <div class="h-[90%] overflow-scroll">
-         <!-- onclick="hideMenu()" -->
-        
-        <div class="flex sm:flex-row sm:items-start items-center flex-col p-[5px] mt-6">
-        <div class="flex-grow"></div>
-        <div class="flex flex-col flex-shrink-0 sm:w-[48%] w-[90%] h-auto sm:h-full">
-            <div class="flex items-center flex-shrink-0 h-10 px-2">
-                <span class="block text-sm font-semibold">有剩餘下載次數的名片數量：</span>
-                <span class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30" id="remain-greater-0-count">0</span>
-                <button class="flex items-center justify-center w-[100px] h-[30px] font-bold ml-auto  bg-yellow-200 rounded hover:bg-yellow-500" onclick="showAddCardModal(true)">      
-                    <p>新建名片</p>
-                </button>
-            </div>
-            <div class="search-container flex mt-2" id="search">
-            </div>
-             <div class="flex flex-col pb-2 overflow-auto" id="remain-greater-0">
-
-            </div>
+    <div class="h-[92%] overflow-scroll">
+        <div class="search-container flex mt-2 p-2 pl-4 pr-4" id="search">
         </div>
-        <div class="flex-grow"></div>
-        <div class="flex flex-col flex-shrink-0 sm:w-[48%] w-[90%] h-auto sm:h-full">
-            <div class="flex items-center flex-shrink-0 h-10 px-2">
-                <span class="block text-sm font-semibold">無下載次數的名片數量：</span>
-                <span class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30" id="remain-equal-0-count">0</span>
-                
+        <div class="flex sm:flex-row sm:items-start items-center flex-col p-[5px] mt-1">
+            <div class="flex-grow"></div>
+            <div class="flex flex-col flex-shrink-0 sm:w-[48%] w-[90%] h-auto sm:h-full">
+                <div class="flex items-center flex-shrink-0 h-10 px-2">
+                    <span class="block text-sm font-semibold">有剩餘下載次數的名片數量：</span>
+                    <span class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30" id="remain-greater-0-count">0</span>
+                    <button class="flex items-center justify-center w-[100px] h-[30px] font-bold ml-auto  bg-yellow-200 rounded hover:bg-yellow-500" onclick="showAddCardModal(true)">      
+                        <p>新建名片</p>
+                    </button>
+                </div>
+                <div class="flex flex-col pb-2 overflow-auto" id="remain-greater-0">
+
+                </div>
             </div>
-            <div class="flex flex-col pb-2 overflow-auto" id="remain-equal-0">
-            </div>
-        </div>    
-        <div class="flex-grow"></div>
-    </div>
-
-    <div class="modal fade" id="addUser" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle">建立會員</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-
-            <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg">
-              <div>
-                <form action="#" method="POST">
-                  <div>
-                    <label for="account" class="block text-sm font-medium leading-6 text-gray-900">帳號</label>
-                    <div class="mt-2">
-                      <input id="email" name="account" type="email" autocomplete="account" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入會員email">
-                    </div>
-                  </div>
-
-                  <div hidden>
-                    <div class="flex items-center justify-between">
-                      <label for="password" class="block text-sm font-medium leading-6 text-gray-900">密碼</label>
-                      <div class="text-sm">
-                        <!-- <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a> -->
-                      </div>
-                    </div>
-                    <div class="mt-2">
-                      <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" value="!123456">
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-            <button type="button" class="btn btn-primary" onclick="addUser()" data-dismiss="modal">新增會員</button>
-          </div>
+            <div class="flex-grow"></div>
+            <div class="flex flex-col flex-shrink-0 sm:w-[48%] w-[90%] h-auto sm:h-full">
+                <div class="flex items-center flex-shrink-0 h-10 px-2">
+                    <span class="block text-sm font-semibold">無下載次數的名片數量：</span>
+                    <span class="flex items-center justify-center w-5 h-5 ml-2 text-sm font-semibold text-indigo-500 bg-white rounded bg-opacity-30" id="remain-equal-0-count">0</span>
+                    
+                </div>
+                <div class="flex flex-col pb-2 overflow-auto" id="remain-equal-0">
+                </div>
+            </div>    
+            <div class="flex-grow"></div>
         </div>
-      </div>
-    </div>
 
-    <div class="modal fade" id="editTimes" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true"" data-backdrop="static" data-keyboard="false">
+        <div class="modal fade" id="addUser" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editTimes_Title">編輯剩餘次數</h5>
+                <h5 class="modal-title" id="exampleModalLongTitle">建立會員</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
-                <div class="text-gray-500 flex items-center">
-                    <span class="w-[40%]">目前剩餘次數: </span>
-                    <span id="editTimes_originalTimes"></span>
+
+                <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg">
+                <div>
+                    <form action="#" method="POST">
+                    <div>
+                        <label for="account" class="block text-sm font-medium leading-6 text-gray-900">帳號</label>
+                        <div class="mt-2">
+                        <input id="email" name="account" type="email" autocomplete="account" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入會員email">
+                        </div>
+                    </div>
+
+                    <div hidden>
+                        <div class="flex items-center justify-between">
+                        <label for="password" class="block text-sm font-medium leading-6 text-gray-900">密碼</label>
+                        <div class="text-sm">
+                            <!-- <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a> -->
+                        </div>
+                        </div>
+                        <div class="mt-2">
+                        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" value="!123456">
+                        </div>
+                    </div>
+                    </form>
                 </div>
-                <div class="flex mt-2 items-center">
-                    <span class="w-[40%]">變更後的剩餘次數: </span>                      
-                    <input id="editTimes_input" name="editTimes_input" type="number" class="rounded-lg focus:ring-primary-600 focus:border-primary-600 block flex-grow p-2.5">
                 </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" id="editTimes_btn">保存編輯</button>
+                <button type="button" class="btn btn-primary" onclick="addUser()" data-dismiss="modal">新增會員</button>
             </div>
             </div>
         </div>
-    </div>
-  
-    <div class="modal fade" id="addTimes" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle">會員加值</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            選擇方案
-            <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg" id="addTimesBody"></div>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-            <button type="button" class="btn btn-primary" id="addPlanBtn" data-dismiss="modal">添加方案</button>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <div class="modal fade" id="updatePswModal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle">變更密碼</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="mt-2">
-                <label for="old_password" class="block text-sm font-medium leading-6 text-gray-900">
-                    舊密碼
-                    <span class="text-red-500">*<span>
-                    <span id="old_password_alert" class="text-red-500 hidden"><span>
-                </label>
-                <div class="mt-2">
-                  <input id="old_password" name="old_password" type="password" autocomplete="account" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入舊密碼">
+        <div class="modal fade" id="editTimes" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true"" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTimes_Title">編輯剩餘次數</h5>
                 </div>
-              </div>
-
-              <div class="mt-2">
-                <label for="new_password" class="block text-sm font-medium leading-6 text-gray-900">
-                    新密碼
-                    <span class="text-red-500">*<span>
-                    <span id="new_password_alert" class="text-red-500 hidden"><span>
-                </label>
-                <div class="mt-2">
-                  <input id="new_password" name="new_password" type="password" autocomplete="account" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入舊密碼">
+                <div class="modal-body">
+                    <div class="text-gray-500 flex items-center">
+                        <span class="w-[40%]">目前剩餘次數: </span>
+                        <span id="editTimes_originalTimes"></span>
+                    </div>
+                    <div class="flex mt-2 items-center">
+                        <span class="w-[40%]">變更後的剩餘次數: </span>                      
+                        <input id="editTimes_input" name="editTimes_input" type="number" class="rounded-lg focus:ring-primary-600 focus:border-primary-600 block flex-grow p-2.5">
+                    </div>
                 </div>
-              </div>
-
-              <div class="mt-2">
-                <label for="new_password_confirm" class="block text-sm font-medium leading-6 text-gray-900">
-                    確認密碼
-                    <span class="text-red-500">*<span>
-                    <span id="new_password_confirm_alert" class="text-red-500 hidden"><span>
-                </label>
-                <div class="mt-2">
-                  <input id="new_password_confirm" name="new_password_confirm" type="password" autocomplete="account" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請再次輸入密碼">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="editTimes_btn">保存編輯</button>
                 </div>
-              </div>
-
-              <div class="mt-2 flex items-center justify-end h-5">
-                <input type="checkbox" id="showPsw" class="mr-1" onchange="togglePassword()">顯示密碼
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-            <button type="button" class="btn btn-primary" id="updatePswBtn" onclick="updatePassword()">變更密碼</button>
-          </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <div class="modal fade modal-fullscreen" id="fullscreenModal" tabindex="-1" aria-labelledby="fullscreenModalLabel" aria-hidden="true">
-        <div class="modal-dialog h-[100dvh] !max-w-[70vw]">
-          <div class="modal-content h-full">
+    
+        <div class="modal fade" id="addTimes" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="fullscreenModalLabel">模型預覽</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="exampleModalLongTitle">會員加值</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="modal-body flex-grow">
-              <iframe id="previewIframe" src="https://example.com" style="width: 100%; height: 100%; border: none;"></iframe>
+            <div class="modal-body">
+                選擇方案
+                <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg" id="addTimesBody"></div>
+
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" onclick="closePreviewModelModal()">關閉</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="addPlanBtn" data-dismiss="modal">添加方案</button>
             </div>
-          </div>
+            </div>
         </div>
-      </div>
-      
-    <div class="modal fade" id="addCard" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        </div>
+
+        <div class="modal fade" id="updatePswModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content w-[80vw]">
-                <div class="modal-header">
-                    <h5 class="modal-title text-2xl font-bold" id="exampleModalLongTitle">建立名片</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">變更密碼</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                <div class="mt-2">
+                    <label for="old_password" class="block text-sm font-medium leading-6 text-gray-900">
+                        舊密碼
+                        <span class="text-red-500">*<span>
+                        <span id="old_password_alert" class="text-red-500 hidden"><span>
+                    </label>
+                    <div class="mt-2">
+                    <input id="old_password" name="old_password" type="password" autocomplete="account" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入舊密碼">
+                    </div>
                 </div>
 
-                <div class="modal-body flex">
-                    <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg">
-                        <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2">
-
-                            <div class="text-xl font-bold mb-[10px]">會員資訊</div>
-                            <div class="form-group">
-                                <label for="name">名稱
-                                    <span class="text-red-500">*<span>
-                                    <span id="name_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="name" type="text" class="form-control" placeholder="請輸入使用者名稱">
-                            </div>
-                            <div class="form-group">
-                                <label for="account">電子郵件
-                                    <span class="text-red-500">*<span>
-                                    <span id="email_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="account" type="email" class="form-control" placeholder="請輸入電子郵件">
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">電話</label>
-                                <span class="text-red-500">*<span>
-                                <input id="phone" type="text" class="form-control" placeholder="請輸入電話">
-                            </div>
-                        </div>
-                    
-                        <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2 mt-2 h-full">
-
-                            <div class="text-xl font-bold mb-[10px]">名片資訊</div>
-                            <div class="form-group">
-                                <label for="release_name">發布名稱
-                                    <span class="text-red-500">*<span>
-                                    <span id="release_name_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="release_name" type="text" class="form-control" placeholder="請輸入名片發布名稱">
-                            </div>
-                            <div class="form-group">
-                                <label for="line">line</label>
-                                <input id="line" type="text" class="form-control" placeholder="請輸入line id">
-                            </div>
-                            <div class="form-group">
-                                <label for="facebook">facebook</label>
-                                <input id="facebook" type="text" class="form-control" placeholder="請輸入facebook連結">
-                            </div>
-                            <div class="form-group">
-                                <label for="instagram">instagram</label>
-                                <input id="instagram" type="text" class="form-control" placeholder="請輸入instagram連結">
-                            </div>
-                            <div class="form-group">
-                                <label for="web">自訂連結</label>
-                                <input id="web" type="text" class="form-control" placeholder="請輸入自訂連結">
-                            </div>
-                            <!-- <div class="form-group flex justify-between items-center p-1">
-                                <label for="is_actived">是否公開名片</label>
-                                <input id="is_actived" type="checkbox" checked readonly>
-                            </div> -->
-       <!--                      <div class="form-group">
-                                <label for="address">地址</label>
-                                <input id="address" type="text" class="form-control" placeholder="請輸入地址">
-                            </div> -->
-<!--                             <div class="form-group">
-                                <label for="fax">傳真</label>
-                                <input id="fax" type="text" class="form-control" placeholder="請輸入傳真">
-                            </div> -->
-
-                        </div>
+                <div class="mt-2">
+                    <label for="new_password" class="block text-sm font-medium leading-6 text-gray-900">
+                        新密碼
+                        <span class="text-red-500">*<span>
+                        <span id="new_password_alert" class="text-red-500 hidden"><span>
+                    </label>
+                    <div class="mt-2">
+                    <input id="new_password" name="new_password" type="password" autocomplete="account" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請輸入舊密碼">
                     </div>
-                    <div class="flex flex-col justify-start px-1 min-w-[300px] w-full bg-white rounded-lg">
-                        <div class="w-full border border-blue-500 rounded-lg p-2">
-                            <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
-                                <div>名片正反面圖片</div>
-                                <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearCardPic(false)">清空</div>
-                            </div>
-                            <div class="form-group">
-                                <label for="pic_front">正面圖片(後面)
-                                    <span class="text-red-500">*<span>
-                                    <span id="pic_front_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="pic_front" type="file" class="form-control p-0" placeholder="請選擇名片正面圖片" accept="image/jpeg,image/png">
-                            </div>
-                            <div class="form-group">
-                                <label for="pic_back">反面圖片(底部)
-                                    <span class="text-red-500">*<span>
-                                    <span id="pic_back_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="pic_back" type="file" class="form-control p-0" placeholder="請選擇名片反面圖片" accept="image/jpeg,image/png">
-                            </div>
-                        </div>
-                        <div class="flex-grow m-1"></div>
-                        <div class="w-full border border-blue-500 rounded-lg p-2">
-                            <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
-                                <div>模型檔案</div>
-                                <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearModel(false)">清空</div>
-                            </div>                            <div class="form-group">
-                                <label for="model_mesh">模型檔(*.obj)
-                                    <span class="text-red-500">*<span>
-                                    <span id="model_mesh_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="model_mesh" type="file" class="form-control p-0" accept=".obj">
-                            </div>
-                            <div class="form-group">
-                                <label for="model_texture">模型貼圖
-                                    <span class="text-red-500">*<span>
-                                    <span id="model_texture_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="model_texture" type="file" class="form-control p-0" accept="image/jpeg,image/png">
-                            </div>
-                            <!--                             
-                            <div class="form-group">
-                                <label for="model_texture">全身圖</label>
-                                <input id="model_texture" type="file" class="form-control p-1">
-                            </div> -->
-                            <div class="form-group">
-                                <label for="model_half">半身圖
-                                    <span class="text-red-500">*<span>
-                                    <span id="model_half_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="model_half" type="file" class="form-control p-0" accept="image/jpeg,image/png"> 
-                            </div>
-                        </div>
-                        <div class="flex-grow m-1"></div>
+                </div>
 
-
-                        <div class="w-full border border-blue-500 rounded-lg p-2">
-                            <div class="text-xl font-bold mb-[10px]">選擇方案</div>
-                            <div id="planList"></div>
-
-                        </div>
-
-
+                <div class="mt-2">
+                    <label for="new_password_confirm" class="block text-sm font-medium leading-6 text-gray-900">
+                        確認密碼
+                        <span class="text-red-500">*<span>
+                        <span id="new_password_confirm_alert" class="text-red-500 hidden"><span>
+                    </label>
+                    <div class="mt-2">
+                    <input id="new_password_confirm" name="new_password_confirm" type="password" autocomplete="account" required class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5" placeholder="請再次輸入密碼">
                     </div>
+                </div>
+
+                <div class="mt-2 flex items-center justify-end h-5">
+                    <input type="checkbox" id="showPsw" class="mr-1" onchange="togglePassword()">顯示密碼
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="updatePswBtn" onclick="updatePassword()">變更密碼</button>
+            </div>
+            </div>
+        </div>
+        </div>
+
+        <div class="modal fade modal-fullscreen" id="fullscreenModal" tabindex="-1" aria-labelledby="fullscreenModalLabel" aria-hidden="true">
+            <div class="modal-dialog h-[100dvh] !max-w-[70vw]">
+            <div class="modal-content h-full">
+                <div class="modal-header">
+                <h5 class="modal-title" id="fullscreenModalLabel">模型預覽</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body flex-grow">
+                <iframe id="previewIframe" src="https://example.com" style="width: 100%; height: 100%; border: none;"></iframe>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" onclick="addUser()" data-dismiss="modal">新增名片</button>
+                <button type="button" class="btn btn-secondary" onclick="closePreviewModelModal()">關閉</button>
                 </div>
             </div>
+            </div>
         </div>
-    </div>
+        
+        <div class="modal fade" id="addCard" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content w-[80vw]">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-2xl font-bold" id="exampleModalLongTitle">建立名片</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
 
-    <div class="modal fade" id="editCard" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content w-[80vw]">
-                <div class="modal-header">
-                    <h5 class="modal-title text-2xl font-bold" id="exampleModalLongTitle">編輯名片</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body flex">
-                    <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg">
-                        <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2 h-full">
+                    <div class="modal-body flex">
+                        <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg">
+                            <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2">
 
-                            <div class="text-xl font-bold mb-[15px]">名片資訊</div>
-                            <div class="form-group">
-                                <label for="edit_release_name">發布名稱
+                                <div class="text-xl font-bold mb-[10px]">會員資訊</div>
+                                <div class="form-group">
+                                    <label for="name">名稱
+                                        <span class="text-red-500">*<span>
+                                        <span id="name_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="name" type="text" class="form-control" placeholder="請輸入使用者名稱">
+                                </div>
+                                <div class="form-group">
+                                    <label for="account">電子郵件
+                                        <span class="text-red-500">*<span>
+                                        <span id="email_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="account" type="email" class="form-control" placeholder="請輸入電子郵件">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">電話</label>
                                     <span class="text-red-500">*<span>
-                                    <span id="edit_release_name_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="edit_release_name" type="text" class="form-control" placeholder="請輸入名片發布名稱">
+                                    <input id="phone" type="text" class="form-control" placeholder="請輸入電話">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="edit_name">名稱
-                                    <span class="text-red-500">*<span>
-                                    <span id="edit_name_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="edit_name" type="text" class="form-control" placeholder="請輸入使用者名稱">
+                        
+                            <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2 mt-2 h-full">
+
+                                <div class="text-xl font-bold mb-[10px]">名片資訊</div>
+                                <div class="form-group">
+                                    <label for="release_name">發布名稱
+                                        <span class="text-red-500">*<span>
+                                        <span id="release_name_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="release_name" type="text" class="form-control" placeholder="請輸入名片發布名稱">
+                                </div>
+                                <div class="form-group">
+                                    <label for="line">line</label>
+                                    <input id="line" type="text" class="form-control" placeholder="請輸入line id">
+                                </div>
+                                <div class="form-group">
+                                    <label for="facebook">facebook</label>
+                                    <input id="facebook" type="text" class="form-control" placeholder="請輸入facebook連結">
+                                </div>
+                                <div class="form-group">
+                                    <label for="instagram">instagram</label>
+                                    <input id="instagram" type="text" class="form-control" placeholder="請輸入instagram連結">
+                                </div>
+                                <div class="form-group">
+                                    <label for="web">自訂連結</label>
+                                    <input id="web" type="text" class="form-control" placeholder="請輸入自訂連結">
+                                </div>
+                                <!-- <div class="form-group flex justify-between items-center p-1">
+                                    <label for="is_actived">是否公開名片</label>
+                                    <input id="is_actived" type="checkbox" checked readonly>
+                                </div> -->
+        <!--                      <div class="form-group">
+                                    <label for="address">地址</label>
+                                    <input id="address" type="text" class="form-control" placeholder="請輸入地址">
+                                </div> -->
+    <!--                             <div class="form-group">
+                                    <label for="fax">傳真</label>
+                                    <input id="fax" type="text" class="form-control" placeholder="請輸入傳真">
+                                </div> -->
+
                             </div>
-                            <div class="form-group">
-                                <label for="edit_email">電子郵件
-                                    <span class="text-red-500">*<span>
-                                    <span id="edit_email_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="edit_email" type="email" class="form-control" placeholder="請輸入電子郵件">
+                        </div>
+                        <div class="flex flex-col justify-start px-1 min-w-[300px] w-full bg-white rounded-lg">
+                            <div class="w-full border border-blue-500 rounded-lg p-2">
+                                <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
+                                    <div>名片正反面圖片</div>
+                                    <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearCardPic(false)">清空</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="pic_front">正面圖片(後面)
+                                        <span class="text-red-500">*<span>
+                                        <span id="pic_front_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="pic_front" type="file" class="form-control p-0" placeholder="請選擇名片正面圖片" accept="image/jpeg,image/png">
+                                </div>
+                                <div class="form-group">
+                                    <label for="pic_back">反面圖片(底部)
+                                        <span class="text-red-500">*<span>
+                                        <span id="pic_back_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="pic_back" type="file" class="form-control p-0" placeholder="請選擇名片反面圖片" accept="image/jpeg,image/png">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="edit_phone">電話</label>
-                                <span class="text-red-500">*<span>
-                                <input id="edit_phone" type="text" class="form-control" placeholder="請輸入電話">
+                            <div class="flex-grow m-1"></div>
+                            <div class="w-full border border-blue-500 rounded-lg p-2">
+                                <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
+                                    <div>模型檔案</div>
+                                    <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearModel(false)">清空</div>
+                                </div>                            <div class="form-group">
+                                    <label for="model_mesh">模型檔(*.obj)
+                                        <span class="text-red-500">*<span>
+                                        <span id="model_mesh_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="model_mesh" type="file" class="form-control p-0" accept=".obj, .fbx">
+                                </div>
+                                <div class="form-group">
+                                    <label for="model_texture">模型貼圖
+                                        <span class="text-red-500">*<span>
+                                        <span id="model_texture_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="model_texture" type="file" class="form-control p-0" accept="image/jpeg,image/png">
+                                </div>
+                                <!--                             
+                                <div class="form-group">
+                                    <label for="model_texture">全身圖</label>
+                                    <input id="model_texture" type="file" class="form-control p-1">
+                                </div> -->
+                                <div class="form-group">
+                                    <label for="model_half">半身圖
+                                        <span class="text-red-500">*<span>
+                                        <span id="model_half_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="model_half" type="file" class="form-control p-0" accept="image/jpeg,image/png"> 
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="edit_line">line</label>
-                                <input id="edit_line" type="text" class="form-control" placeholder="請輸入line id">
+                            <div class="flex-grow m-1"></div>
+
+
+                            <div class="w-full border border-blue-500 rounded-lg p-2">
+                                <div class="text-xl font-bold mb-[10px]">選擇方案</div>
+                                <div id="planList"></div>
+
                             </div>
-                            <div class="form-group">
-                                <label for="edit_facebook">facebook</label>
-                                <input id="edit_facebook" type="text" class="form-control" placeholder="請輸入facebook連結">
-                            </div>
-                            <div class="form-group">
-                                <label for="edit_instagram">instagram</label>
-                                <input id="edit_instagram" type="text" class="form-control" placeholder="請輸入instagram連結">
-                            </div>
-                            <div class="form-group">
-                                <label for="edit_web">自訂連結</label>
-                                <input id="edit_web" type="text" class="form-control" placeholder="請輸入自訂連結">
-                            </div>
-       <!--                      <div class="form-group">
-                                <label for="edit_address">地址</label>
-                                <input id="edit_address" type="text" class="form-control" placeholder="請輸入地址">
-                            </div> -->
-<!--                             <div class="form-group">
-                                <label for="edit_fax">傳真</label>
-                                <input id="edit_fax" type="text" class="form-control" placeholder="請輸入傳真">
-                            </div> -->
+
 
                         </div>
                     </div>
-
-                    <div class="flex flex-col justify-start px-1 min-w-[300px] w-full bg-white rounded-lg">
-                        <div class="w-full border border-blue-500 rounded-lg p-2 pt-3 pb-3">
-                            <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
-                                <div>名片正反面圖片</div>
-                                <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearCardPic()">清空</div>
-                            </div>
-                            <div class="form-group mt-2">
-                                <label for="edit_pic_front">正面圖片(後面)
-                                    <span class="text-red-500">*<span>
-                                    <span id="edit_pic_front_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="edit_pic_front" type="file" class="form-control p-0" placeholder="請選擇名片正面圖片" accept="image/jpeg,image/png">
-                            </div>
-                            <div class="form-group mt-2">
-                                <label for="edit_pic_back">反面圖片(底部)
-                                    <span class="text-red-500">*<span>
-                                    <span id="edit_pic_back_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="edit_pic_back" type="file" class="form-control p-0" placeholder="請選擇名片反面圖片" accept="image/jpeg,image/png">
-                            </div>
-                            <div class="w-full text-center text-sm mt-4">※若無選擇圖片，則沿用先前的圖片</div>
-                        </div>
-                        <div class="flex-grow mt-2"></div>
-                        <div class="w-full border border-blue-500 rounded-lg p-2 pt-3 pb-3">
-                            <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
-                                <div>模型檔案</div>
-                                <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearModel()">清空</div>
-                            </div>
-                            <div class="form-group mt-2">
-                                <label for="edit_model_mesh">模型檔(*.obj)
-                                    <span class="text-red-500">*<span>
-                                    <span id="edit_model_mesh_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="edit_model_mesh" type="file" class="form-control p-0" accept=".obj">
-                            </div>
-                            <div class="form-group mt-2">
-                                <label for="edit_model_texture">模型貼圖
-                                    <span class="text-red-500">*<span>
-                                    <span id="edit_model_texture_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="edit_model_texture" type="file" class="form-control p-0" accept="image/jpeg,image/png">
-                            </div>
-                            <!--                             
-                            <div class="form-group">
-                                <label for="model_texture">全身圖</label>
-                                <input id="model_texture" type="file" class="form-control">
-                            </div> -->
-                            <div class="form-group mt-2">
-                                <label for="edit_model_half">半身圖
-                                    <span class="text-red-500">*<span>
-                                    <span id="edit_model_half_alert" class="text-red-500 hidden"><span>
-                                </label>
-                                <input id="edit_model_half" type="file" class="form-control p-0" accept="image/jpeg,image/png">
-                            </div>
-                            <div class="w-full text-center text-sm mt-4">※若無選擇模型，則沿用先前的模型</div>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="addUser()" data-dismiss="modal">新增名片</button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" onclick="editCard()">保存變更</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div id="menu" class="absolute bg-gray-100
-    w-[200px] end-10 rounded-lg p-1 flex flex-col hidden" style="top: 8%">
-        <div class="m-1 p-1 hover:bg-gray-200" onclick="menuClick('updatePassword')">變更密碼</div>
-        <div class="m-1 p-1 hover:bg-gray-200" onclick="logout()">登出</div>
-    </div>
+        <div class="modal fade" id="editCard" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content w-[80vw]">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-2xl font-bold" id="exampleModalLongTitle">編輯名片</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body flex">
+                        <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg">
+                            <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2 h-full">
 
-    <div id="loader" class="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50">
-      <div class="flex justify-center items-center mt-[50vh]">
-        <div class="fas fa-circle-notch fa-spin fa-5x text-violet-600"></div>
-      </div>
+                                <div class="text-xl font-bold mb-[15px]">名片資訊</div>
+                                <div class="form-group">
+                                    <label for="edit_release_name">發布名稱
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_release_name_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_release_name" type="text" class="form-control" placeholder="請輸入名片發布名稱">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_name">名稱
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_name_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_name" type="text" class="form-control" placeholder="請輸入使用者名稱">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_email">電子郵件
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_email_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_email" type="email" class="form-control" placeholder="請輸入電子郵件">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_phone">電話</label>
+                                    <span class="text-red-500">*<span>
+                                    <input id="edit_phone" type="text" class="form-control" placeholder="請輸入電話">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_line">line</label>
+                                    <input id="edit_line" type="text" class="form-control" placeholder="請輸入line id">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_facebook">facebook</label>
+                                    <input id="edit_facebook" type="text" class="form-control" placeholder="請輸入facebook連結">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_instagram">instagram</label>
+                                    <input id="edit_instagram" type="text" class="form-control" placeholder="請輸入instagram連結">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_web">自訂連結</label>
+                                    <input id="edit_web" type="text" class="form-control" placeholder="請輸入自訂連結">
+                                </div>
+        <!--                      <div class="form-group">
+                                    <label for="edit_address">地址</label>
+                                    <input id="edit_address" type="text" class="form-control" placeholder="請輸入地址">
+                                </div> -->
+    <!--                             <div class="form-group">
+                                    <label for="edit_fax">傳真</label>
+                                    <input id="edit_fax" type="text" class="form-control" placeholder="請輸入傳真">
+                                </div> -->
+
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col justify-start px-1 min-w-[300px] w-full bg-white rounded-lg">
+                            <div class="w-full border border-blue-500 rounded-lg p-2 pt-3 pb-3">
+                                <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
+                                    <div>名片正反面圖片</div>
+                                    <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearCardPic()">清空</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_pic_front">正面圖片(後面)
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_pic_front_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_pic_front" type="file" class="form-control p-0" placeholder="請選擇名片正面圖片" accept="image/jpeg,image/png">
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="edit_pic_back">反面圖片(底部)
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_pic_back_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_pic_back" type="file" class="form-control p-0" placeholder="請選擇名片反面圖片" accept="image/jpeg,image/png">
+                                </div>
+                                <button id="change_bc_and_fc_btn" class="h-[30px] w-full btn-primary mt-3 rounded flex justify-center items-center">互換先前名片正反圖片</button>
+                                <div class="w-full text-center text-sm mt-2">※若無選擇圖片，則沿用先前的圖片</div>
+                            </div>
+                            <div class="flex-grow mt-2"></div>
+                            <div class="w-full border border-blue-500 rounded-lg p-2 pt-3 pb-3">
+                                <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
+                                    <div>模型檔案</div>
+                                    <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearModel()">清空</div>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="edit_model_mesh">模型檔(*.obj)
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_model_mesh_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_model_mesh" type="file" class="form-control p-0" accept=".obj, .fbx">
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="edit_model_texture">模型貼圖
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_model_texture_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_model_texture" type="file" class="form-control p-0" accept="image/jpeg,image/png">
+                                </div>
+                                <!--                             
+                                <div class="form-group">
+                                    <label for="model_texture">全身圖</label>
+                                    <input id="model_texture" type="file" class="form-control">
+                                </div> -->
+                                <div class="form-group mt-2">
+                                    <label for="edit_model_half">半身圖
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_model_half_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_model_half" type="file" class="form-control p-0" accept="image/jpeg,image/png">
+                                </div>
+                                <div class="w-full text-center text-sm mt-3">※若無選擇模型，則沿用先前的模型</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="editCard()">保存變更</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu" class="absolute bg-gray-100
+        w-[200px] end-10 rounded-lg p-1 flex flex-col hidden" style="top: 8%">
+            <div class="m-1 p-1 hover:bg-gray-200" onclick="menuClick('updatePassword')">變更密碼</div>
+            <div class="m-1 p-1 hover:bg-gray-200" onclick="logout()">登出</div>
+        </div>
+
+        <div id="loader" class="w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50">
+        <div class="flex flex-col justify-center items-center mt-[50vh]">
+            <div class="fas fa-circle-notch fa-spin fa-5x text-violet-600"></div>        
+            <div id='loader_msg' class="mt-1"></div>
+        </div>
+        </div>
     </div>
-</div>
 </body>
 <script>
-    var debugMode = true;
+    // var debugMode = true;
+    var debugMode = false;
     var isShowMenu = false;
     var isAdmin = false;
     var loader = document.getElementById("loader");
+
+    function loader_msg(msg) {
+        const msgDiv = $("#loader_msg");
+        if (msgDiv)
+            msgDiv.html(msg)
+    }
 
     function loader_show() {
         loader.classList.remove('hidden')
@@ -567,6 +567,9 @@
 
     function loader_hide() {
         loader.classList.add('hidden')
+        const msgDiv = $("#loader_msg");
+        if (msgDiv)
+            msgDiv.html("")
     }
 
     function toggleMenu() {
@@ -648,60 +651,41 @@
         return combobox_container;
     }
 
-    function isTextInSentence(sentence, text) {
-        // 使用 includes 方法判断 text 是否在 sentence 中
-        return sentence.includes(text);
-    }
+    function seachDiv(elementList, company, searchStr) {
+        elementList.forEach((item) => {
+            var tmpStr = item.ele[0].querySelectorAll(".userName")[0].innerHTML.split(":")[1];
 
-    function isTextInSentence2(sentence, text) {
-        // 创建一个不区分大小写的正则表达式
-        const regex = new RegExp(text, 'i');
-        return regex.test(sentence);
+            if (item.company_id == company || company == -1)
+            { 
+                if (searchStr != "") {
+                    if(tmpStr.includes(searchStr))
+                        item.ele[0].classList.remove('hidden');
+                    else
+                        item.ele[0].classList.add('hidden');
+                }
+                else
+                    item.ele[0].classList.remove('hidden');
+            }
+            else
+                item.ele[0].classList.add('hidden');
+        })
     }
 
     function createSearchCombobox(CompanyList, elementList , onchange = (selectedCompany) => {}) {
+        console.log("CompanyList", CompanyList)
+        console.log("elementList", elementList)
         const combobox_container = $('<div>', {
             class: 'w-full'
         })
         var searchList = [];
+
         const searchDiv = document.getElementById("search");
         const combobox = $('<select>', {
             name: 'companySearch',
             id: 'companySearch',
-            class:'text-m h-10 mr-2 p-2 rounded w-[40%]',
-            //class: 'w-full inset-y-0 right-0 pl-2 pr-7 bg-transparent border-none rounded-md text-gray-500 focus:ring-blue-500 focus:border-blue-500 text-sm',
+            class:'text-m h-10 mr-2 p-2 rounded w-[50%] md:w-[35%] lg:w-[25%]',
             change: function() {
-                searchList = [];
-                const searchStr = document.getElementById("searchInput")
-                if (searchStr)
-                    searchStr.value = "";
-
-                // console.log("combobox", combobox[0].value);
-
-                if(combobox[0].value == -1)
-                {
-                    for(var i = 0; i < elementList.length; i++)
-                    {
-                        elementList[i].ele[0].classList.remove('hidden');
-                        searchList.push(elementList[i]);
-                    }
-                }
-                else
-                { 
-                    elementList.forEach((eleItem) => {
-                        eleItem.ele[0].classList.add('hidden');
-                    })
-
-                    for(var i = 0; i < elementList.length; i++)
-                    {
-                        if(combobox[0].value == elementList[i].company_id)
-                        {
-                            elementList[i].ele[0].classList.remove('hidden');
-                            searchList.push(elementList[i]);
-                        }
-
-                    }
-                }
+                seachDiv(elementList, combobox[0].value, document.getElementById("searchInput") ? document.getElementById("searchInput").value : "");
             }
         })
 
@@ -711,21 +695,8 @@
             name: 'newInput',
             placeholder: '輸入會員名稱...',
             class:'text-m h-10 p-2 rounded flex-grow',
-             keyup: function(event) {
-                const searchStr = document.getElementById("searchInput");
-
-                for(var i = 0; i < searchList.length ; i++)
-                {
-                    var tmpStr = searchList[i].ele.find(".userName").text().split(":")[1];
-                    searchList[i].ele[0].classList.remove('hidden');
-
-                    if(!isTextInSentence(tmpStr, searchStr.value))
-                    {
-                        searchList[i].ele[0].classList.add('hidden');
-                    }
-                    console.log(tmpStr);
-                    //if(isTextInSentence())
-                }
+            keyup: function(event) {
+                seachDiv(elementList, combobox[0].value, document.getElementById("searchInput").value);
             }
         });
 
@@ -738,8 +709,10 @@
             }).html(item.name))
         });
 
-        if (CompanyList.length > 0) 
-            combobox.val(CompanyList[0].id).change();
+        if (CompanyList.length > 0) {
+            // combobox.val(CompanyList[0].id).change();
+            combobox.val("-1").change();
+        }
 
         combobox_container.append(combobox);
         $(searchDiv).append(combobox);
@@ -748,7 +721,38 @@
         return searchDiv;
     }
 
-    //清空input
+    function change_bc_and_fc(user_id, card_id) {
+        var msg = {};
+        msg.title = "名片正反面圖互換";
+        msg.html = "即將把先前上傳的正面圖與反面圖交換，是否確認";
+        msg.showCancelButton = true
+        msg.confirmButtonText = '確認交換';
+        msg.cancelButtonText = '取消';
+        msg.reverseButtons = true;
+        Swal.fire(msg).then(async (result) => {
+            if (result.isConfirmed) {
+                loader_show();
+
+                var res = await post("changeFrontBack", {
+                    token: localStorage.getItem("company_token"),
+                    user_id: user_id,
+                    card_id: card_id,
+                })
+
+                if (!res) 
+                    alert("發生未預期的錯誤，交換失敗");
+                else {                                        
+                    if (res.success) 
+                        alert("交換成功")
+                    else
+                        alert(res.message)
+                }
+
+                loader_hide();
+            }
+        });
+    }
+
     function clearInput(id) {
         var inputList = document.getElementById(id).querySelectorAll("input");
         inputList.forEach((input) => {
@@ -805,7 +809,10 @@
             Authorization: `Bearer ${token}`
         },
         onUploadProgress: (progressEvent) => {
-            console.log(progressEvent.progress);
+            if (debugMode) {
+                console.log(progressEvent.progress);
+                loader_msg((progressEvent.progress * 100) + "%")
+            }
        }
     };
 
@@ -862,36 +869,7 @@
             return;
         }
         planList = planList.message
-        // planList = [
-        //     {
-        //         id: '',
-        //         name: '無方案',
-        //         price: 0,
-        //         times: 0,
-        //         bonus: 0
-        //     },
-        //     {
-        //         id: 1,
-        //         name: '方案A',
-        //         price: 100,
-        //         times: 1000,
-        //         bonus: 10
-        //     },
-        //     {
-        //         id: 2,
-        //         name: '方案B',
-        //         price: 200,
-        //         times: 2000,
-        //         bonus: 300
-        //     },
-        //     {
-        //         id: 3,
-        //         name: '方案C',
-        //         price: 300,
-        //         times: 3000,
-        //         bonus: 500
-        //     },
-        // ]
+
         loader_hide();
 
         return planList;
@@ -912,7 +890,6 @@
 
         return userData.message;
     }
-
 
     async function getUser() {
         loader_show();
@@ -977,8 +954,7 @@
                 //     }
                 // }).html("QRcord"));
 
-                const btnClass = "flex items-center justify-center sm:w-[120px] w-[100px] h-[35px] p-2 rounded-lg";
-                console.log(userData);
+                const btnClass = "flex items-center justify-center sm:w-[120px] w-[100px] h-[35px] p-2 rounded-lg cursor-pointer";
 
                 menu.append($('<div>', {
                     'class': btnClass + " bg-yellow-200",
@@ -1094,7 +1070,7 @@
                         // TODO: 預覽
                         localStorage.setItem("user_token", userData.token);
                         setToken(userData.token);
-                        showEditCardModal(cardInfo.id)
+                        showEditCardModal(userData.id, cardInfo.id)
                     }
                 }).html("編輯" + "<i class='fa-solid fa-pen-to-square ml-1'></i>"));
 
@@ -1204,7 +1180,7 @@
                     discClass = discClass + " " + classname;
                 
                 const userInfoContainer = $('<div>', { class: discClass });
-                const userNameDiv = createDiscribe("會員名稱:" + userData.name)
+                const userNameDiv = createDiscribe("會員名稱:" + userData.name, "userName")
                 const userDetailDiv = $('<div>', { 
                     class: 'w-full hidden userDetail', 
                 });
@@ -1245,7 +1221,7 @@
             }
 
             const userDiv = $('<div>', {
-                'class': "relative flex flex-col items-start p-4 mt-3 bg-white rounded-lg bg-opacity-90 group hover:bg-opacity-100",
+                'class': "relative flex flex-col items-start p-4 mt-3 bg-white rounded-lg bg-opacity-90 group hover:bg-opacity-100 userDiv",
                 click: function() {
                 }
             });
@@ -1279,6 +1255,8 @@
         }
 
         var elementList = [];
+        var requestList = [];
+        var requestList2 = [];
         var companyList = [];
 
         userData.hasRemainingTimes.forEach(async (item) => {
@@ -1286,10 +1264,8 @@
                 return company.id === item.company_id;
             });
 
-            if (!exists) {
+            if (!exists) 
                 companyList.push({ id: item.company_id, name: item.company });
-                console.log('Company added:', item);
-            }
 
             setToken(item.token);
 
@@ -1310,7 +1286,10 @@
             //     else
             //         cardInfo = null;
             // }
-
+            requestList.push({
+                user_id: item.id,
+                card_id: cardInfo.id
+            })
             const userDiv = createUserDiv(item, cardInfo);
             elementList.push({
                 user_id: item.id,
@@ -1327,11 +1306,8 @@
                 return company.id === item.company_id;
             });
 
-            // 如果不存在，才添加到 companyList
-            if (!exists) {
+            if (!exists) 
                 companyList.push({ id: item.company_id, name: item.company });
-                console.log('Company added:', item);
-            }
 
             var cardInfo = null;
             if (item.all_bc) {
@@ -1351,6 +1327,10 @@
             //         cardInfo = null;
             // }
             
+            requestList2.push({
+                user_id: item.id,
+                card_id: cardInfo.id
+            })
             const userDiv = createUserDiv(item, cardInfo);
             elementList.push({
                 user_id: item.id,
@@ -1366,39 +1346,32 @@
         
         setToken(localStorage.getItem("company_token"));
 
-        setInterval(async () => {
-            var timesList = await post('getAllTimes', {
-                token: localStorage.getItem("company_token")
+        async function fillTimesLoop(div, requestList) {
+            var timesList = await post('getAllTimesByArray', {
+                token: localStorage.getItem("company_token"),
+                requestList: requestList
             })
-
-            var tempElementList = [];
-            if (timesList)
-            {
-                if (timesList.success)
-                {
-                    timesList = timesList.message;
-                    timesList.forEach((timesItem) => {
-                        elementList.forEach((eleItem) => {
-                            // console.log(timesItem, eleItem)
-                            if (timesItem.company_id == eleItem.company_id && timesItem.user_id == eleItem.user_id)
-                            {
-                                findEle = eleItem;
-                                findEle.ele.find('.timesDiv').html("剩餘次數: " + timesItem.remaining_times);
-                                findEle.ele.find('.browsetimesDiv').html("瀏覽次數: " + timesItem.download_times);
-                                //.querySelector(".timesDiv")
-                            }
-                        })
-                    })
-                }
-            }
             
-        }, 10000)
+            if (!timesList) return;
+            if (!timesList.success) return;                        
+
+            timesList = timesList.message;
+            for (var i = 0; i < div.length; i ++) {
+                div[i].querySelectorAll('.timesDiv')[0].innerHTML = "剩餘次數: " + timesList[i].remaining_times;
+                div[i].querySelectorAll('.browsetimesDiv')[0].innerHTML = "瀏覽次數: " + timesList[i].download_times;
+            }
+
+            setTimeout(() => {
+                fillTimesLoop(div, requestList)
+            }, 10000)
+        }
+
+        fillTimesLoop($('#remain-greater-0')[0].querySelectorAll(".userDiv"), requestList)
+        fillTimesLoop($('#remain-equal-0-count')[0].querySelectorAll(".userDiv"), requestList2)
 
         loader_hide();
         // $('#addUser').hide();
     }
-
-
 
     async function showAddCardModal(selectPlan = null) {
         checkLocalStorage(); // api ok
@@ -1491,7 +1464,7 @@
             return;
         if (!checkFileType('pic_back', ["jpg", "png"], 10, "名片反面圖"))
             return;
-        if (!checkFileType('model_mesh', 'obj', 30, "模型檔"))
+        if (!checkFileType('model_mesh', ["obj", "fbx"], 30, "模型檔"))
             return;
         if (!checkFileType('model_texture', ["jpg", "png"], 30, "貼圖"))
             return;
@@ -2183,7 +2156,7 @@
                 return;
             }
 
-            if (!checkFileType('edit_model_mesh', 'obj', 30, "模型"))
+            if (!checkFileType('edit_model_mesh', ["obj", "fbx"], 30, "模型"))
                 return;
             if (!checkFileType('edit_model_texture', ["jpg", "png"], 30, "貼圖"))
                 return;
@@ -2286,7 +2259,7 @@
 
     }
 
-    async function showEditCardModal(card_id) {
+    async function showEditCardModal(user_id, card_id) {
         checkLocalStorage();
         var card = await post("getBC", {
             id: card_id,
@@ -2301,6 +2274,10 @@
             alert(card.message)
             return;
         }
+
+        $("#change_bc_and_fc_btn").off('click').click(() => { 
+            change_bc_and_fc(user_id, card_id)
+        });
 
         current_card_id = card_id;
         current_model_id = card.model.id;
