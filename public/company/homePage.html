@@ -894,7 +894,77 @@
     async function getUser() {
         loader_show();
 
+        function editTimesOnClick(user_name, user_id, remainingTimes) {
+            $("#editTimes_Title").html('編輯 <span class="text-red-500 font-bold">' + user_name + '</span> 的剩餘次數');
+            $("#editTimes_originalTimes").html(remainingTimes);
+            $("#editTimes_input").val(remainingTimes);
+
+            $('#editTimes').on('hide.bs.modal', function () {
+                $('#editTimes_btn').off('click');
+            })
+            $('#editTimes_btn').off('click').click(async () => {
+                if (isNaN($("#editTimes_input").val()))
+                {
+                    alert("請確認您輸入的次數是否正確");
+                    return;
+                }
+
+                const loca = location;   
+                var modify = ""
+                var modify_num = Number($("#editTimes_input").val())
+                console.log($("#editTimes_input").val(), modify_num)
+                if (remainingTimes > modify_num)
+                    modify = "<spam class='ml-1 text-red-500'>(-" + (remainingTimes - modify_num) + ")</span>";
+                else if (remainingTimes == modify_num)
+                    modify = "<spam class='ml-1 text-gray-500'>(+0)</span>";
+                else
+                    modify = "<spam class='ml-1 text-green-500'>(+" + (modify_num - remainingTimes) + ")</span>";
+                
+                var msg = {};
+                msg.title = "變更剩餘次數確認";
+                msg.html = "即將編輯<span class='text-red-500 font-bold'>" + user_name + "</span> 的剩餘次數" + 
+                            "<br>" + 
+                            "<div class='w-full p-2'>" + remainingTimes + " -> " + modify_num + modify + "</div>";
+                msg.showCancelButton = true
+                msg.confirmButtonText = '確認編輯';
+                msg.cancelButtonText = '取消';
+                msg.reverseButtons = true;
+                Swal.fire(msg).then(async (result) => {
+                    if (result.isConfirmed) {
+                        loader_show();
+
+                        if (remainingTimes == modify_num)
+                        {
+                            alert("編輯成功")
+                            loca.reload();
+                            return;
+                        }
+
+                        var res = await post("editTimes", {
+                            token: localStorage.getItem("company_token"),
+                            user_id: user_id,
+                            times: modify_num,
+                        })
+
+                        if (!res) 
+                            alert("發生未預期的錯誤，編輯失敗");
+                        else {                                        
+                            if (res.success) 
+                                alert("編輯成功")
+                            else
+                                alert(res.message)
+                        }
+                        
+                        loca.reload();
+                    }
+                });
+            })
+
+            $("#editTimes").modal('show');
+        }
+
         function createUserDiv(userData, cardInfo = null) {
+
             function createBtn() {
 
                 const btn = $('<button>', {
@@ -966,10 +1036,9 @@
                 if (isAdmin)
                 {
                     menu.append($('<div>', {
-                        'class': btnClass + " bg-yellow-200 ml-2",
+                        'class': btnClass + " bg-yellow-200 ml-2 edit-times-btn",
+                        // click: editTimesOnClick(userData.name, userData.id, userData.remainingTimes)
                         click: () => {
-                            // localStorage.getItem("company_token")
-                            // userData.id'
                             $("#editTimes_Title").html('編輯 <span class="text-red-500 font-bold">' + userData.name + '</span> 的剩餘次數');
                             $("#editTimes_originalTimes").html(userData.remainingTimes);
                             $("#editTimes_input").val(userData.remainingTimes);
@@ -1036,7 +1105,6 @@
                             })
 
                             $("#editTimes").modal('show');
-                            // editTimes_btn
                         }
                     }).html("編輯次數"));
                 }
@@ -1356,9 +1424,14 @@
             if (!timesList.success) return;                        
 
             timesList = timesList.message;
-            for (var i = 0; i < div.length; i ++) {
-                div[i].querySelectorAll('.timesDiv')[0].innerHTML = "剩餘次數: " + timesList[i].remaining_times;
-                div[i].querySelectorAll('.browsetimesDiv')[0].innerHTML = "瀏覽次數: " + timesList[i].download_times;
+            for (let i = 0; i < div.length; i ++) {
+                if (div[i].querySelectorAll('.timesDiv')[0].innerHTML != "剩餘次數: " + timesList[i].remaining_times || 
+                    div[i].querySelectorAll('.browsetimesDiv')[0].innerHTML != "瀏覽次數: " + timesList[i].download_times) {
+
+                    div[i].querySelectorAll('.timesDiv')[0].innerHTML = "剩餘次數: " + timesList[i].remaining_times;
+                    div[i].querySelectorAll('.browsetimesDiv')[0].innerHTML = "瀏覽次數: " + timesList[i].download_times;
+                    $(div[i].querySelectorAll('.edit-times-btn')[0]).off('click').click(editTimesOnClick(timesList[i].user_name, timesList[i].user_id, timesList[i].remaining_times));
+                }
             }
 
             setTimeout(() => {
