@@ -59,6 +59,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
 use Intervention\Image\Facades\Image;
 
+use ZipArchive;
+
 class ApiController extends Controller
 {
     public function get_cpu_usage() {
@@ -696,22 +698,50 @@ class ApiController extends Controller
 
     public function testEnc(Request $request){
         $file = $request->file('file');
-        
         $contents = file_get_contents($file->getRealPath());
-        $keyLength = 16; // AES-256 需要 32 字節的金鑰
-        // 生成隨機的字串作為金鑰
-        $key  = "1234567898882222";  //加密秘钥 这个key的字符位数要求：4的倍数
-        $iv   = '8NONwyJtHesysWpM';  //向量（偏移向量）
 
-        // 使用 openssl_encrypt 進行加密
-        $encryptedContents = base64_encode(openssl_encrypt($contents, "AES-128-CBC", $key, OPENSSL_RAW_DATA, $iv));
+        $keyLength = 32; // AES-256 需要 32 字節的金鑰
+        // 生成隨機的字串作為金鑰
+        $fileNameWithoutExtension = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+
+        // 创建临时文件来存储压缩的 ZIP 文件
+        $zipFileName = $fileNameWithoutExtension . '.zip';
+        $zipFilePath = tempnam(sys_get_temp_dir(), $zipFileName);
+
+       $zip = new ZipArchive;
+       if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+           $zip->addFile($file->getRealPath(), $file->getClientOriginalName());
+           $zip->close();
+
+       } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unable to create ZIP file',
+            ], 500);
+       }
+       $zipContents = file_get_contents($zipFilePath);
+
+        // 加密秘钥和偏移向量
+        $key = "12345678988822221234567898882222";  // 加密秘钥，这个key的字符位数要求：4的倍数
+        $iv = '8NONwyJtHesysWpM';  // 向量（偏移向量）
+
+        // 加密ZIP文件数据
+        $encryptedZipData = openssl_encrypt($zipContents, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+
+        // 创建一个临时文件来存储加密后的ZIP数据
+        $encryptedTempFilePath = tempnam(sys_get_temp_dir(), 'enc');
+        file_put_contents($encryptedTempFilePath, $encryptedZipData);
+
+        // 将加密后的ZIP文件保存到存储
+        Storage::put('encrypted_images/' . $zipFileName, $encryptedZipData);
+
+        // 上传到S3
+        $s3Path = env('APP_ENV') . "/encTest/model/" . uniqid() . '/' . $zipFileName;
+        Storage::disk('s3')->put($s3Path, $encryptedZipData);
 
         return response()->json([
             'success' => true,
             'message' => 'File encrypted successfully',
-            'encrypted_contents' => $encryptedContents, // 將加密後的內容添加到回應中
-            'encryption_key' => $key, // 將金鑰添加到回應中
-            'iv' => $iv // 將 IV 添加到回應中
         ]);
 
     }
@@ -2571,7 +2601,6 @@ class ApiController extends Controller
     public function getAllTimesByArray(Request $request){
         $validator = Validator::make($request->all(),[
             'token' => 'required',
-            'requestList' => 'required'
         ]);
 
         if (!$request->token)
@@ -2593,21 +2622,31 @@ class ApiController extends Controller
                 'success' => true,
                 'message' => []       
             ];
-
+            
             foreach ($request->requestList as $item) {
-                $card = cards::where('id', $item["card_id"])->first();
+                if(isset($item["card_id"]))
+                    $card = cards::where('id', $item["card_id"])->first();
                 $user = User::where('id', $item["user_id"])->first();
 
                 $res = null;
-                if ($card && $user) {
+                if(isset($card))
+                {
+                    if ($card && $user) {
+                        $res = [
+                            'company_id' => $card->company_id,
+                            'user_id' => $card->user_id,
+                            'user_name' => $user->name,
+                            'download_times' => $card->download_time,
+                            'remaining_times' => $user->download_time,
+                        ];
+                    }
+                }else{
                     $res = [
-                        'company_id' => $card->company_id,
-                        'user_id' => $card->user_id,
-                        'download_times' => $card->download_time,
+                        'user_id' => $user->id,
+                         'user_name' => $user->name,
                         'remaining_times' => $user->download_time,
                     ];
                 }
-
                 array_push($times_Result['message'], $res);
             }
 
@@ -2868,6 +2907,161 @@ class ApiController extends Controller
             $getBC_Result['success']
         ];
     }
+
+    public function getBC_admin(Request $request){
+
+        $BC_id = $request->input('id');
+        $card = null;
+        if (!$BC_id) {
+            $BC_id = $request->input('public_id');
+            $card = cards::where('public_id', $BC_id)->first();
+        }
+        else
+            $card = cards::where('id',$BC_id)->first();
+
+        if (!$card) {
+            return [
+                'success' => false,
+                'message' => "查無此名片資料"
+            ];
+        }
+        
+        $isRoot = false;
+        if ($request->input('token'))
+        {
+            $user = User::where('remember_token', $request->token)->first();
+            if ($user)
+            {
+                if ($user->id != $card->user_id)
+                {
+                    // 傳 token 但是不是自己的 token 拒絕存取
+                    return [
+                        'success' => false,
+                        'message' => "無法取得登入資訊，請重新登入"
+                    ];
+                }
+                $isRoot = true;
+            }
+            else
+            {
+                return [
+                    'success' => false,
+                    'message' => "無法取得登入資訊，請重新登入"
+                ];
+            }
+        }
+        else
+        {
+            if (!$card->is_actived)
+            {
+                return [
+                    'success' => false,
+                    'message' => "該名片並未開放"
+                ];
+            }
+
+            $user = User::where('id', $card->user_id)->first();
+            if (!$user) {
+                return [
+                    'success' => false,
+                    'message' => "查無該名片資料"
+                ];
+            }
+        }
+
+        $model = models::where('id',$card->model_id)->first();
+        $card_front = materials::where('id',$card->card_front_id)->first();
+        $card_back = materials::where('id',$card->card_back_id)->first();
+
+        
+        $getBC_Result = [
+            'bearerToken_requery' => false,
+            'input_param' => [
+                'id' => 'bc_id'
+            ],
+            "success" => [
+                'success' => true,
+                'message' => [
+                    
+                    "edit_name"=> $card->edit_name,
+                    "release_name"=> $card->release_name,
+                    "card_front_id" => $card_front->id ?? null,
+                    "card_back_id" => $card_back->id ?? null,
+                    "card_front" => $card_front->card_url ?? '',
+                    "card_back" => $card_back->card_url ?? '',
+                    "is_actived" => $card->is_actived,
+                    "download_times" => $card-> download_time,
+                    'remainingTimes' => $user->download_time,
+                    // "address"=> $card->address,
+                    // "fax"=> $card->fax,
+                    // "telegram" =>$card->telegram,
+                    // "whatsapp" =>$card->whatsapp,
+                    // "fb" => $card->facebook,
+                    // "ig" => $card->instagram,
+                    // "x"  => $card->X,
+                    // "web"=> $card->web,
+                    // "line" => $card->line,
+
+                    "model" => [
+                        "id" => $model->id ?? null,
+                        "texture" => $model->texture_url ?? '',
+                        "mesh" => $model->mesh_url ?? '',
+                        "cover" => $model->cover_url ?? '',
+                        "cover_half" => $model->cover_half_url ?? ''
+                    ],
+
+                ]
+            ],
+            "failed" => [
+                'success' => false,
+                'message' => "getBC error"
+            ],
+        ];
+
+        $social_array = [
+            'fax' => $card->fax,
+            'address' => $card->address,
+            'telegram' => $card->telegram,
+            'whatsapp' => $card->whatsapp,
+            'instagram' => $card->instagram,
+            'facebook' => $card->facebook,
+            'X' => $card->X,
+            'web' => $card->web,
+            'line' =>$card->line,
+            'name' => $card->name,
+            'email' => $card->email,
+            'phone' => $card->phone
+        ];
+        
+        if ($getBC_Result['success']['message']["card_front"] != '')
+            $getBC_Result['success']['message']["card_front"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["card_front"], now()->addHour());
+        if ($getBC_Result['success']['message']["card_back"] != '')
+            $getBC_Result['success']['message']["card_back"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["card_back"], now()->addHour());
+
+        if ($getBC_Result['success']['message']["model"]["texture"] != '')
+            $getBC_Result['success']['message']["model"]["texture"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["texture"], now()->addHour());
+        if ($getBC_Result['success']['message']["model"]["mesh"] != '')
+            $getBC_Result['success']['message']["model"]["mesh"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["mesh"], now()->addHour());
+        if ($getBC_Result['success']['message']["model"]["cover"] != '')
+            $getBC_Result['success']['message']["model"]["cover"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["cover"], now()->addHour());
+        if ($getBC_Result['success']['message']["model"]["cover_half"] != '')
+            $getBC_Result['success']['message']["model"]["cover_half"] = Storage::disk('s3')->temporaryUrl($getBC_Result['success']['message']["model"]["cover_half"], now()->addHour());
+    
+        foreach($social_array as $name => $social)
+        {
+            if($social != null)
+                $getBC_Result['success']['message'][$name] = $social;
+
+        }
+
+        if ($isRoot)
+            $getBC_Result['success']['message']["download_times"] = $card->download_time;
+
+        return [
+            $getBC_Result['success']
+        ];
+    }
+
 
     public function send_LinePay(Request $request){
         $orderId = payments::max('id');
