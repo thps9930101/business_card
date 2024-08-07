@@ -859,7 +859,9 @@ class ApiController extends Controller
             'line' =>$card->line,
             'name' => $card->name,
             'email' => $card->email,
-            'phone' => $card->phone
+            'phone' => $card->phone,
+            'wechat' => $card->wechat,
+            'tiktok' => $card->tiktok
         ];
         
         foreach($social_array as $name => $social)
@@ -1947,6 +1949,8 @@ class ApiController extends Controller
         $card->X = array_key_exists('X', $card_info) ? $card_info['X'] : $card->X;
         $card->line = array_key_exists('line', $card_info) ? $card_info['line'] : $card->line;
         $card->web = array_key_exists('web', $card_info) ? $card_info['web'] : $card->web;
+        $card->wechat = array_key_exists('wechat', $card_info) ? $card_info['wechat'] : $card->wechat;
+        $card->tiktok = array_key_exists('tiktok', $card_info) ? $card_info['tiktok'] : $card->tiktok;
         $card->is_actived = array_key_exists('is_actived', $card_info) ? $card_info['is_actived'] : $card->is_actived;
 
 
@@ -2584,7 +2588,9 @@ class ApiController extends Controller
             'line' => $card->line,
             'name' => $card->name,
             'email' => $card->email,
-            'phone' => $card->phone
+            'phone' => $card->phone,
+            'wechat' => $card->wechat,
+            'tiktok' => $card->tiktok,
         ];
         
         foreach ($new_data as $name => $value) {
@@ -2876,7 +2882,9 @@ class ApiController extends Controller
             'line' =>$card->line,
             'name' => $card->name,
             'email' => $card->email,
-            'phone' => $card->phone
+            'phone' => $card->phone,
+            'wechat' => $card->wechat,
+            'tiktok' => $card->tiktok,
         ];
         
         if ($getBC_Result['success']['message']["card_front"] != '')
