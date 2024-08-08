@@ -259,7 +259,7 @@
                         </button>
                     </div>
 
-                    <div class="modal-body flex">
+                    <div class="modal-body flex h-[80dvh]">
                         <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg">
                             <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2">
 
@@ -285,7 +285,7 @@
                                 </div>
                             </div>
                         
-                            <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2 mt-2 h-full">
+                            <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2 mt-2 h-full overflow-y-scroll">
 
                                 <div class="text-xl font-bold mb-[10px]">名片資訊</div>
                                 <div class="form-group">
@@ -306,6 +306,14 @@
                                 <div class="form-group">
                                     <label for="instagram">instagram</label>
                                     <input id="instagram" type="text" class="form-control" placeholder="請輸入instagram連結">
+                                </div>
+                                <div class="form-group hidden">
+                                    <label for="wechat">微信</label>
+                                    <input id="wechat" type="text" class="form-control" placeholder="請輸入微信 id">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tiktok">抖音</label>
+                                    <input id="tiktok" type="text" class="form-control" placeholder="請輸入tiktok id">
                                 </div>
                                 <div class="form-group">
                                     <label for="web">自訂連結</label>
@@ -408,9 +416,9 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body flex">
+                    <div class="modal-body flex max-h-[80dvh]">
                         <div class="flex flex-col justify-center px-1 min-w-[300px] w-full bg-white rounded-lg">
-                            <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2 h-full">
+                            <div class="flex flex-col justify-between border border-blue-500 rounded-lg p-2 h-full overflow-y-scroll">
 
                                 <div class="text-xl font-bold mb-[15px]">名片資訊</div>
                                 <div class="form-group">
@@ -450,6 +458,14 @@
                                 <div class="form-group">
                                     <label for="edit_instagram">instagram</label>
                                     <input id="edit_instagram" type="text" class="form-control" placeholder="請輸入instagram連結">
+                                </div>
+                                <div class="form-group hidden">
+                                    <label for="edit_wechat">微信</label>
+                                    <input id="edit_wechat" type="text" class="form-control" placeholder="請輸入微信 id">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_tiktok">抖音</label>
+                                    <input id="edit_tiktok" type="text" class="form-control" placeholder="請輸入tiktok id">
                                 </div>
                                 <div class="form-group">
                                     <label for="edit_web">自訂連結</label>
@@ -728,6 +744,10 @@
         msg.showCancelButton = true
         msg.confirmButtonText = '確認交換';
         msg.cancelButtonText = '取消';
+        msg.customClass = {
+            confirmButton: 'bg-gray-500 text-[#FFFFFF] border-none',
+            cancelButton: 'bg-red-500 text-[#FFFFFF] border-none'
+        }
         msg.reverseButtons = true;
         Swal.fire(msg).then(async (result) => {
             if (result.isConfirmed) {
@@ -790,6 +810,10 @@
                     "</div>";
         msg.confirmButtonText = '關閉';
         msg.reverseButtons = false;
+        msg.customClass = {
+            confirmButton: 'bg-gray-500 text-[#FFFFFF] border-none',
+            cancelButton: 'bg-red-500 text-[#FFFFFF] border-none'
+        }
         Swal.fire(msg)
 
         var qrcodeContainer = document.getElementById("qrcode");
@@ -928,6 +952,10 @@
                 msg.showCancelButton = true
                 msg.confirmButtonText = '確認編輯';
                 msg.cancelButtonText = '取消';
+                msg.customClass = {
+                    confirmButton: 'bg-gray-500 text-[#FFFFFF] border-none',
+                    cancelButton: 'bg-red-500 text-[#FFFFFF] border-none'
+                }
                 msg.reverseButtons = true;
                 Swal.fire(msg).then(async (result) => {
                     if (result.isConfirmed) {
@@ -1053,7 +1081,7 @@
                                     return;
                                 }
 
-                                const loca = location;   
+                                const loca = location;
                                 var modify = ""
                                 var modify_num = Number($("#editTimes_input").val())
                                 console.log($("#editTimes_input").val(), modify_num)
@@ -1072,6 +1100,10 @@
                                 msg.showCancelButton = true
                                 msg.confirmButtonText = '確認編輯';
                                 msg.cancelButtonText = '取消';
+                                msg.customClass = {
+                                    confirmButton: 'bg-gray-500 text-[#FFFFFF] border-none',
+                                    cancelButton: 'bg-red-500 text-[#FFFFFF] border-none'
+                                }
                                 msg.reverseButtons = true;
                                 Swal.fire(msg).then(async (result) => {
                                     if (result.isConfirmed) {
@@ -1155,6 +1187,10 @@
                         msg.showCancelButton = true
                         msg.confirmButtonText = '確認刪除';
                         msg.cancelButtonText = '取消';
+                        msg.customClass = {
+                            confirmButton: 'bg-gray-500 text-[#FFFFFF] border-none',
+                            cancelButton: 'bg-red-500 text-[#FFFFFF] border-none'
+                        }
                         msg.reverseButtons = true;
                         Swal.fire(msg).then(async (result) => {
                             if (result.isConfirmed) {
@@ -1821,8 +1857,10 @@
             facebook: $('#facebook').val(),
             instagram: $('#instagram').val(),
             X: undefined,
+            tiktok: $('#tiktok').val(),
+            wechat: $('#wechat').val(),
             web: $('#web').val(),
-            is_actived: true
+            is_actived: true,
         };
         var res = await post('editBC', {
             id: card.id,
@@ -1959,6 +1997,10 @@
         msg.showCancelButton = true
         msg.confirmButtonText = '確認清空';
         msg.cancelButtonText = '取消';
+        msg.customClass = {
+            confirmButton: 'bg-gray-500 text-[#FFFFFF] border-none',
+            cancelButton: 'bg-red-500 text-[#FFFFFF] border-none'
+        }
         msg.reverseButtons = true;
         Swal.fire(msg).then(async (result) => {
             if (result.isConfirmed) {
@@ -1984,6 +2026,10 @@
         msg.showCancelButton = true
         msg.confirmButtonText = '確認清空';
         msg.cancelButtonText = '取消';
+        msg.customClass = {
+            confirmButton: 'bg-gray-500 text-[#FFFFFF] border-none',
+            cancelButton: 'bg-red-500 text-[#FFFFFF] border-none'
+        }
         msg.reverseButtons = true;
         Swal.fire(msg).then(async (result) => {
             if (result.isConfirmed) {
@@ -2239,7 +2285,7 @@
             if (!checkFileType('edit_model_half', ["jpg", "png"], 10, "半身圖"))
                 return;
 
-            var res = await post('editModels', getModelForm(current_model_id, token,current_card_id));
+            var res = await post('editModels', getModelForm(current_model_id, token, current_card_id));
             // if (!res)
             //     edit_model_result = edit_model_result + createResultDiv("名片模型: ", "變更失敗")
             // if (res.success)
@@ -2281,7 +2327,11 @@
             facebook: $('#edit_facebook').val(),
             instagram: $('#edit_instagram').val(),
             X: undefined,
+            // tiktok: $('#edit_tiktok').val(),
+            // wechat: $('#edit_wechat').val(),
             web: $('#edit_web').val(),
+            wechat: $('#edit_wechat').val(),
+            tiktok: $('#edit_tiktok').val(),
             is_actived: true
         };
         console.log("edit", card_params)
@@ -2329,6 +2379,10 @@
         }).html(edit_pic_result + edit_model_result + edit_info_result)[0].outerHTML
         msg.title = "編輯結果";
         msg.html = html;
+        msg.customClass = {
+            confirmButton: 'bg-gray-500 text-[#FFFFFF] border-none',
+            cancelButton: 'bg-red-500 text-[#FFFFFF] border-none'
+        }
         Swal.fire(msg)
         // alert(edit_pic_result + edit_model_result + edit_info_result)
         $('#editCard').modal('hide');
@@ -2360,7 +2414,7 @@
         current_fc_id = card.card_front_id;
         current_bc_id = card.card_back_id;
 
-        // TODO 填資料
+        // TODO 填資料 
         $('#edit_release_name').val(card.release_name);
         $('#edit_name').val(card.name);
         $('#edit_email').val(card.email);
@@ -2369,6 +2423,8 @@
         $('#edit_facebook').val(card.facebook);
         $('#edit_instagram').val(card.instagram);
         $('#edit_web').val(card.web);
+        $('#edit_wechat').val(card.wechat);
+        $('#edit_tiktok').val(card.tiktok);
         $('#editCard').modal('show');
     }
 
