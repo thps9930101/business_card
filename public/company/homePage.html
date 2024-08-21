@@ -44,6 +44,11 @@
             </div>
         </h1>  
         <div class="flex-grow h-full" onclick="hideMenu()"></div>
+        <div id="orderBtnContainer">
+            <button class="hidden flex items-center justify-center p-2 font-bold rounded-lg cursor-pointer hover:bg-gray-200 sm:text-2xl text-sm" onclick="window.location.href='timesOrderPage.html'">
+                加值紀錄
+            </button>
+        </div>
         <div id="planBtnContainer">
             <button class="flex items-center justify-center p-2 font-bold rounded-lg cursor-pointer hover:bg-gray-200 sm:text-2xl text-sm" onclick="window.location.href='planPage.html'">
                 方案管理
@@ -362,14 +367,14 @@
                                     <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearModel(false)">清空</div>
                                 </div>                            <div class="form-group">
                                     <label for="model_mesh">模型檔(*.obj)
-                                        <span class="text-red-500">*<span>
+                                        <!-- <span class="text-red-500">*<span> -->
                                         <span id="model_mesh_alert" class="text-red-500 hidden"><span>
                                     </label>
                                     <input id="model_mesh" type="file" class="form-control p-0" accept=".obj, .fbx">
                                 </div>
                                 <div class="form-group">
                                     <label for="model_texture">模型貼圖
-                                        <span class="text-red-500">*<span>
+                                        <!-- <span class="text-red-500">*<span> -->
                                         <span id="model_texture_alert" class="text-red-500 hidden"><span>
                                     </label>
                                     <input id="model_texture" type="file" class="form-control p-0" accept="image/jpeg,image/png">
@@ -381,7 +386,7 @@
                                 </div> -->
                                 <div class="form-group">
                                     <label for="model_half">半身圖
-                                        <span class="text-red-500">*<span>
+                                        <!-- <span class="text-red-500">*<span> -->
                                         <span id="model_half_alert" class="text-red-500 hidden"><span>
                                     </label>
                                     <input id="model_half" type="file" class="form-control p-0" accept="image/jpeg,image/png"> 
@@ -514,14 +519,14 @@
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="edit_model_mesh">模型檔(*.obj)
-                                        <span class="text-red-500">*<span>
+                                        <!-- <span class="text-red-500">*<span> -->
                                         <span id="edit_model_mesh_alert" class="text-red-500 hidden"><span>
                                     </label>
                                     <input id="edit_model_mesh" type="file" class="form-control p-0" accept=".obj, .fbx">
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="edit_model_texture">模型貼圖
-                                        <span class="text-red-500">*<span>
+                                        <!-- <span class="text-red-500">*<span> -->
                                         <span id="edit_model_texture_alert" class="text-red-500 hidden"><span>
                                     </label>
                                     <input id="edit_model_texture" type="file" class="form-control p-0" accept="image/jpeg,image/png">
@@ -533,7 +538,7 @@
                                 </div> -->
                                 <div class="form-group mt-2">
                                     <label for="edit_model_half">半身圖
-                                        <span class="text-red-500">*<span>
+                                        <!-- <span class="text-red-500">*<span> -->
                                         <span id="edit_model_half_alert" class="text-red-500 hidden"><span>
                                     </label>
                                     <input id="edit_model_half" type="file" class="form-control p-0" accept="image/jpeg,image/png">
@@ -843,7 +848,7 @@
     async function post(apiName, params) {
         try {
             const api = 'https://businesscard.lightmatrix3d.com/api/' + apiName
-            //const api = 'http://192.168.0.112:8000/api/' + apiName
+            // const api = 'http://192.168.0.112:8000/api/' + apiName
             const res = await axios.post(api, params, config)
 
             if (debugMode)
@@ -1534,13 +1539,32 @@
                         user_id: userID,
                         plan_id: plan.value
                     })
-
                     if (userAddTimes_res) {
                         alert("新增會員成功，" + userAddTimes_res.message)
                         return true;
-                    }
-                    else
+                    }else{
                         alert("出現非預期錯誤，次數增加失敗")
+                        location.reload();
+                        return false;
+                    }
+
+                    // const addTimesOrder_res = await post("addTimesOrder", {
+                    //     token: localStorage.getItem("company_token"),            
+                    //     user_id: userID,
+                    //     plan_id: plan.value,
+                    //     mode: 0
+                    // })
+
+                    // if (addTimesOrder_res) {
+                    //     alert("新增會員成功，" + addTimesOrder_res.message)
+                    //     return true;
+                    // }
+                    // else
+                    // {
+                    //     alert("出現非預期錯誤，次數增加失敗")
+                    //     location.reload();
+                    //     return false;
+                    // }
                 }
                 else {
                     alert('新增會員成功');
@@ -1565,6 +1589,12 @@
 
         const plan = document.getElementById('plan');
 
+        const inputFileModel = document.getElementById('model_mesh');  
+        const inputFileTexture = document.getElementById('model_texture');     
+        const inputFileHalf = document.getElementById('model_half');    
+        
+        var inputModel = true;
+
         if(name.value == "" || account.value == "" || password.value == "" || phone.value == "" || release_name.value == "")
         {
             alert("請輸入完整資料!");
@@ -1572,16 +1602,27 @@
             return;
         }
 
+        if(inputFileModel.files.length == 0 || inputFileTexture.files.length == 0 || inputFileHalf.files.length == 0)
+        {
+            console.log('inputFileModel',inputFileModel.files.length);
+            console.log('inputFileTexture',inputFileTexture.files.length);
+            console.log('inputFileHalf',inputFileHalf.files.length);
+            inputModel = false;
+        }
+
         if (!checkFileType('pic_front', ["jpg", "png"], 10, "名片正面圖"))
             return;
         if (!checkFileType('pic_back', ["jpg", "png"], 10, "名片反面圖"))
             return;
-        if (!checkFileType('model_mesh', ["obj", "fbx"], 30, "模型檔"))
-            return;
-        if (!checkFileType('model_texture', ["jpg", "png"], 30, "貼圖"))
-            return;
-        if (!checkFileType('model_half', ["jpg", "png"], 10, "半身圖"))
-            return;
+        if(inputModel)
+        {
+            if (!checkFileType('model_mesh', ["obj", "fbx"], 30, "模型檔"))
+                return;
+            if (!checkFileType('model_texture', ["jpg", "png"], 30, "貼圖"))
+                return;
+            if (!checkFileType('model_half', ["jpg", "png"], 10, "半身圖"))
+                return;
+        }
 
         const params = {
           'account': account.value,
@@ -1631,13 +1672,13 @@
             }
         }
 
-        await addCard(account.value, userID);
+        await addCard(account.value, userID, inputModel);
 
         loader_hide();
         // $('#addUser').hide();
     }
 
-    async function addCard(account) {
+    async function addCard(account, userID, inputModel) {
         checkLocalStorage(); // api ok
         const token = localStorage.getItem("company_token")
         console.log(token);
@@ -1773,70 +1814,73 @@
         // ---
 
         // 上傳模型
-        function getModelForm(account, token) {
-            const formData = new FormData();
-            formData.append('token', token);
-            formData.append('user_account', account);
-            formData.append('mesh_url', $('#model_mesh')[0].files[0]);
-            formData.append('texture_url', $('#model_texture')[0].files[0]);
-            formData.append('cover_url', $('#model_half')[0].files[0]);
-            formData.append('cover_half_url', $('#model_half')[0].files[0]);
-            return formData;
-        } 
-        var model = await post('addModels', getModelForm(account, token));
-        if (!model)
+        if(inputModel)
         {
-            // TODO 刪除"名片正面圖(底部) & 名片反面圖(後面)" S3 > 刪除"名片正面圖(底部) & 名片反面圖(後面)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
-            res_rollback_front = await post("rollback_material", {
-                id: card_front_pic.id
-            });
+            function getModelForm(account, token) {
+                const formData = new FormData();
+                formData.append('token', token);
+                formData.append('user_account', account);
+                formData.append('mesh_url', $('#model_mesh')[0].files[0]);
+                formData.append('texture_url', $('#model_texture')[0].files[0]);
+                formData.append('cover_url', $('#model_half')[0].files[0]);
+                formData.append('cover_half_url', $('#model_half')[0].files[0]);
+                return formData;
+            } 
+            console.log('inputModel',inputModel)
+            var model = await post('addModels', getModelForm(account, token));
+            if (!model)
+            {
+                // TODO 刪除"名片正面圖(底部) & 名片反面圖(後面)" S3 > 刪除"名片正面圖(底部) & 名片反面圖(後面)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+                res_rollback_front = await post("rollback_material", {
+                    id: card_front_pic.id
+                });
 
-            res_rollback_back = await post("rollback_material", {
-                id: card_back_pic.id
-            });
+                res_rollback_back = await post("rollback_material", {
+                    id: card_back_pic.id
+                });
 
-            res_rollback_card = await post("rollback_card", {
-                id: card.id
-            });
+                res_rollback_card = await post("rollback_card", {
+                    id: card.id
+                });
 
-            res_rollback_times = await post("rollback_times", {
-                user_id: userID,
-                token: localStorage.getItem("company_token"),
-                plan_id:plan.value
-            });
+                res_rollback_times = await post("rollback_times", {
+                    user_id: userID,
+                    token: localStorage.getItem("company_token"),
+                    plan_id:plan.value
+                });
 
-            alert("發生未預期錯誤，模型上傳失敗");
-            return;
+                alert("發生未預期錯誤，模型上傳失敗");
+                return;
+            }
+
+            if (model.success)
+                model = model.message
+            else
+            {
+                // TODO 刪除"名片正面圖(底部) & 名片反面圖(後面)" S3 > 刪除"名片正面圖(底部) & 名片反面圖(後面)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
+                res_rollback_front = await post("rollback_material", {
+                    id: card_front_pic.id
+                });
+
+                res_rollback_back = await post("rollback_material", {
+                    id: card_back_pic.id
+                });
+
+                res_rollback_card = await post("rollback_card", {
+                    id: card.id
+                });
+
+                res_rollback_times = await post("rollback_times", {
+                    user_id: userID,
+                    token: localStorage.getItem("company_token"),
+                    plan_id:plan.value
+                });
+
+                alert(model.message);
+                loader_hide();
+                return;
+            }
         }
-
-        if (model.success)
-            model = model.message
-        else
-        {
-            // TODO 刪除"名片正面圖(底部) & 名片反面圖(後面)" S3 > 刪除"名片正面圖(底部) & 名片反面圖(後面)"sql > 刪除卡片 > 取消公司與uer的關聯 > 退回次數(API)
-            res_rollback_front = await post("rollback_material", {
-                id: card_front_pic.id
-            });
-
-            res_rollback_back = await post("rollback_material", {
-                id: card_back_pic.id
-            });
-
-            res_rollback_card = await post("rollback_card", {
-                id: card.id
-            });
-
-            res_rollback_times = await post("rollback_times", {
-                user_id: userID,
-                token: localStorage.getItem("company_token"),
-                plan_id:plan.value
-            });
-
-            alert(model.message);
-            loader_hide();
-            return;
-        }
-
         // ---
 
         // 保存編輯
@@ -1848,7 +1892,7 @@
             fax: undefined,
             edit_name: undefined,
             release_name: $('#release_name').val(),
-            model_id: model.id,
+            model_id: model?.id !== undefined ? model.id : undefined,
             card_front_id: card_front_pic.id,
             card_back_id: card_back_pic.id,
             telegram: undefined,
@@ -2204,7 +2248,17 @@
             formData.append('cover_half_url', $('#edit_model_half')[0].files[0]);
             return formData;
         } 
-
+        
+        function getAddModelForm(account, token) {
+            const formData = new FormData();
+            formData.append('token', token);
+            formData.append('user_account', account);
+            formData.append('mesh_url', $('#edit_model_mesh')[0].files[0]);
+            formData.append('texture_url', $('#edit_model_texture')[0].files[0]);
+            formData.append('cover_url', $('#edit_model_half')[0].files[0]);
+            formData.append('cover_half_url', $('#edit_model_half')[0].files[0]);
+            return formData;
+        }
         function createResultDiv(title, result) {
             var resClass = "text-green-500";
             if (result == "變更失敗")
@@ -2284,8 +2338,15 @@
                 return;
             if (!checkFileType('edit_model_half', ["jpg", "png"], 10, "半身圖"))
                 return;
+            
 
-            var res = await post('editModels', getModelForm(current_model_id, token, current_card_id));
+            if(!current_model_id)
+            {
+                console.log('email',email)
+                var res = await post('addModels', getAddModelForm(email.value, token));
+                console.log(res);
+            }else
+                var res = await post('editModels', getModelForm(current_model_id, token, current_card_id));
             // if (!res)
             //     edit_model_result = edit_model_result + createResultDiv("名片模型: ", "變更失敗")
             // if (res.success)
@@ -2309,7 +2370,6 @@
                 edit_alert_msg = "名片模型編輯失敗："+res.message+"\n";
             }
         }
-
         const card_params = {
             name: $('#edit_name').val(),
             email: $('#edit_email').val(),
@@ -2318,7 +2378,7 @@
             fax: undefined,
             edit_name: undefined,
             release_name: $('#edit_release_name').val(),
-            model_id: current_model_id,
+            model_id: current_model_id !== null ? current_model_id : res.message.id,
             card_front_id: current_fc_id,
             card_back_id: current_bc_id,
             telegram: undefined,
