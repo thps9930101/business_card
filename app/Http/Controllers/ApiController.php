@@ -25,6 +25,7 @@ use App\Models\Plan_solution;
 use App\Models\Plan_solution_order;
 use App\Models\Product_solution;
 use App\Models\Product_solution_order;
+// use App\Models\TimesOrder;
 use App\Events\PicUploaded;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -1200,6 +1201,93 @@ class ApiController extends Controller
 
     }
 
+    // public function addTimesOrder(Request $request){
+    //     $validator = Validator::make($request->all(),[
+    //         'token' => 'required',
+    //         'mode' => 'required',
+    //         'plan_id' => 'required',
+    //     ]);
+        
+    //     $timesOrder = new TimesOrder();
+    //     $timesOrder->user_id = $user->id;
+    //     $timesOrder->company_id = $company->id;
+    //     $timesOrder->save();
+    //     return [
+    //         'success' => true,
+    //         'message' => "加值成功"
+    //     ];   
+    // }
+
+    // public function getTimesOrder(Request $request){
+    //     $validator = Validator::make($request->all(),[
+    //         'token' => 'required',
+    //     ]);
+
+    //     if (!$request->token)
+    //         abort(415);
+
+    //     if($validator->fails()){
+    //         return [
+    //             'success' => false,
+    //             'message' => __('register.failed'),
+    //             'errors'=> $validator->errors()->toArray()
+    //         ];
+    //     }
+
+    //     $company = companies::where('token', $request->token)->first();
+    //     if($company)
+    //     {
+    //         if($company->level == 0)
+    //         {
+    //             $prices = TimesOrder::all();
+    //         }else
+    //         {
+    //             $prices = TimesOrder::where('company_id',$company->id);
+    //             if($prices)
+    //                 $prices = $prices->get();
+    //         }
+
+    //         $price_array = [];
+
+    //         foreach($prices as $price)
+    //         {            
+    //             $user = User::where('id',$price->user_id)->first();
+    //             $price_company = companies::where('id',$price->company_id)->first();
+    //             if($price->mode == 0)
+    //             {
+    //                 $mode = "新增名片";
+    //             }else if($price->mode == 1)
+    //             {
+    //                 $mode = "加值次數";
+    //             }else if($price->mode == 2)
+    //             {
+    //                 $mode = "編輯次數";
+    //             }
+    //             $price_data = [
+    //                 'user' => $user->name,
+    //                 'company' => $price_company->name,
+    //                 'name' => $price->price_name,
+    //                 'times' => $price->price_times,
+    //                 'price' => $price->price_money,
+    //                 'mode' => $mode
+    //             ];
+    //             array_push($price_array, $price_data);
+    //         }
+
+    //         return [
+    //             'success' => true,
+    //             'message' => $price_array
+    //         ];  
+            
+    //     }else{
+    //         abort(415);
+    //         return [
+    //             'success' => false,
+    //             'message' => "請重新登入"
+    //         ];
+    //     }
+    // }
+
     public function getPrice(Request $request){
         $validator = Validator::make($request->all(),[
             'token' => 'required',
@@ -1534,7 +1622,10 @@ class ApiController extends Controller
         }
 
         if ($company->level == 0) {
-            $company_users = companies_user::orderBy('created_at', 'desc')->get();
+            $company_users = companies_user::select('user_id', \DB::raw('MAX(created_at) as latest_created_at'))
+            ->groupBy('user_id')
+            ->orderBy('latest_created_at', 'desc')
+            ->get();
         } else {
             $company_users = companies_user::where('company_id', $company->id)
                                            ->orderBy('created_at', 'desc')
@@ -1566,10 +1657,7 @@ class ApiController extends Controller
             $company_token = "";
 
             $card = $card->first();
-            if ($card) {
-                $company_name = companies::where('id', $card->company_id)->select("name")->first()->name;
-                $company_token = companies::where('id', $card->company_id)->select("token")->first()->token;
-            }
+            
 
             $cards = cards::where('user_id', $user->id);
             $cards = $cards->get();  
@@ -1579,27 +1667,54 @@ class ApiController extends Controller
             foreach ($cards as $card) {
                 $newData  = $card->email;
                 $name = $card->name;
+               
+                $company_name = companies::where('id', $card->company_id)->select("name")->first()->name;
+                $company_token = companies::where('id', $card->company_id)->select("token")->first()->token;
                 
+                // $newData = [
+                //     "id"   => $card->id,
+                //     "company_id" => $card->company_id,
+                //     "public_id"   => $card->public_id,
+                //     "name" => $card->edit_name,
+                //     "releaseName" => $card->release_name,
+                //     "updated_at" => $card->updated_at,
+                //     "created_at" => $card->created_at,
+                //     "download_times" => $card->download_time
+                // ];
+
                 $newData = [
                     "id"   => $card->id,
                     "company_id" => $card->company_id,
+                    'company_token' => $company_token,
+                    'company' => $company_name,
                     "public_id"   => $card->public_id,
-                    "name" => $card->edit_name,
+                    "name" => $card->name,
                     "releaseName" => $card->release_name,
                     "updated_at" => $card->updated_at,
                     "created_at" => $card->created_at,
                     "download_times" => $card->download_time
                 ];
+
                 array_push($getAllBC_Result, $newData);
             }
 
+            // $user_data = [
+            //     'id' => $user->id,
+            //     'name' => $user->name,
+            //     'email' => $user->email,
+            //     'company' => $company_name,
+            //     'company_token' => $company_token,
+            //     'company_id' => $card->company_id,
+            //     'card_amount' => $card_amount,
+            //     'remainingTimes' => $user->download_time + $user->bonus_times,
+            //     'token' => $user->remember_token,
+            //     'all_bc' => $getAllBC_Result
+            // ];
+
             $user_data = [
                 'id' => $user->id,
-                'name' => $user->name,
                 'email' => $user->email,
-                'company' => $company_name,
-                'company_token' => $company_token,
-                'company_id' => $card->company_id,
+                "name" => $user->name,
                 'card_amount' => $card_amount,
                 'remainingTimes' => $user->download_time + $user->bonus_times,
                 'token' => $user->remember_token,
@@ -1866,7 +1981,7 @@ class ApiController extends Controller
 
         $BC_id = $request->id;
         $card_info = $request->card;
-        $user = Auth::user();
+       // $user = Auth::user();
 
         $company = companies::where('token',$request->token)->first();
         if(!$company)

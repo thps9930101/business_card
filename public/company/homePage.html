@@ -794,6 +794,10 @@
         var msg = {};
         msg.html = "複製成功";
         msg.toast = true;
+        msg.customClass = {
+            confirmButton: 'bg-gray-500 text-[#FFFFFF] border-none',
+            cancelButton: 'bg-red-500 text-[#FFFFFF] border-none'
+        }
         Swal.fire(msg)
     }
 
@@ -995,6 +999,22 @@
 
             $("#editTimes").modal('show');
         }
+
+        /*
+        建立公司:cardInfo.company
+        會員名稱:userData.name
+        瀏覽次數:cardInfo.download_times
+        剩餘次數:userData.card_amount
+        會員Email:userData.email
+        名片名稱:cardInfo.releaseName
+        名片連結:cardInfo.public
+        瀏覽次數連結:cardInfo.public
+        創建時間:cardInfo.created_at
+        上次更新:cardInfo.updated_at
+        QRcode:cardInfo.public
+        編輯:cardInfo
+        */
+
 
         function createUserDiv(userData, cardInfo = null) {
 
@@ -1208,7 +1228,7 @@
 
                                 const removeCompanyUser = await post("removeCompanyUser", {
                                     user_id: userData.id,
-                                    token: userData.company_token
+                                    token: cardInfo.company_token
                                 });
 
                                 if(!removeCompanyUser.success)
@@ -1342,7 +1362,7 @@
 
             // userDiv.append(createDiscribe(""));
             // userDiv.append(createDiscribe("會員ID: " + userData.id));
-            userDiv.append(createDiscribe("建立公司: " + userData.company));
+            userDiv.append(createDiscribe("建立公司: " + cardInfo.company));
             userDiv.append(userInfo(userData, cardInfo));
             // userDiv.append(createDiscribe("剩餘次數: " + userData.remainingTimes, "timesDiv"));
             // userDiv.append(createDiscribe("會員名稱:" + userData.name));
@@ -1369,21 +1389,16 @@
         var companyList = [];
 
         userData.hasRemainingTimes.forEach(async (item) => {
-            var exists = companyList.some(function(company) {
-                return company.id === item.company_id;
-            });
 
-            if (!exists) 
-                companyList.push({ id: item.company_id, name: item.company });
+            // 剛註解的
+            // setToken(item.token);
+            // var cardInfo = null;
+            // if (item.all_bc) {
+            //     if (item.all_bc[0])
+            //         cardInfo = item.all_bc[0]
+            // }
 
-            setToken(item.token);
-
-            var cardInfo = null;
-            if (item.all_bc) {
-                if (item.all_bc[0])
-                    cardInfo = item.all_bc[0]
-            }
-
+            // 早就註解的
             // var cardInfo = await post('getAllBC', {});
             // if (!cardInfo)
             //     cardInfo = null;
@@ -1395,34 +1410,60 @@
             //     else
             //         cardInfo = null;
             // }
-            requestList.push({
-                user_id: item.id,
-                card_id: cardInfo.id
+
+            // 寫來測試的
+            item.all_bc.forEach((bc) => {
+                    
+                var exists = companyList.some(function(company) {
+                    return company.id === bc.company_id;
+                });
+
+                if (!exists) 
+                    companyList.push({ id: bc.company_id, name: bc.company });
+
+                requestList.push({
+                    user_id: item.id,
+                    card_id: bc.id
+                })
+                const userDiv = createUserDiv(item, bc);
+                elementList.push({
+                    user_id: item.id,
+                    company_id: bc.company_id,
+                    ele: userDiv
+                });
+                
+                $('#remain-greater-0').append(userDiv);
             })
-            const userDiv = createUserDiv(item, cardInfo);
-            elementList.push({
-                user_id: item.id,
-                company_id: item.company_id,
-                ele: userDiv
-            });
+
+            // 剛註解的
+            // requestList.push({
+            //     user_id: item.id,
+            //     card_id: cardInfo.id
+            // })
+            // const userDiv = createUserDiv(item, cardInfo);
+            // elementList.push({
+            //     user_id: item.id,
+            //     company_id: item.company_id,
+            //     ele: userDiv
+            // });
             
-            $('#remain-greater-0').append(userDiv);
+            // $('#remain-greater-0').append(userDiv);
         })
 
         userData.hasntRemainingTimes.forEach(async(item) => {
-            setToken(item.token);
-            var exists = companyList.some(function(company) {
-                return company.id === item.company_id;
-            });
+            // setToken(item.token);
+            // var exists = companyList.some(function(company) {
+            //     return company.id === item.company_id;
+            // });
 
-            if (!exists) 
-                companyList.push({ id: item.company_id, name: item.company });
+            // if (!exists) 
+            //     companyList.push({ id: item.company_id, name: item.company });
 
-            var cardInfo = null;
-            if (item.all_bc) {
-                if (item.all_bc[0])
-                    cardInfo = item.all_bc[0]
-            }
+            // var cardInfo = null;
+            // if (item.all_bc) {
+            //     if (item.all_bc[0])
+            //         cardInfo = item.all_bc[0]
+            // }
 
             // var cardInfo = await post('getAllBC', {});
             // if (!cardInfo)
@@ -1435,19 +1476,45 @@
             //     else
             //         cardInfo = null;
             // }
-            
-            requestList2.push({
-                user_id: item.id,
-                card_id: cardInfo.id
+
+
+            item.all_bc.forEach((bc) => {
+                
+                var exists = companyList.some(function(company) {
+                    return company.id === bc.company_id;
+                });
+
+                if (!exists) 
+                    companyList.push({ id: bc.company_id, name: bc.company });
+
+                requestList2.push({
+                    user_id: item.id,
+                    card_id: bc.id
+                })
+                const userDiv = createUserDiv(item, bc);
+                elementList.push({
+                    user_id: item.id,
+                    company_id: bc.company_id,
+                    ele: userDiv
+                });
+                
+                $('#remain-equal-0').append(userDiv);
             })
-            const userDiv = createUserDiv(item, cardInfo);
-            elementList.push({
-                user_id: item.id,
-                company_id: item.company_id,
-                ele: userDiv
-            });
+
+
             
-            $('#remain-equal-0').append(userDiv);
+            // requestList2.push({
+            //     user_id: item.id,
+            //     card_id: cardInfo.id
+            // })
+            // const userDiv = createUserDiv(item, cardInfo);
+            // elementList.push({
+            //     user_id: item.id,
+            //     company_id: item.company_id,
+            //     ele: userDiv
+            // });
+            
+            // $('#remain-equal-0').append(userDiv);
         })
         $('#search').append(createSearchCombobox(companyList, elementList));
         $('#remain-greater-0-count').html(userData.hasRemainingTimes.length);
@@ -2378,7 +2445,7 @@
             fax: undefined,
             edit_name: undefined,
             release_name: $('#edit_release_name').val(),
-            model_id: current_model_id !== null ? current_model_id : res.message.id,
+            model_id: current_model_id !== null ? current_model_id : (res.message && res.message.id ? res.message.id : undefined),
             card_front_id: current_fc_id,
             card_back_id: current_bc_id,
             telegram: undefined,
