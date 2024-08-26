@@ -1959,7 +1959,7 @@ class ApiController extends Controller
 
     public function editBC(Request $request){
 
-        $user = Auth::user();
+        // $user = Auth::user();
         // TODO 檢查該BC是否為該 user 的 card
 
         $validator = Validator::make($request->all(),[
@@ -1981,7 +1981,7 @@ class ApiController extends Controller
 
         $BC_id = $request->id;
         $card_info = $request->card;
-       // $user = Auth::user();
+        $user = Auth::user();
 
         $company = companies::where('token',$request->token)->first();
         if(!$company)
@@ -2009,6 +2009,20 @@ class ApiController extends Controller
             }
         }
 
+        $get_cards = cards::where('company_id',$card->company_id)->where('email',$card_info['email'])->get()->count();
+        
+        if($get_cards > 1)
+        {
+            return[
+                "failed" => [
+                    'success' => false,
+                    'message' => "此信箱已在本公司註冊過"
+                ]
+            ];
+        }
+
+       
+        
         // return[
         //     'success' => true,
         //     'message' => $card->get()
