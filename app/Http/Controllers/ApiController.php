@@ -25,6 +25,8 @@ use App\Models\Plan_solution;
 use App\Models\Plan_solution_order;
 use App\Models\Product_solution;
 use App\Models\Product_solution_order;
+use App\Models\Key;
+
 // use App\Models\TimesOrder;
 use App\Events\PicUploaded;
 use Illuminate\Support\Str;
@@ -406,6 +408,13 @@ class ApiController extends Controller
                 'confirm_url'=>  route('registerMember', ['code'=>$user->confirm_code])]
         ];
 
+    }
+
+    public function errorReport(Request $request){
+        $validator = Validator::make($request->all(),[
+            'error' => 'required'
+        ]);  
+        Log::info($request->error);
     }
 
     public function company_register(Request $request){
@@ -2035,8 +2044,13 @@ class ApiController extends Controller
         //             'message' => "editBC error"
         //         ]
         //     ];
-        // }        
-        Log::info($card_info);
+        // }     
+        $logMsg = [
+            'company_id' => $card->company_id,
+            'user_id' => $user->id,
+            'card_info' => $card_info
+        ];
+        Log::info($logMsg);
 
         // TODO 檢查該 各個ID 是否為該 user 的 ID
 
@@ -2697,7 +2711,7 @@ class ApiController extends Controller
                 "version" => $card->version,
                 "release_name"=> $card->release_name,
                 "download_times" => $card->download_time,
-                "remaining_times" => $user->download_time,
+                "remainingTimes" => $user->download_time,
                 "is_actived" => $card->is_actived,
                 "model" => [
                     "cover_half" => $model->cover_half_url ?? ''
@@ -2772,14 +2786,14 @@ class ApiController extends Controller
                             'user_id' => $card->user_id,
                             'user_name' => $user->name,
                             'download_times' => $card->download_time,
-                            'remaining_times' => $user->download_time,
+                            'remainingTimes' => $user->download_time,
                         ];
                     }
                 }else{
                     $res = [
                         'user_id' => $user->id,
-                         'user_name' => $user->name,
-                        'remaining_times' => $user->download_time,
+                        'user_name' => $user->name,
+                        'remainingTimes' => $user->download_time,
                     ];
                 }
                 array_push($times_Result['message'], $res);
@@ -2837,7 +2851,7 @@ class ApiController extends Controller
                     'company_id' => $card->company_id,
                     'user_id' => $card->user_id,
                     'download_times' => $card->download_time,
-                    'remaining_times' => $user->download_time,
+                    'remainingTimes' => $user->download_time,
                 ];
                 array_push($times_Result['message'], $res);
             }
@@ -2851,6 +2865,120 @@ class ApiController extends Controller
                 'message' => "請重新登入"
             ];
         }
+    }
+
+    public function reduceTimes(Request $request)
+    {
+        $validator = Validator::make($request->all(),[
+            'public_id' => 'required',
+        ]);
+
+       
+
+
+        $BC_id = $request->input('public_id');
+        $card = cards::where('public_id', $BC_id)->first();
+        if(!$card)
+        {
+            return [
+                'success' => false,
+                'message' => "查無該名片"
+            ];
+        }
+        
+        if (!$card->is_actived)
+        {
+            return [
+                'success' => false,
+                'message' => "該名片並未開放"
+            ];
+        }
+
+        $user = User::where('id', $card->user_id)->first();
+        if (!$user) {
+            return [
+                'success' => false,
+                'message' => "查無該名片資料"
+            ];
+        }
+
+        $key = $request->input('key');
+        if(!$key)
+        {
+            return [
+                'success' => false,
+                'message' => "查無該名片資料"
+            ];
+        }
+        
+        $rec = Key::where('public_id', $BC_id)->where('key', $request->input('key'))->first();
+        if (!$rec) {
+        // return you don't have the record of use get_BC api
+            return [
+                'success' => false,
+                'message' => "觀看次數刪除失敗"
+            ];
+        }
+        $rec->delete();
+
+        if ($request->input('token'))
+        {
+            $user = User::where('remember_token', $request->token)->first();
+            if ($user)
+            {
+                if ($user->id == $card->user_id)
+                {
+                    return [
+                        'success' => true,
+                        'message' => [
+                            'remainingTimes' => $user->download_time,
+                            'download_times' => $card->download_time,
+                        ]
+                    ];
+                }
+            }
+        }
+
+        if($user->download_time <= 0 && $user->bonus_times <= 0)
+        {
+            return [
+                'success' => false,
+                // 'message' => "該名片以達到使用上限，你也想要擁有3D名片嗎? 請洽 : <a href=''>法鬥文創</a>"
+                'message' => "該名片以達到使用上限，你也想要擁有3D名片嗎? 請洽 :法鬥文創"
+            ];
+        }
+
+        if($user->download_time >0)
+        {
+            $user->download_time -= 1;
+        }else
+        {
+            $user->bonus_times -= 1;
+        }
+        
+        $times = $user->download_time + $user->bonus_times;
+
+        if($times == 10 || $times == 50)
+        {
+            $user->notify(new ClickTimesRemind($user->confirm_code, $times));
+        }
+        else if($times == 0)
+        {
+            $user->notify(new NoTimesRemind($user->confirm_code));
+        }
+
+        $user->save();
+
+        $card->download_time += 1;
+        $card->save();
+
+        return [
+            'success' => true,
+            'message' => [
+                'remainingTimes' => $user->download_time,
+                'download_times' => $card->download_time,
+            ]
+        ];
     }
 
     public function getBC(Request $request){
@@ -2872,6 +3000,7 @@ class ApiController extends Controller
         }
         
         $isRoot = false;
+        $rand_key = '';
         if ($request->input('token'))
         {
             $user = User::where('remember_token', $request->token)->first();
@@ -2922,31 +3051,38 @@ class ApiController extends Controller
                 ];
             }
 
-            if(!$isRoot)
-            {
-                if($user->download_time >0)
-                {
-                    $user->download_time -= 1;
-                }else
-                {
-                    $user->donus_times -= 1;
-                }
-            }
-            $times = $user->download_time + $user->bonus_times;
+            $rec = new Key();
+            $rand_key = Str::random(60);
+            $rec->key = $rand_key;
+            $rec->public_id = $BC_id;
 
-            if($times == 10 || $times == 50)
-            {
-                $user->notify(new ClickTimesRemind($user->confirm_code, $times));
-            }
-            else if($times == 0)
-            {
-                $user->notify(new NoTimesRemind($user->confirm_code));
-            }
+            $rec->save();
 
-            $user->save();
+            // if(!$isRoot)
+            // {
+            //     if($user->download_time >0)
+            //     {
+            //         $user->download_time -= 1;
+            //     }else
+            //     {
+            //         $user->bonus_times -= 1;
+            //     }
+            // }
+            // $times = $user->download_time + $user->bonus_times;
 
-            $card->download_time += 1;
-            $card->save();
+            // if($times == 10 || $times == 50)
+            // {
+            //     $user->notify(new ClickTimesRemind($user->confirm_code, $times));
+            // }
+            // else if($times == 0)
+            // {
+            //     $user->notify(new NoTimesRemind($user->confirm_code));
+            // }
+
+            // $user->save();
+
+            // $card->download_time += 1;
+            // $card->save();
 
         }
 
@@ -2990,7 +3126,7 @@ class ApiController extends Controller
                         "cover" => $model->cover_url ?? '',
                         "cover_half" => $model->cover_half_url ?? ''
                     ],
-
+                    'key' => $rand_key
                 ]
             ],
             "failed" => [
@@ -5098,4 +5234,7 @@ class ApiController extends Controller
         ];
     }
 
+    // public function throttleTest(Request $request) {
+    //     return "AA";
+    // }
 }

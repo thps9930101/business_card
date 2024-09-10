@@ -1533,13 +1533,13 @@
 
             timesList = timesList.message;
             for (let i = 0; i < div.length; i ++) {
-                if (div[i].querySelectorAll('.timesDiv')[0].innerHTML != "剩餘次數: " + timesList[i].remaining_times || 
+                if (div[i].querySelectorAll('.timesDiv')[0].innerHTML != "剩餘次數: " + timesList[i].remainingTimes || 
                     div[i].querySelectorAll('.browsetimesDiv')[0].innerHTML != "瀏覽次數: " + timesList[i].download_times) {
-                    div[i].querySelectorAll('.timesDiv')[0].innerHTML = "剩餘次數: " + timesList[i].remaining_times;
+                    div[i].querySelectorAll('.timesDiv')[0].innerHTML = "剩餘次數: " + timesList[i].remainingTimes;
                     div[i].querySelectorAll('.browsetimesDiv')[0].innerHTML = "瀏覽次數: " + timesList[i].download_times;
-                    // $(div[i].querySelectorAll('.edit-times-btn')[0]).off('click').click(editTimesOnClick(timesList[i].user_name, timesList[i].user_id, timesList[i].remaining_times));
+                    // $(div[i].querySelectorAll('.edit-times-btn')[0]).off('click').click(editTimesOnClick(timesList[i].user_name, timesList[i].user_id, timesList[i].remainingTimes));
                     $(div[i].querySelectorAll('.edit-times-btn')[0]).off('click', "**").on( "click", function() {
-                        editTimesOnClick(timesList[i].user_name, timesList[i].user_id, timesList[i].remaining_times);
+                        editTimesOnClick(timesList[i].user_name, timesList[i].user_id, timesList[i].remainingTimes);
                     });
 
                 }
@@ -2045,6 +2045,9 @@
 
     function checkFileType(id, type, size = 10, name = "") {
         var input = $('#' + id)[0];
+
+        const MAX_WIDTH = 4096;
+        const MAX_HEIGHT = 4096;
 
         if (!input.files[0]) {
             alert('請選擇完整選擇檔案');

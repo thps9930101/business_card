@@ -30,6 +30,7 @@ Route::post('/staffLogin',[StaffController::class, 'login']);
 Route::post('/testBC',[ApiController::class, 'testBC']);
 
 // api func
+Route::post('/getBC_admin',[ApiController::class, 'getBC_admin']);
 Route::post('/getBC',[ApiController::class, 'getBC']);
 Route::post('/getBC_info',[ApiController::class, 'getBC_info']);
 Route::post('/addModels',[ApiController::class, 'addModels']);
@@ -54,7 +55,10 @@ Route::post('/editTimes',[ApiController::class, 'editTimes']);
 Route::post('/getCompanyUserAllBC',[ApiController::class, 'getCompanyUserAllBC']);
 Route::post('/testEnc',[ApiController::class, 'testEnc']);
 Route::post('/changeFrontBack',[ApiController::class, 'changeFrontBack']);
-
+// Route::post('/encAllfile',[ApiController::class, 'encAllfile']);
+Route::post('/getAllUser',[ApiController::class, 'getAllUser']);
+// Route::post('/getTimesOrder',[ApiController::class, 'getTimesOrder']);
+Route::post('/reduceTimes',[ApiController::class, 'reduceTimes']);
 
 //company
 Route::post('/company_register',[ApiController::class, 'company_register']);
@@ -92,6 +96,12 @@ Route::post('/setVideoFinish',[ApiController::class, 'setVideoFinish']);
 Route::post('/guestLogin',[UserController::class, 'guestLogin']);
 
 Route::post('/test',[ApiController::class, 'test']);
+
+// Route::middleware('throttle:10,1')->group(function () {
+
+//     Route::get('/throttleTest',[ApiController::class, 'throttleTest']);
+//     // 這裡放置需要限制的路由
+// });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     
