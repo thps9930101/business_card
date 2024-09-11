@@ -443,10 +443,10 @@
 		else {
 			echo import("three/OBJLoader.js?decache=1");
 			echo import("three/SkeletonUtils.js");
-			if(!$isNewMode) {
+			// if(!$isNewMode) {
 				echo import("three/fflate.min.js");
 				echo import("three/FBXLoader.js?decache=1");
-			}
+			// }
 			echo import("umd.js");
 		}
 	?>
