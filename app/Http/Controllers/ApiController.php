@@ -2735,7 +2735,8 @@ class ApiController extends Controller
             'phone' => $card->phone,
             'wechat' => $card->wechat,
             'tiktok' => $card->tiktok,
-            'youtube' => $card->youtube
+            'youtube' => $card->youtube,
+            'qrcode' => true
         ];
         
         foreach ($new_data as $name => $value) {
