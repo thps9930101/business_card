@@ -317,6 +317,10 @@
                                     <input id="wechat" type="text" class="form-control" placeholder="請輸入微信 id">
                                 </div>
                                 <div class="form-group">
+                                    <label for="youtube">YouTube</label>
+                                    <input id="youtube" type="text" class="form-control" placeholder="請輸入YouTube id">
+                                </div>
+                                <div class="form-group">
                                     <label for="tiktok">抖音</label>
                                     <input id="tiktok" type="text" class="form-control" placeholder="請輸入tiktok id">
                                 </div>
@@ -467,6 +471,10 @@
                                 <div class="form-group hidden">
                                     <label for="edit_wechat">微信</label>
                                     <input id="edit_wechat" type="text" class="form-control" placeholder="請輸入微信 id">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit_youtube">YouTube</label>
+                                    <input id="edit_youtube" type="text" class="form-control" placeholder="請輸入YouTube id">
                                 </div>
                                 <div class="form-group">
                                     <label for="edit_tiktok">抖音</label>
@@ -1969,6 +1977,7 @@
             instagram: $('#instagram').val(),
             X: undefined,
             tiktok: $('#tiktok').val(),
+            youtube: $('#youtube').val(),
             wechat: $('#wechat').val(),
             web: $('#web').val(),
             is_actived: true,
@@ -2463,6 +2472,7 @@
             web: $('#edit_web').val(),
             wechat: $('#edit_wechat').val(),
             tiktok: $('#edit_tiktok').val(),
+            youtube: $('#edit_youtube').val(),
             is_actived: true
         };
         console.log("edit", card_params)
@@ -2556,6 +2566,7 @@
         $('#edit_web').val(card.web);
         $('#edit_wechat').val(card.wechat);
         $('#edit_tiktok').val(card.tiktok);
+        $('#edit_youtube').val(card.youtube);
         $('#editCard').modal('show');
     }
 

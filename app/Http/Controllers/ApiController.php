@@ -2094,6 +2094,7 @@ class ApiController extends Controller
         $card->web = array_key_exists('web', $card_info) ? $card_info['web'] : $card->web;
         $card->wechat = array_key_exists('wechat', $card_info) ? $card_info['wechat'] : $card->wechat;
         $card->tiktok = array_key_exists('tiktok', $card_info) ? $card_info['tiktok'] : $card->tiktok;
+        $card->youtube = array_key_exists('youtube', $card_info) ? $card_info['youtube'] : $card->youtube;
         $card->is_actived = array_key_exists('is_actived', $card_info) ? $card_info['is_actived'] : $card->is_actived;
 
 
@@ -3150,6 +3151,7 @@ class ApiController extends Controller
             'phone' => $card->phone,
             'wechat' => $card->wechat,
             'tiktok' => $card->tiktok,
+            'youtube' => $card->youtube
         ];
         
         if ($getBC_Result['success']['message']["card_front"] != '')
