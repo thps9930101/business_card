@@ -350,12 +350,26 @@
                                     <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearCardPic(false)">清空</div>
                                 </div>
                                 <div class="form-group">
+                                    <label for="pic_front_scale">正面圖片(後面)縮放比例
+                                        <span class="text-red-500">*<span>
+                                        <span id="pic_front_scale_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="pic_front_scale" class="form-control p-0" type="number" step="0.1" min="0" placeholder="輸入數字，例如 1.0 或 2.5" />
+                                </div>       
+                                <div class="form-group">
                                     <label for="pic_front">正面圖片(後面)
                                         <span class="text-red-500">*<span>
                                         <span id="pic_front_alert" class="text-red-500 hidden"><span>
                                     </label>
                                     <input id="pic_front" type="file" class="form-control p-0" placeholder="請選擇名片正面圖片" accept="image/jpeg,image/png">
                                 </div>
+                                <div class="form-group mt-4">
+                                    <label for="pic_back_scale">反面圖片(底部)縮放比例
+                                        <span class="text-red-500">*<span>
+                                        <span id="pic_back_scale_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="pic_back_scale" class="form-control p-0" type="number" step="0.1" min="0" placeholder="輸入數字，例如 1.0 或 2.5" />
+                                </div>       
                                 <div class="form-group">
                                     <label for="pic_back">反面圖片(底部)
                                         <span class="text-red-500">*<span>
@@ -369,7 +383,15 @@
                                 <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
                                     <div>模型檔案</div>
                                     <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearModel(false)">清空</div>
-                                </div>                            <div class="form-group">
+                                </div>    
+                                <div class="form-group">
+                                    <label for="model_scale">模型縮放比例
+                                        <span class="text-red-500">*<span>
+                                        <span id="model_scale_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="model_scale" class="form-control p-0" type="number" step="0.1" min="0" placeholder="輸入數字，例如 1.0 或 2.5" />
+                                </div>                                 
+                                <div class="form-group">
                                     <label for="model_mesh">模型檔(*.obj)
                                         <!-- <span class="text-red-500">*<span> -->
                                         <span id="model_mesh_alert" class="text-red-500 hidden"><span>
@@ -503,12 +525,26 @@
                                     <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearCardPic()">清空</div>
                                 </div>
                                 <div class="form-group">
+                                    <label for="edit_pic_front_scale">正面圖片(後面)縮放比例
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_pic_front_scale_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_pic_front_scale" class="form-control p-0" type="number" step="0.1" min="0" placeholder="輸入數字，例如 1.0 或 2.5" />
+                                </div>  
+                                <div class="form-group">
                                     <label for="edit_pic_front">正面圖片(後面)
                                         <span class="text-red-500">*<span>
                                         <span id="edit_pic_front_alert" class="text-red-500 hidden"><span>
                                     </label>
                                     <input id="edit_pic_front" type="file" class="form-control p-0" placeholder="請選擇名片正面圖片" accept="image/jpeg,image/png">
                                 </div>
+                                <div class="form-group mt-4">
+                                    <label for="edit_pic_back_scale">反面圖片(底部)縮放比例
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_pic_back_scale_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_pic_back_scale" class="form-control p-0" type="number" step="0.1" min="0" placeholder="輸入數字，例如 1.0 或 2.5" />
+                                </div>   
                                 <div class="form-group mt-2">
                                     <label for="edit_pic_back">反面圖片(底部)
                                         <span class="text-red-500">*<span>
@@ -524,6 +560,13 @@
                                 <div class="text-xl font-bold mb-[15px] flex items-center justify-between">
                                     <div>模型檔案</div>
                                     <div class="p-2 btn-primary rounded-lg text-sm" onclick="clearModel()">清空</div>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="edit_model_scale">模型縮放比例
+                                        <span class="text-red-500">*<span>
+                                        <span id="edit_model_scale_alert" class="text-red-500 hidden"><span>
+                                    </label>
+                                    <input id="edit_model_scale" class="form-control p-0" type="number" step="0.1" min="0" placeholder="輸入數字，例如 1.0 或 2.5" />
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="edit_model_mesh">模型檔(*.obj)
@@ -776,7 +819,10 @@
                     alert("發生未預期的錯誤，交換失敗");
                 else {                                        
                     if (res.success) 
+                    {
+                        $('#editCard').modal('hide');
                         alert("交換成功")
+                    }
                     else
                         alert(res.message)
                 }
@@ -860,7 +906,7 @@
     async function post(apiName, params) {
         try {
             const api = 'https://businesscard.lightmatrix3d.com/api/' + apiName
-            // const api = 'http://192.168.0.112:8000/api/' + apiName
+            // const api = 'http://192.168.0.106:8002/api/' + apiName
             const res = await axios.post(api, params, config)
 
             if (debugMode)
@@ -1664,6 +1710,10 @@
 
         const plan = document.getElementById('plan');
 
+        const inputModelScale = document.getElementById('model_scale');
+        const inputFrontScale = document.getElementById('pic_front_scale');
+        const inputBackScale = document.getElementById('pic_back_scale');
+
         const inputFileModel = document.getElementById('model_mesh');  
         const inputFileTexture = document.getElementById('model_texture');     
         const inputFileHalf = document.getElementById('model_half');    
@@ -1673,6 +1723,13 @@
         if(name.value == "" || account.value == "" || password.value == "" || phone.value == "" || release_name.value == "")
         {
             alert("請輸入完整資料!");
+            loader_hide();
+            return;
+        }
+
+        if(inputModelScale.value == "" || inputFrontScale.value == "" || inputBackScale.value == "")
+        {
+            alert("請輸入縮放比例!");
             loader_hide();
             return;
         }
@@ -1980,6 +2037,9 @@
             youtube: $('#youtube').val(),
             wechat: $('#wechat').val(),
             web: $('#web').val(),
+            model_scale: $('#model_scale').val(),
+            pic_front_scale: $('#pic_front_scale').val(),
+            pic_back_scale: $('#pic_back_scale').val(),
             is_actived: true,
         };
         var res = await post('editBC', {
@@ -2292,6 +2352,10 @@
         const email = document.getElementById("edit_email");
         const phone = document.getElementById("edit_phone");
 
+        const inputModelScale = document.getElementById('edit_model_scale');
+        const inputFrontScale = document.getElementById('edit_pic_front_scale');
+        const inputBackScale = document.getElementById('edit_pic_back_scale');
+
         if(release_name.value == "" || name.value == "" || email.value == "" || phone.value == "")
         {
             alert("請輸入必填資料!");
@@ -2299,6 +2363,12 @@
             return;
         }
 
+        if(inputModelScale.value == "" || inputFrontScale.value == "" || inputBackScale.value == "")
+        {
+            alert("請輸入縮放比例!");
+            loader_hide();
+            return;
+        }
 
         const token = localStorage.getItem("company_token");
         const edit_pic_back = $('#edit_pic_back').val();
@@ -2473,6 +2543,9 @@
             wechat: $('#edit_wechat').val(),
             tiktok: $('#edit_tiktok').val(),
             youtube: $('#edit_youtube').val(),
+            model_scale: $('#edit_model_scale').val(),
+            pic_front_scale: $('#edit_pic_front_scale').val(),
+            pic_back_scale: $('#edit_pic_back_scale').val(),
             is_actived: true
         };
         console.log("edit", card_params)
@@ -2567,6 +2640,11 @@
         $('#edit_wechat').val(card.wechat);
         $('#edit_tiktok').val(card.tiktok);
         $('#edit_youtube').val(card.youtube);
+        
+        $('#edit_model_scale').val(card.model_scale);
+        $('#edit_pic_front_scale').val(card.pic_front_scale);
+        $('#edit_pic_back_scale').val(card.pic_back_scale);
+
         $('#editCard').modal('show');
     }
 

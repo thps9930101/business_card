@@ -2097,7 +2097,10 @@ class ApiController extends Controller
         $card->youtube = array_key_exists('youtube', $card_info) ? $card_info['youtube'] : $card->youtube;
         $card->is_actived = array_key_exists('is_actived', $card_info) ? $card_info['is_actived'] : $card->is_actived;
 
-
+        $card->model_scale = array_key_exists('model_scale', $card_info) ? $card_info['model_scale'] : $card->model_scale;
+        $card->pic_front_scale = array_key_exists('pic_front_scale', $card_info) ? $card_info['pic_front_scale'] : $card->pic_front_scale;
+        $card->pic_back_scale = array_key_exists('pic_back_scale', $card_info) ? $card_info['pic_back_scale'] : $card->pic_back_scale;
+        
         // foreach ($card_info as $key => $info) {
         //     $card->$key = $info;
         // }
@@ -2714,6 +2717,9 @@ class ApiController extends Controller
                 "download_times" => $card->download_time,
                 "remainingTimes" => $user->download_time,
                 "is_actived" => $card->is_actived,
+                'model_scale' => $card->model_scale,
+                'pic_front_scale' => $card->pic_front_scale,
+                'pic_back_scale' => $card->pic_back_scale,
                 "model" => [
                     "cover_half" => $model->cover_half_url ?? ''
                 ],
@@ -2739,6 +2745,7 @@ class ApiController extends Controller
             // 'qrcode' => true
             'contact' => true
         ];
+        
         
         foreach ($new_data as $name => $value) {
             if ($value !== null) {
@@ -3113,6 +3120,9 @@ class ApiController extends Controller
                     "is_actived" => $card->is_actived,
                     "download_times" => $card-> download_time,
                     'remainingTimes' => $user->download_time,
+                    'model_scale' => $card->model_scale,
+                    'pic_front_scale' => $card->pic_front_scale,
+                    'pic_back_scale' => $card->pic_back_scale,
                     // "address"=> $card->address,
                     // "fax"=> $card->fax,
                     // "telegram" =>$card->telegram,
