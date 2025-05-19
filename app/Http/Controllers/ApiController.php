@@ -188,6 +188,13 @@ class ApiController extends Controller
     
 
     public function testBC(Request $request) {
+        return [
+            'message' => [
+                "test" => "123"
+            ]
+        ];
+
+
         $getAllBC_Result = [
             'bearerToken_requery' => true,
             'input_param' => [
@@ -1775,11 +1782,13 @@ class ApiController extends Controller
         $user = User::where('id',$request->user_id)->first();
 
         $companies_user = companies_user::where('company_id',$company->id)->where('user_id',$user->id);
+
+        //TODO 帳號可重覆時需直接return true，並不新增額外關聯
         if($companies_user->exists())
         {
             return [
-                'success' => false,
-                'message' => "帳號已存在，無法新建"
+                'success' => true,
+                'message' => "帳號已存在，新增多張名片"
             ];
         }
         $companies_user = $companies_user->get();
@@ -2283,6 +2292,8 @@ class ApiController extends Controller
                 return [
                     'success' => false,
                     'message' => [
+                        'dir' => $s3_dir,
+                        'fileName' => $s3_fileName
                     ],
                 ];
             }
@@ -4608,10 +4619,10 @@ class ApiController extends Controller
     }
 
     public function test(Request $request) {
-        // return [
-        //     'success' => true,
-        //     'message' =>Auth::id(),
-        // ];
+        return [
+            'success' => true,
+            'message' =>Auth::id(),
+        ];
 
         $query = Order::where(function ($query) use ($request) {
             $query
