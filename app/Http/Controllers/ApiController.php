@@ -894,7 +894,7 @@ class ApiController extends Controller
     public function editTimes(Request $request){
         $validator = Validator::make($request->all(),[
             'token' => 'required',
-            'user_id' => 'required',
+            'card_id' => 'required',
             'times' => 'required'
         ]);
     
@@ -927,20 +927,20 @@ class ApiController extends Controller
             ];
         }
 
-        $user = User::where('id',$request->user_id)->first();
+        $card = cards::where('id',$request->card_id)->first();
 
-        if(!$user)
+        if(!$card)
         {
             return[
                 'success' => false,
-                'message' => "找不到此用戶，請重新刷新頁面"
+                'message' => "找不到此名片，請重新刷新頁面"
             ];
         }
 
         try
         {
-            $user->download_time = $request->times;
-            $user->save();
+            $card->Remaining_times = $request->times;
+            $card->save();
         }
         catch(Exception $e){
             return[
@@ -958,6 +958,7 @@ class ApiController extends Controller
         $validator = Validator::make($request->all(),[
             'token' => 'required',
             'user_id' => 'required',
+            'card_id' => 'required',
             'plan_id' => 'required'
         ]);
     
@@ -1010,6 +1011,14 @@ class ApiController extends Controller
         
         $company_user->delete();
 
+        if($request->card_id == "")
+        {
+            return[
+                'success' => true,
+                'message' => ""
+            ];
+        }
+
         $plan = price_menu::where('id',$request->plan_id)->first();
         if(!$plan)
         {
@@ -1019,8 +1028,17 @@ class ApiController extends Controller
             ];
         }
 
-        $user->download_time = $user->download_time - $plan->times;
-        $user->save();
+        $card = cards::where('id',$request->card_id)->first();
+        if(!$card)
+        {
+            return [
+                'success' => false,
+                'message' => "error"
+            ];
+        }
+
+        $card->Remaining_times = $card->Remaining_times - $plan->times;
+        $card->save();
         return [
             'success' => true,
             'message' => ""
@@ -1452,7 +1470,7 @@ class ApiController extends Controller
     public function userAddTimes(Request $request){
         $validator = Validator::make($request->all(),[
             'token' => 'required',
-            'user_id' => 'required',
+            'card_id' => 'required',
             'plan_id' => 'required'
         ]);
 
@@ -1478,10 +1496,10 @@ class ApiController extends Controller
             ];
         }
 
-        $user = User::where('id', $request->user_id)->first();
+        $card = cards::where('id', $request->card_id)->first();
         $plan = price_menu::where('id',$request->plan_id)->first();
 
-        if(!$user)
+        if(!$card)
         {
             return [
                 'success' => false,
@@ -1497,9 +1515,9 @@ class ApiController extends Controller
             ]; 
         }
 
-        $user->download_time = $user->download_time + $plan->times;
-        $user->bonus_times = $user->bonus_times + $plan->bonus_times;
-        $user->save();
+        $card->Remaining_times = $card->Remaining_times + $plan->times;
+        // $user->bonus_times = $user->bonus_times + $plan->bonus_times;
+        $card->save();
 
         return [
             'success' => true,
@@ -2828,8 +2846,10 @@ class ApiController extends Controller
                             'company_id' => $card->company_id,
                             'user_id' => $card->user_id,
                             'user_name' => $user->name,
+                            'card_name' =>$card->release_name,
+                            'card_id' => $card->id,
                             'download_times' => $card->download_time,
-                            'remainingTimes' => $user->download_time,
+                            'remainingTimes' => $card->Remaining_times,
                         ];
                     }
                 }else{
@@ -3154,7 +3174,7 @@ class ApiController extends Controller
                     "card_back" => $card_back->card_url ?? '',
                     "is_actived" => $card->is_actived,
                     "download_times" => $card-> download_time,
-                    'remainingTimes' => $user->download_time,
+                    'remainingTimes' => $card->Remaining_times,
                     'model_scale' => $card->model_scale,
                     'pic_front_scale' => $card->pic_front_scale,
                     'pic_back_scale' => $card->pic_back_scale,
@@ -3314,7 +3334,7 @@ class ApiController extends Controller
                     "card_back" => $card_back->card_url ?? '',
                     "is_actived" => $card->is_actived,
                     "download_times" => $card-> download_time,
-                    'remainingTimes' => $user->download_time,
+                    'remainingTimes' => $card->Remaining_times,
                     // "address"=> $card->address,
                     // "fax"=> $card->fax,
                     // "telegram" =>$card->telegram,
@@ -3576,7 +3596,7 @@ class ApiController extends Controller
                 'message' => "No Login"
             ];
         }
-        if($user->download_time <= 0 && $user->bonus_times <=0)
+        if($card->Remaining_times <= 0 && $user->bonus_times <=0)
         {
             return[
                 'success' => false,
@@ -3584,9 +3604,10 @@ class ApiController extends Controller
             ];
         }
        
-        if($user->download_time <= 0)
+        if($card->Remaining_times <= 0)
         {
             $user->download_time -=1;
+            $card->Remaining_times -=1;
         }else
         {
             $user->bonus_times -=1;
@@ -3597,7 +3618,7 @@ class ApiController extends Controller
         return[   
             'success' => true,
             'message' => [
-                "download_time"=>  $user->download_time
+                "download_time"=>  $card->Remaining_times
             ]
         ];
     }

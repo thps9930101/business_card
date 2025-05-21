@@ -906,7 +906,7 @@
     async function post(apiName, params) {
         try {
             const api = 'https://businesscard.lightmatrix3d.com/api/' + apiName
-            // const api = 'http://192.168.0.106:8002/api/' + apiName
+            // const api = 'http://192.168.0.106:8001/api/' + apiName
             const res = await axios.post(api, params, config)
 
             if (debugMode)
@@ -981,8 +981,8 @@
     async function getUser() {
         loader_show();
 
-        function editTimesOnClick(user_name, user_id, remainingTimes) {
-            $("#editTimes_Title").html('編輯 <span class="text-red-500 font-bold">' + user_name + '</span> 的剩餘次數');
+        function editTimesOnClick(card_name, user_id, card_id, remainingTimes) {
+            $("#editTimes_Title").html('編輯 <span class="text-red-500 font-bold">' + card_name + '</span> 的剩餘次數');
             $("#editTimes_originalTimes").html(remainingTimes);
             $("#editTimes_input").val(remainingTimes);
 
@@ -1009,7 +1009,7 @@
                 
                 var msg = {};
                 msg.title = "變更剩餘次數確認";
-                msg.html = "即將編輯<span class='text-red-500 font-bold'>" + user_name + "</span> 的剩餘次數" + 
+                msg.html = "即將編輯<span class='text-red-500 font-bold'>" + card_name + "</span> 的剩餘次數" + 
                             "<br>" + 
                             "<div class='w-full p-2'>" + remainingTimes + " -> " + modify_num + modify + "</div>";
                 msg.showCancelButton = true
@@ -1033,7 +1033,7 @@
 
                         var res = await post("editTimes", {
                             token: localStorage.getItem("company_token"),
-                            user_id: user_id,
+                            card_id: card_id,
                             times: modify_num,
                         })
 
@@ -1119,7 +1119,7 @@
                 return disc;
             }
 
-            function createMenuBtn(userData) {
+            function createMenuBtn(userData, cardInfo) {
                 const menu = $('<div>', {
                     'class': "flex items-center  justify-end w-full mt-3 sm:text-sm text-xs font-medium text-gray-600"
                 });
@@ -1136,7 +1136,7 @@
                 menu.append($('<div>', {
                     'class': btnClass + " bg-yellow-200",
                     click: () => {
-                        showAddTimesModal(userData.id)
+                        showAddTimesModal(cardInfo.id)
                     }
                 }).html("加值"));
 
@@ -1363,7 +1363,7 @@
                     discClass = discClass + " " + classname;
                 
                 const userInfoContainer = $('<div>', { class: discClass });
-                const userNameDiv = createDiscribe("會員名稱:" + userData.name, "userName")
+                const userNameDiv = createDiscribe("會員名稱:" + cardInfo.name, "userName")
                 const userDetailDiv = $('<div>', { 
                     class: 'w-full hidden userDetail', 
                 });
@@ -1382,7 +1382,7 @@
                     userDetailDiv.append(createDiscribe(""));
                     userDetailDiv.append(createDiscribe(""));
                     // userDiv.append(createDiscribe("名片ID: " + cardInfo.public_id));
-                    userDetailDiv.append(createDiscribe("名片名稱: " + release_name));
+                    // userDetailDiv.append(createDiscribe("名片名稱: " + release_name));
                     // userDetailDiv.append(createDiscribe("瀏覽次數: " + cardInfo.download_times));
                     userDetailDiv.append(createUrlCopy("名片連結 : ", previewUrl, "qrInput" + userData.id));
                     userDetailDiv.append(createUrlCopy("瀏覽次數連結 : ", timesUrl, "browseInput" + userData.id));
@@ -1397,6 +1397,7 @@
                 //     console.log()
                 // });
                 userInfoContainer.append(userNameDiv)
+                userInfoContainer.append(createDiscribe("名片名稱: " + cardInfo.releaseName));
                 userInfoContainer.append(createDiscribe("瀏覽次數: " + cardInfo.download_times, "browsetimesDiv"));
                 userInfoContainer.append(createDiscribe("剩餘次數: " + userData.remainingTimes, "timesDiv"));
                 userInfoContainer.append(userDetailDiv)
@@ -1424,7 +1425,7 @@
             // userDiv.append(createDiscribe("名片數量: " + userData.card_amount));
             // userDiv.append(createDiscribe("剩餘次數: " + userData.remainingTimes));
 
-            userDiv.append(createMenuBtn(userData));
+            userDiv.append(createMenuBtn(userData, cardInfo));
 
 
             return userDiv;
@@ -1584,7 +1585,6 @@
             
             if (!timesList) return;
             if (!timesList.success) return;                        
-
             timesList = timesList.message;
             for (let i = 0; i < div.length; i ++) {
                 if (div[i].querySelectorAll('.timesDiv')[0].innerHTML != "剩餘次數: " + timesList[i].remainingTimes || 
@@ -1593,7 +1593,7 @@
                     div[i].querySelectorAll('.browsetimesDiv')[0].innerHTML = "瀏覽次數: " + timesList[i].download_times;
                     // $(div[i].querySelectorAll('.edit-times-btn')[0]).off('click').click(editTimesOnClick(timesList[i].user_name, timesList[i].user_id, timesList[i].remainingTimes));
                     $(div[i].querySelectorAll('.edit-times-btn')[0]).off('click', "**").on( "click", function() {
-                        editTimesOnClick(timesList[i].user_name, timesList[i].user_id, timesList[i].remainingTimes);
+                        editTimesOnClick(timesList[i].card_name, timesList[i].user_id, timesList[i].card_id, timesList[i].remainingTimes);
                     });
 
                 }
@@ -1654,20 +1654,22 @@
             }
 
             if (res.success) {
-                if (plan) {
-                    const userAddTimes_res = await post("userAddTimes", {
-                        token: localStorage.getItem("company_token"),            
-                        user_id: userID,
-                        plan_id: plan.value
-                    })
-                    if (userAddTimes_res) {
-                        alert("新增會員成功，" + userAddTimes_res.message)
-                        return true;
-                    }else{
-                        alert("出現非預期錯誤，次數增加失敗")
-                        location.reload();
-                        return false;
-                    }
+                return true;
+                // 建立關聯時 加次數，已棄用
+                // if (plan) {
+                //     const userAddTimes_res = await post("userAddTimes", {
+                //         token: localStorage.getItem("company_token"),            
+                //         user_id: userID,
+                //         plan_id: plan.value
+                //     })
+                //     if (userAddTimes_res) {
+                //         alert("新增會員成功，" + userAddTimes_res.message)
+                //         return true;
+                //     }else{
+                //         alert("出現非預期錯誤，次數增加失敗")
+                //         location.reload();
+                //         return false;
+                //     }
 
                     // const addTimesOrder_res = await post("addTimesOrder", {
                     //     token: localStorage.getItem("company_token"),            
@@ -1686,11 +1688,11 @@
                     //     location.reload();
                     //     return false;
                     // }
-                }
-                else {
-                    alert('新增會員成功');
-                    return true;
-                }
+                // }
+                // else {
+                //     alert('新增會員成功');
+                //     return true;
+                // }
             }
             else
                 alert("建立失敗: " + res.message);
@@ -1791,7 +1793,7 @@
             if (res.message.isExist) {
                 // 已存在
                 userID = res.message.id;
-                //console.log("token"+res.message.token);
+                // console.log("token"+res.message.token);
                 setToken(res.message.token);
                 
                 if (!await connectUserAndCompany(userID, plan))
@@ -1811,6 +1813,8 @@
     }
 
     async function addCard(account, userID, inputModel) {
+        const plan = document.getElementById('plan');
+
         checkLocalStorage(); // api ok
         const token = localStorage.getItem("company_token")
         console.log(token);
@@ -1821,9 +1825,10 @@
             token: token
         });
         if (!card) {
-            // TODO 取消公司與uer的關聯 and 退回次數(API)
+            // TODO 要改成取消公司與uer的關聯不用再更改次數
             res = await post("rollback_times", {
                 user_id: userID,
+                card_id: "",
                 token: localStorage.getItem("company_token"),
                 plan_id:plan.value
             });
@@ -1837,9 +1842,10 @@
             card = card.message
         else
         {
-            // TODO 取消公司與uer的關聯 and 退回次數(API)
+            // TODO 要改成取消公司與uer的關聯不用再更改次數
             res = await post("rollback_times", {
                 user_id: userID,
+                card_id: "",
                 token: localStorage.getItem("company_token"),
                 plan_id:plan.value
             });
@@ -1849,6 +1855,30 @@
             return ;
         }
 
+        // add times
+         if (plan) {
+            const userAddTimes_res = await post("userAddTimes", {
+                token: localStorage.getItem("company_token"),            
+                card_id: card.id,
+                plan_id: plan.value
+            })
+            if (userAddTimes_res) {
+                alert("新增會員成功，" + userAddTimes_res.message)
+            }else{
+                res = await post("rollback_times", {
+                    user_id: userID,
+                    card_id: card.id,
+                    token: localStorage.getItem("company_token"),
+                    plan_id:plan.value
+                });
+                alert("出現非預期錯誤，次數增加失敗")
+                location.reload();
+                return false;
+            }
+        }
+        else {
+            alert('新增會員成功');
+        }
         // ---
 
         // 上傳名片正反素材
@@ -1869,6 +1899,7 @@
 
             res_rollback_times = await post("rollback_times", {
                 user_id: userID,
+                card_id: card.id,
                 token: localStorage.getItem("company_token"),
                 plan_id:plan.value
             });
@@ -1888,6 +1919,7 @@
 
             res_rollback_times = await post("rollback_times", {
                 user_id: userID,
+                card_id: card.id,
                 token: localStorage.getItem("company_token"),
                 plan_id:plan.value
             });
@@ -1911,6 +1943,7 @@
 
             res_rollback_times = await post("rollback_times", {
                 user_id: userID,
+                card_id: card.id,
                 token: localStorage.getItem("company_token"),
                 plan_id:plan.value
             });
@@ -1934,6 +1967,7 @@
 
             res_rollback_times = await post("rollback_times", {
                 user_id: userID,
+                card_id: card.id,
                 token: localStorage.getItem("company_token"),
                 plan_id:plan.value
             });
@@ -1977,6 +2011,7 @@
 
                 res_rollback_times = await post("rollback_times", {
                     user_id: userID,
+                    card_id: card.id,
                     token: localStorage.getItem("company_token"),
                     plan_id:plan.value
                 });
@@ -2004,6 +2039,7 @@
 
                 res_rollback_times = await post("rollback_times", {
                     user_id: userID,
+                    card_id: card.id,
                     token: localStorage.getItem("company_token"),
                     plan_id:plan.value
                 });
@@ -2068,6 +2104,7 @@
 
             res_rollback_times = await post("rollback_times", {
                 user_id: userID,
+                card_id: card.id,
                 token: localStorage.getItem("company_token"),
                 plan_id:plan.value
             });
@@ -2101,6 +2138,7 @@
 
             res_rollback_times = await post("rollback_times", {
                 user_id: userID,
+                card_id: card.id,
                 token: localStorage.getItem("company_token"),
                 plan_id:plan.value
             });
@@ -2232,18 +2270,18 @@
         });
     }
 
-    async function showAddTimesModal(userID) {
+    async function showAddTimesModal(cardID) {
         planList = await getPlanList();
         $('#addTimesBody').html("");
         $('#addTimesBody').append(createCombobox(planList, (selectPlan) => {
             $('#addPlanBtn').off('click').click(async () => {
-                console.log("userID", userID);
+                console.log("cardID", cardID);
                 console.log("plan", selectPlan);
                 checkLocalStorage(); // api ok
                 // TODO: 增加顧客次數
                 const res = await post("userAddTimes", {
                     token: localStorage.getItem("company_token"),            
-                    user_id: userID,
+                    card_id: cardID,
                     plan_id: selectPlan.id
                 });
 
