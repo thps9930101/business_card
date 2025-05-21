@@ -59,6 +59,8 @@ Route::post('/changeFrontBack',[ApiController::class, 'changeFrontBack']);
 Route::post('/getAllUser',[ApiController::class, 'getAllUser']);
 // Route::post('/getTimesOrder',[ApiController::class, 'getTimesOrder']);
 Route::post('/reduceTimes',[ApiController::class, 'reduceTimes']);
+Route::post('/getUserTimesIntoCards',[ApiController::class, 'getUserTimesIntoCards']);
+
 
 //company
 Route::post('/company_register',[ApiController::class, 'company_register']);

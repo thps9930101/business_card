@@ -2027,17 +2027,18 @@ class ApiController extends Controller
             }
         }
 
-        $get_cards = cards::where('company_id',$card->company_id)->where('email',$card_info['email'])->get()->count();
+        // TODO 防止公司多張名片
+        // $get_cards = cards::where('company_id',$card->company_id)->where('email',$card_info['email'])->get()->count();
         
-        if($get_cards > 1)
-        {
-            return[
-                "failed" => [
-                    'success' => false,
-                    'message' => "此信箱已在本公司註冊過"
-                ]
-            ];
-        }
+        // if($get_cards > 1)
+        // {
+        //     return[
+        //         "failed" => [
+        //             'success' => false,
+        //             'message' => "此信箱已在本公司註冊過"
+        //         ]
+        //     ];
+        // }
 
        
         
@@ -2080,6 +2081,8 @@ class ApiController extends Controller
         // $card->X = $card_info['X'] ?? $card->X;
         // $card->web = $card_info['web'] ?? $card->web;
         // $card->is_actived = $card_info['is_actived'] ?? $card->is_actived;
+
+        // TODO 信箱多張卡片時 name跟phone會被覆蓋掉
         $user->name = array_key_exists('name', $card_info) ? $card_info['name'] : $card->name;
         $user->email = array_key_exists('email', $card_info) ? $card_info['email'] : $card->email;
         $user->phone = array_key_exists('phone', $card_info) ? $card_info['phone'] : $card->phone;
@@ -2121,6 +2124,24 @@ class ApiController extends Controller
             'success' => true,
             'message' => $card
         ];
+    }
+
+    public function getUserTimesIntoCards(Request $request){
+        $users = User::all();
+        $totalUpdated = 0;
+
+        foreach ($users as $user) {
+            // 更新所有該使用者的 cards 的 Remaining_times 為 user.download_times
+            $updatedCount = cards::where('user_id', $user->id)
+                ->update(['Remaining_times' => $user->download_time]);
+
+            $totalUpdated += $updatedCount;
+        }
+
+        return response()->json([
+            'message' => '所有使用者的 Remaining_times 同步完成',
+            'total_updated_cards' => $totalUpdated
+        ]);
     }
 
     public function removeBC(Request $request){
@@ -2960,7 +2981,8 @@ class ApiController extends Controller
                 }
             }
         }
-
+        
+        //TODO 更改成名片獨立次數時，判斷要是名片次數是否>0
         if($user->download_time <= 0 && $user->bonus_times <= 0)
         {
             return [
@@ -2970,9 +2992,11 @@ class ApiController extends Controller
             ];
         }
 
+        //TODO 更改成名片獨立次數時，判斷要是名片次數是否>0
         if($user->download_time >0)
         {
             $user->download_time -= 1;
+            $card->Remaining_times -=1;
         }else
         {
             $user->bonus_times -= 1;
