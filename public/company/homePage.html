@@ -1136,7 +1136,7 @@
                 menu.append($('<div>', {
                     'class': btnClass + " bg-yellow-200",
                     click: () => {
-                        showAddTimesModal(cardInfo.id)
+                        showAddTimesModal(userData.card_id)
                     }
                 }).html("加值"));
 
@@ -1222,7 +1222,7 @@
 
                 menu.append($('<div>', {
                     'class': btnClass + " bg-yellow-200 ml-2 ",
-                    click: () => { createQR(cardInfo.public_id) }
+                    click: () => { createQR(userData.public_id) }
                 }).html("QRcord" + "<i class='fa-solid fa-qrcode ml-1'></i>"));
 
                 menu.append($('<div>', {
@@ -1237,7 +1237,7 @@
                         // now.setTime(expireTime);
                         // document.cookie = "user_token=" + encodeURIComponent(userData.token) + "; expires=" + now.toUTCString();
                         // document.cookie = "user_token=" + userData.token + "; expires=" + now.toUTCString() + "; path=/; SameSite=None; Secure";
-                        document.getElementById("previewIframe").src = "https://businesscard.lightmatrix3d.com/?id=" + cardInfo.public_id;
+                        document.getElementById("previewIframe").src = "https://businesscard.lightmatrix3d.com/?id=" + userData.public_id;
                         $('#fullscreenModal').modal('show');
                         // window.open("https://businesscard.lightmatrix3d.com/?id=" + cardInfo.public_id, '_blank'); 
                     }
@@ -1249,14 +1249,14 @@
                         // TODO: 預覽
                         localStorage.setItem("user_token", userData.token);
                         setToken(userData.token);
-                        showEditCardModal(userData.id, cardInfo.id)
+                        showEditCardModal(userData.id, userData.card_id)
                     }
                 }).html("編輯" + "<i class='fa-solid fa-pen-to-square ml-1'></i>"));
 
                 menu.append($('<div>', {
                     'class': btnClass + " bg-yellow-200 ml-2",
                     click: () => {
-                        const release_name = (cardInfo.releaseName ? cardInfo.releaseName : "未命名");
+                        const release_name = (userData.releaseName ? userData.releaseName : "未命名");
 
                         var msg = {};
                         msg.title = "是否確認刪除該名片";
@@ -1280,19 +1280,19 @@
 
                                 setToken(userData.token);
 
-                                const removeCompanyUser = await post("removeCompanyUser", {
-                                    user_id: userData.id,
-                                    token: cardInfo.company_token
-                                });
+                                // const removeCompanyUser = await post("removeCompanyUser", {
+                                //     user_id: userData.id,
+                                //     token: userData.company_token
+                                // });
 
-                                if(!removeCompanyUser.success)
-                                {
-                                    alert("發生未預期的錯誤，刪除失敗");
-                                    //location.reload();  
-                                }
+                                // if(!removeCompanyUser.success)
+                                // {
+                                //     alert("發生未預期的錯誤，刪除失敗");
+                                //     //location.reload();  
+                                // }
 
                                 const remove = await post("removeBC", {
-                                    id: cardInfo.id,
+                                    id: userData.card_id,
                                     token: localStorage.getItem("company_token")
                                 });
                                 if (!remove)
@@ -1363,7 +1363,7 @@
                     discClass = discClass + " " + classname;
                 
                 const userInfoContainer = $('<div>', { class: discClass });
-                const userNameDiv = createDiscribe("會員名稱:" + cardInfo.name, "userName")
+                const userNameDiv = createDiscribe("會員名稱:" + userData.card_name, "userName")
                 const userDetailDiv = $('<div>', { 
                     class: 'w-full hidden userDetail', 
                 });
@@ -1371,13 +1371,13 @@
                 userDetailDiv.append(createDiscribe("會員Email: " + userData.email));
                 // userDetailDiv.append(createDiscribe("名片數量: " + userData.card_amount));
 
-                if (!cardInfo)
+                if (!userData)
                     userDetailDiv.append(createDiscribe("<h1 class='text-red-500'>沒有</h1>"));
                 else {
-                    const release_name = (cardInfo.releaseName ? cardInfo.releaseName : "<span class ='text-gray-300' >未命名</span>");
+                    const release_name = (userData.releaseName ? userData.releaseName : "<span class ='text-gray-300' >未命名</span>");
 
                     let timesUrl = "https://businesscard.lightmatrix3d.com/company/browseTimes.html?email=" + userData.email;
-                    let previewUrl = "https://businesscard.lightmatrix3d.com/?id=" + cardInfo.public_id;
+                    let previewUrl = "https://businesscard.lightmatrix3d.com/?id=" + userData.public_id;
 
                     userDetailDiv.append(createDiscribe(""));
                     userDetailDiv.append(createDiscribe(""));
@@ -1386,8 +1386,8 @@
                     // userDetailDiv.append(createDiscribe("瀏覽次數: " + cardInfo.download_times));
                     userDetailDiv.append(createUrlCopy("名片連結 : ", previewUrl, "qrInput" + userData.id));
                     userDetailDiv.append(createUrlCopy("瀏覽次數連結 : ", timesUrl, "browseInput" + userData.id));
-                    userDetailDiv.append(createDiscribe("創建時間: " + formatDate(cardInfo.created_at)));
-                    userDetailDiv.append(createDiscribe("上次更新: " + formatDate(cardInfo.updated_at)));
+                    userDetailDiv.append(createDiscribe("創建時間: " + formatDate(userData.created_at)));
+                    userDetailDiv.append(createDiscribe("上次更新: " + formatDate(userData.updated_at)));
 
                 }
 
@@ -1397,8 +1397,8 @@
                 //     console.log()
                 // });
                 userInfoContainer.append(userNameDiv)
-                userInfoContainer.append(createDiscribe("名片名稱: " + cardInfo.releaseName));
-                userInfoContainer.append(createDiscribe("瀏覽次數: " + cardInfo.download_times, "browsetimesDiv"));
+                userInfoContainer.append(createDiscribe("名片名稱: " + userData.releaseName));
+                userInfoContainer.append(createDiscribe("瀏覽次數: " + userData.download_times, "browsetimesDiv"));
                 userInfoContainer.append(createDiscribe("剩餘次數: " + userData.remainingTimes, "timesDiv"));
                 userInfoContainer.append(userDetailDiv)
                 return userInfoContainer;
@@ -1417,15 +1417,15 @@
 
             // userDiv.append(createDiscribe(""));
             // userDiv.append(createDiscribe("會員ID: " + userData.id));
-            userDiv.append(createDiscribe("建立公司: " + cardInfo.company));
-            userDiv.append(userInfo(userData, cardInfo));
+            userDiv.append(createDiscribe("建立公司: " + userData.company));
+            userDiv.append(userInfo(userData, null));
             // userDiv.append(createDiscribe("剩餘次數: " + userData.remainingTimes, "timesDiv"));
             // userDiv.append(createDiscribe("會員名稱:" + userData.name));
             // userDiv.append(createDiscribe("會員Email: " + userData.email));
             // userDiv.append(createDiscribe("名片數量: " + userData.card_amount));
             // userDiv.append(createDiscribe("剩餘次數: " + userData.remainingTimes));
 
-            userDiv.append(createMenuBtn(userData, cardInfo));
+            userDiv.append(createMenuBtn(userData, null));
 
 
             return userDiv;
@@ -1467,28 +1467,28 @@
             // }
 
             // 寫來測試的
-            item.all_bc.forEach((bc) => {
+            // item.all_bc.forEach((bc) => {
                     
-                var exists = companyList.some(function(company) {
-                    return company.id === bc.company_id;
-                });
+            var exists = companyList.some(function(company) {
+                return company.id === item.company_id;
+            });
 
-                if (!exists) 
-                    companyList.push({ id: bc.company_id, name: bc.company });
+            if (!exists) 
+                companyList.push({ id: item.company_id, name: item.company });
 
-                requestList.push({
-                    user_id: item.id,
-                    card_id: bc.id
-                })
-                const userDiv = createUserDiv(item, bc);
-                elementList.push({
-                    user_id: item.id,
-                    company_id: bc.company_id,
-                    ele: userDiv
-                });
-                
-                $('#remain-greater-0').append(userDiv);
+            requestList.push({
+                user_id: item.id,
+                card_id: item.card_id
             })
+            const userDiv = createUserDiv(item, null);
+            elementList.push({
+                user_id: item.id,
+                company_id: item.company_id,
+                ele: userDiv
+            });
+            
+            $('#remain-greater-0').append(userDiv);
+            // })
 
             // 剛註解的
             // requestList.push({
@@ -1533,28 +1533,28 @@
             // }
 
 
-            item.all_bc.forEach((bc) => {
+            // item.all_bc.forEach((bc) => {
                 
                 var exists = companyList.some(function(company) {
-                    return company.id === bc.company_id;
+                    return company.id === item.company_id;
                 });
 
                 if (!exists) 
-                    companyList.push({ id: bc.company_id, name: bc.company });
+                    companyList.push({ id: item.company_id, name: item.company });
 
                 requestList2.push({
                     user_id: item.id,
-                    card_id: bc.id
+                    card_id: item.card_id
                 })
-                const userDiv = createUserDiv(item, bc);
+                const userDiv = createUserDiv(item, null);
                 elementList.push({
                     user_id: item.id,
-                    company_id: bc.company_id,
+                    company_id: item.company_id,
                     ele: userDiv
                 });
                 
                 $('#remain-equal-0').append(userDiv);
-            })
+            // })
 
 
             

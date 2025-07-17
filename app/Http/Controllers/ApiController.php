@@ -1608,7 +1608,7 @@ class ApiController extends Controller
                 'token' => $user->remember_token
             ];
 
-            if($user->download_time == 0 && $user->bonus_times == 0)
+            if($card->Remaining_times == 0)
             {
                 array_push($getCompanyUser_Result['hasntRemainingTimes'], $user_data);
             }else
@@ -1726,10 +1726,40 @@ class ApiController extends Controller
                     "releaseName" => $card->release_name,
                     "updated_at" => $card->updated_at,
                     "created_at" => $card->created_at,
-                    "download_times" => $card->download_time
+                    "download_times" => $card->download_time,
+                    "remainingTimes" => $card->Remaining_times
                 ];
 
                 array_push($getAllBC_Result, $newData);
+            
+                $user_data = [
+                    'id' => $user->id,
+                    'email' => $user->email,
+                    "name" => $user->name,
+                    'card_amount' => $card_amount,
+                    'token' => $user->remember_token,
+                    // 'all_bc' => $getAllBC_Result,
+
+                    "card_id"   => $card->id,
+                    "company_id" => $card->company_id,
+                    'company_token' => $company_token,
+                    'company' => $company_name,
+                    "public_id"   => $card->public_id,
+                    "card_name" => $card->name,
+                    "releaseName" => $card->release_name,
+                    "updated_at" => $card->updated_at,
+                    "created_at" => $card->created_at,
+                    "download_times" => $card->download_time,
+                    "remainingTimes" => $card->Remaining_times
+                ];
+            
+                if($card->Remaining_times == 0)
+                {
+                    array_push($getCompanyUser_Result['hasntRemainingTimes'], $user_data);
+                }else
+                {
+                    array_push($getCompanyUser_Result['hasRemainingTimes'], $user_data);
+                }
             }
 
             // $user_data = [
@@ -1745,23 +1775,7 @@ class ApiController extends Controller
             //     'all_bc' => $getAllBC_Result
             // ];
 
-            $user_data = [
-                'id' => $user->id,
-                'email' => $user->email,
-                "name" => $user->name,
-                'card_amount' => $card_amount,
-                'remainingTimes' => $user->download_time + $user->bonus_times,
-                'token' => $user->remember_token,
-                'all_bc' => $getAllBC_Result
-            ];
 
-            if($user->download_time == 0 && $user->bonus_times == 0)
-            {
-                array_push($getCompanyUser_Result['hasntRemainingTimes'], $user_data);
-            }else
-            {
-                array_push($getCompanyUser_Result['hasRemainingTimes'], $user_data);
-            }
         }
         
         return[
