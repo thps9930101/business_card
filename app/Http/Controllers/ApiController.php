@@ -2779,7 +2779,7 @@ class ApiController extends Controller
                 "version" => $card->version,
                 "release_name"=> $card->release_name,
                 "download_times" => $card->download_time,
-                "remainingTimes" => $user->download_time,
+                "remainingTimes" => $card->Remaining_times,
                 "is_actived" => $card->is_actived,
                 'model_scale' => $card->model_scale,
                 'pic_front_scale' => $card->pic_front_scale,
@@ -2870,7 +2870,7 @@ class ApiController extends Controller
                     $res = [
                         'user_id' => $user->id,
                         'user_name' => $user->name,
-                        'remainingTimes' => $user->download_time,
+                        'remainingTimes' => $card->Remaining_times,
                     ];
                 }
                 array_push($times_Result['message'], $res);
@@ -3008,7 +3008,7 @@ class ApiController extends Controller
                     return [
                         'success' => true,
                         'message' => [
-                            'remainingTimes' => $user->download_time,
+                            'remainingTimes' => $card->Remaining_times,
                             'download_times' => $card->download_time,
                         ]
                     ];
@@ -3017,7 +3017,7 @@ class ApiController extends Controller
         }
         
         //TODO 更改成名片獨立次數時，判斷要是名片次數是否>0
-        if($user->download_time <= 0 && $user->bonus_times <= 0)
+        if($card->Remaining_times <= 0)
         {
             return [
                 'success' => false,
@@ -3036,7 +3036,7 @@ class ApiController extends Controller
             $user->bonus_times -= 1;
         }
         
-        $times = $user->download_time + $user->bonus_times;
+        $times = $card->Remaining_times;
 
         if($times == 10 || $times == 50)
         {
