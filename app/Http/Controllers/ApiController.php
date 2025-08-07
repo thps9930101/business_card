@@ -3055,7 +3055,7 @@ class ApiController extends Controller
         return [
             'success' => true,
             'message' => [
-                'remainingTimes' => $card->download_time,
+                'remainingTimes' => $card->Remaining_times,
                 'download_times' => $card->download_time,
             ]
         ];
@@ -3184,7 +3184,7 @@ class ApiController extends Controller
                     "card_front" => $card_front->card_url ?? '',
                     "card_back" => $card_back->card_url ?? '',
                     "is_actived" => $card->is_actived,
-                    "download_times" => $card-> download_time,
+                    "download_times" => $card->download_time,
                     'remainingTimes' => $card->Remaining_times,
                     'model_scale' => $card->model_scale,
                     'pic_front_scale' => $card->pic_front_scale,

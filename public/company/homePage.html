@@ -1237,7 +1237,8 @@
                         // now.setTime(expireTime);
                         // document.cookie = "user_token=" + encodeURIComponent(userData.token) + "; expires=" + now.toUTCString();
                         // document.cookie = "user_token=" + userData.token + "; expires=" + now.toUTCString() + "; path=/; SameSite=None; Secure";
-                        document.getElementById("previewIframe").src = "https://businesscard.lightmatrix3d.com/?id=" + userData.public_id;
+
+                        document.getElementById("previewIframe").src = "https://businesscard2.lightmatrix3d.com/?id=" + userData.public_id;
                         $('#fullscreenModal').modal('show');
                         // window.open("https://businesscard.lightmatrix3d.com/?id=" + cardInfo.public_id, '_blank'); 
                     }
@@ -1376,8 +1377,8 @@
                 else {
                     const release_name = (userData.releaseName ? userData.releaseName : "<span class ='text-gray-300' >未命名</span>");
 
-                    let timesUrl = "https://businesscard.lightmatrix3d.com/company/browseTimes.html?email=" + userData.email;
-                    let previewUrl = "https://businesscard.lightmatrix3d.com/?id=" + userData.public_id;
+                    let timesUrl = "https://businesscard2.lightmatrix3d.com/company/browseTimes.html?email=" + userData.email;
+                    let previewUrl = "https://businesscard2.lightmatrix3d.com/?id=" + userData.public_id;
 
                     userDetailDiv.append(createDiscribe(""));
                     userDetailDiv.append(createDiscribe(""));
