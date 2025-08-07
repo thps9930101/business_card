@@ -3122,7 +3122,7 @@ class ApiController extends Controller
                 ];
             }
 
-            if($user->download_time <= 0 && $user->bonus_times <= 0)
+            if($card->Remaining_times <= 0)
             {
                 return [
                     'success' => false,
