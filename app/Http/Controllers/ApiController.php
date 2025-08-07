@@ -3027,35 +3027,35 @@ class ApiController extends Controller
         }
 
         //TODO 更改成名片獨立次數時，判斷要是名片次數是否>0
-        if($user->download_time >0)
-        {
-            $user->download_time -= 1;
-            $card->Remaining_times -=1;
-        }else
-        {
-            $user->bonus_times -= 1;
-        }
+        // if($user->download_time >0)
+        // {
+        //     $user->download_time -= 1;
+        //     $card->Remaining_times -=1;
+        // }else
+        // {
+        //     $user->bonus_times -= 1;
+        // }
         
-        $times = $card->Remaining_times;
+        // $times = $card->Remaining_times;
 
-        if($times == 10 || $times == 50)
-        {
-            $user->notify(new ClickTimesRemind($user->confirm_code, $times));
-        }
-        else if($times == 0)
-        {
-            $user->notify(new NoTimesRemind($user->confirm_code));
-        }
+        // if($times == 10 || $times == 50)
+        // {
+        //     $user->notify(new ClickTimesRemind($user->confirm_code, $times));
+        // }
+        // else if($times == 0)
+        // {
+        //     $user->notify(new NoTimesRemind($user->confirm_code));
+        // }
 
-        $user->save();
-
-        $card->download_time += 1;
-        $card->save();
+        // $user->save();
+        
+        // $card->download_time += 1;
+        // $card->save();
 
         return [
             'success' => true,
             'message' => [
-                'remainingTimes' => $user->download_time,
+                'remainingTimes' => $card->download_time,
                 'download_times' => $card->download_time,
             ]
         ];
@@ -3138,31 +3138,28 @@ class ApiController extends Controller
 
             $rec->save();
 
-            // if(!$isRoot)
-            // {
-            //     if($user->download_time >0)
-            //     {
-            //         $user->download_time -= 1;
-            //     }else
-            //     {
-            //         $user->bonus_times -= 1;
-            //     }
-            // }
-            // $times = $user->download_time + $user->bonus_times;
+            if(!$isRoot)
+            {
+                if($card->Remaining_times >0)
+                {
+                    $card->Remaining_times -= 1;
+                }
+            }
+            $times = $card->Remaining_times;
 
-            // if($times == 10 || $times == 50)
-            // {
-            //     $user->notify(new ClickTimesRemind($user->confirm_code, $times));
-            // }
-            // else if($times == 0)
-            // {
-            //     $user->notify(new NoTimesRemind($user->confirm_code));
-            // }
+            if($times == 10 || $times == 50)
+            {
+                $user->notify(new ClickTimesRemind($user->confirm_code, $times));
+            }
+            else if($times == 0)
+            {
+                $user->notify(new NoTimesRemind($user->confirm_code));
+            }
 
-            // $user->save();
+            $user->save();
 
-            // $card->download_time += 1;
-            // $card->save();
+            $card->download_time += 1;
+            $card->save();
 
         }
 
